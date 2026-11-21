@@ -1,1136 +1,208 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Parcels — playtest pack</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#f6f1e7;--ink:#2b2a27;--muted:#6f6a60;--card:#fffdf8;--line:#ddd3c1;--bad:#b3402f;--good:#2f7a4a;
-  --chip:rgba(255,255,255,.55);--accent:#2b2a27;--numFont:inherit;--backdrop:rgba(35,28,15,.42);
-  --sheet:#fffaf0;--cardIn:rgba(255,253,248,.74);--cardPin:rgba(255,253,248,.55);--trail:rgba(43,42,39,.16);--pairFill:rgba(43,42,39,.07);--pairLine:#6f6a60;--paired:#8d846f}
-body.theme-neon{--bg:#0d0b1f;--ink:#efedff;--muted:#958fc4;--card:#1a1634;--line:rgba(255,255,255,.1);--bad:#ff5a7a;--good:#2bff88;
-  --sheet:rgba(22,18,46,.96);--cardIn:rgba(10,8,24,.5);--cardPin:rgba(10,8,24,.3);--trail:rgba(239,237,255,.14);--pairFill:rgba(239,237,255,.05);--pairLine:#958fc4;--paired:#8a82d8;
-  --chip:rgba(255,255,255,.035);--accent:linear-gradient(90deg,#7a6cff,#ff3b6e,#ffd43b,#2bff88);--numFont:'Orbitron',ui-monospace,Menlo,monospace;--backdrop:rgba(4,3,12,.62);
-  background:radial-gradient(120% 70% at 50% 0%,#2a1a5c 0%,#140f33 45%,#0b0a1a 100%) fixed;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif}
-html:has(body.theme-neon){background:#0b0a1a}
-body.theme-neon::before{content:"";position:fixed;inset:auto 0 0 0;height:42vh;pointer-events:none;opacity:.22;
-  background:linear-gradient(transparent 0 calc(100% - 1px),rgba(122,108,255,.35) 0) 0 0/100% 32px,linear-gradient(90deg,transparent 0 calc(100% - 1px),rgba(122,108,255,.25) 0) 0 0/32px 100%;
-  -webkit-mask-image:linear-gradient(transparent,#000 70%);mask-image:linear-gradient(transparent,#000 70%);transform:perspective(320px) rotateX(55deg);transform-origin:bottom}
-body.theme-neon #app{position:relative;z-index:1}
-body.theme-neon h1{font-family:'Orbitron',sans-serif;text-transform:uppercase;letter-spacing:.12em;font-size:21px;font-weight:800;
-  background:linear-gradient(90deg,#9a8cff,#ff4fa8 60%,#ffb347);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(255,79,168,.45))}
-body.theme-neon h1 small{-webkit-text-fill-color:#958fc4;font-family:'Space Grotesk',sans-serif;letter-spacing:.02em;text-transform:none;font-weight:500;filter:none}
-body.theme-neon .icon{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.14);color:#e6e2ff;transition:box-shadow .2s,border-color .2s}
-body.theme-neon .icon:active{box-shadow:0 0 14px rgba(154,140,255,.6);border-color:#9a8cff}
-body.theme-neon .chip b{font-size:15px;letter-spacing:.04em;text-shadow:0 0 10px rgba(154,140,255,.5)}
-body.theme-neon .progress{background:rgba(255,255,255,.07);height:3px}
-body.theme-neon .progress i{box-shadow:0 0 10px rgba(255,59,110,.7)}
-body.theme-neon button{border-color:rgba(255,255,255,.2);color:#efedff;background:rgba(255,255,255,.03);font-family:'Space Grotesk',sans-serif;letter-spacing:.02em}
-body.theme-neon button:disabled{opacity:.3}
-body.theme-neon button.primary{background:linear-gradient(90deg,#7a6cff,#ff3b8f);border-color:transparent;color:#fff;box-shadow:0 0 22px rgba(255,59,143,.4)}
-body.theme-neon .controls button:not(:disabled):active{box-shadow:0 0 16px rgba(154,140,255,.55)}
-body.theme-neon .card{fill:#1a1634;stroke:rgba(255,255,255,.07)}
-body.theme-neon .tile.sel .card{stroke:#fff;stroke-width:3.5}
-body.theme-neon .sheet{border:1px solid rgba(154,140,255,.25);box-shadow:0 0 40px rgba(122,108,255,.18),0 24px 60px rgba(0,0,0,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-body.theme-neon .sheet h2,body.theme-neon #mWin .big{font-family:'Orbitron',sans-serif;letter-spacing:.06em;font-weight:800;text-transform:uppercase;font-size:20px}
-body.theme-neon #mWin .big{font-size:26px;background:linear-gradient(90deg,#ffd43b,#ff3b8f,#7a6cff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(255,59,143,.5))}
-body.theme-neon .sheet h3{color:#9a8cff}
-body.theme-neon .sheet .row.sticky{background:#17132f}
-body.theme-neon #menu{background:radial-gradient(120% 70% at 50% 0%,#2a1a5c 0%,#140f33 45%,#0b0a1a 100%)}
-body.theme-neon .pz{background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.1);color:#efedff}
-body.theme-neon .pz .n{font-family:'Orbitron',sans-serif;font-size:14px}
-body.theme-neon .pz.solved{background:rgba(43,255,136,.1);border-color:#2bff88;color:#efedff;box-shadow:0 0 12px rgba(43,255,136,.25)}
-body.theme-neon .pz.solved .st{color:#7dffb0}
-body.theme-neon .pz.revealed{background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.08);color:#7d78a8}
-body.theme-neon .pz.current{box-shadow:0 0 0 2px #9a8cff,0 0 14px rgba(154,140,255,.5)}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-#app{height:100vh;height:100dvh;max-width:520px;margin:0 auto;display:flex;flex-direction:column;
-  padding:calc(8px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom))}
-.top{display:flex;align-items:center;gap:8px}
-h1{font-family:Georgia,"Times New Roman",serif;font-size:24px;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-h1 small{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:14px;color:var(--muted);font-weight:500;margin-left:4px}
-.icon{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:inline-flex;align-items:center;justify-content:center;font-size:17px;padding:0;color:var(--ink);cursor:pointer;flex:none}
-.icon svg{width:18px;height:18px}
-.stats{display:flex;gap:8px;margin:10px 0 0}
-.chip{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 4px 5px;border-radius:12px;background:var(--chip);border:1px solid var(--line)}
-.chip .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
-.chip b{font-size:17px;font-variant-numeric:tabular-nums;color:var(--ink);font-family:var(--numFont)}
-.chip .of{color:var(--muted);font-weight:500;font-size:13px}
-.progress{height:4px;border-radius:4px;background:var(--line);margin:8px 2px 0;overflow:hidden}
-.progress i{display:block;height:100%;width:0;border-radius:4px;background:var(--accent);transition:width .5s cubic-bezier(.3,1.4,.5,1)}
-#stage{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;margin:4px 0}
-#board{width:100%;height:100%;touch-action:none;overflow:visible;display:block}
-/* tips: a small glowing pill in a fixed slot between the board and the buttons, so nothing shifts */
-#msgSlot{height:54px;margin-top:4px;display:flex;align-items:center;justify-content:center;padding:0 4px}
-#msg{display:flex;align-items:center;gap:9px;max-width:100%;padding:8px 14px 8px 9px;border-radius:999px;
-  font-size:13px;line-height:1.3;font-weight:500;letter-spacing:.01em;color:#e9e6ff;
-  background:rgba(24,20,50,.82);border:1px solid rgba(154,140,255,.38);
-  box-shadow:0 0 18px rgba(122,108,255,.18),0 6px 18px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
-  opacity:0;transform:translateY(-6px) scale(.97);transition:opacity .18s ease,transform .3s cubic-bezier(.3,1.5,.5,1);pointer-events:none}
-#msg.long{border-radius:16px}
-#msg.show{opacity:1;transform:none}
-#msg .ic{flex:none;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;background:rgba(154,140,255,.2);color:#c8c0ff}
-#msg.ok{border-color:rgba(43,255,136,.45);box-shadow:0 0 18px rgba(43,255,136,.16),0 6px 18px rgba(0,0,0,.35)}
-#msg.ok .ic{background:rgba(43,255,136,.16);color:#2bff88}
-#msg.bad{border-color:rgba(255,90,122,.55);box-shadow:0 0 18px rgba(255,90,122,.2),0 6px 18px rgba(0,0,0,.35)}
-#msg.bad .ic{background:rgba(255,90,122,.18);color:#ff6b86}
-.controls{display:flex;gap:8px}
-.controls button{flex:1;padding:10px 6px}
-.controls .nav{flex:0 0 48px;font-size:20px;line-height:1;padding:7px 0}
-button{font:inherit;font-size:14px;border:1px solid var(--ink);background:transparent;color:var(--ink);border-radius:999px;padding:9px 14px;cursor:pointer}
-button.primary{background:var(--ink);color:var(--bg)}
-button:disabled{opacity:.35;cursor:default}
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+    />
+    <title>Parcels — playtest pack</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Space+Grotesk:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <div class="top">
+        <button class="icon" id="bMenu" aria-label="All puzzles">
+          <svg viewBox="0 0 20 20">
+            <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+        <h1>Parcels<small id="pzNum"></small></h1>
+        <button class="icon" id="bSettings" aria-label="Settings">
+          <svg
+            viewBox="0 0 24 24"
+            style="width: 20px; height: 20px"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+            />
+          </svg>
+        </button>
+        <button
+          class="icon"
+          id="bHelp"
+          aria-label="How to play"
+          style="font-weight: 700; font-family: Georgia, serif"
+        >
+          ?
+        </button>
+      </div>
+      <div class="stats">
+        <div class="chip"><span class="lbl">Misses</span><b id="misses">0</b></div>
+        <div class="chip">
+          <span class="lbl">Parcels</span><b><span id="prog">0</span><span class="of" id="ofN">/12</span></b>
+        </div>
+        <div class="chip"><span class="lbl">Time</span><b id="timer">0:00</b></div>
+      </div>
+      <div class="progress"><i id="progBar"></i></div>
+      <div id="msgSlot"><div id="msg" role="status" aria-live="polite"></div></div>
+      <div id="stage"><svg id="board" role="group" aria-label="Puzzle board"></svg></div>
+      <div class="controls">
+        <button class="nav" id="bPrev" aria-label="Previous puzzle">‹</button>
+        <button id="bReset">Start over</button>
+        <button id="bReveal">Solution</button>
+        <button class="nav" id="bNext" aria-label="Next puzzle">›</button>
+      </div>
+    </div>
 
-/* ---- board ---- */
-.tile{cursor:pointer}
-.tile .pop{transform-box:fill-box;transform-origin:center;transition:transform .14s ease}
-.card{fill:var(--card);stroke:var(--line);stroke-width:1.5;transition:fill .2s,stroke .2s}
-.parcel .card{fill:var(--cardIn);stroke:none}
-.parcel.pinned .card{fill:var(--cardPin)}
-.tile.sel .pop{transform:scale(.9)}
-.tile.sel .card{stroke:var(--ink);stroke-width:4}
-.tile.paired .card{stroke:var(--paired);stroke-width:2}
-.tile.shake .pop{animation:shake .38s}
-.tile.shake .card{stroke:var(--bad);stroke-width:4}
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
-.gl{transform-box:fill-box;transform-origin:center}
-.outline,.pair{transform-box:fill-box;transform-origin:center}
-.tile.release .pop{animation:release .45s cubic-bezier(.3,1.9,.5,1) both;animation-delay:calc(var(--k) * 35ms)}
-@keyframes release{from{transform:scale(.84)}to{transform:scale(1)}}
+    <canvas id="fx"></canvas>
 
-.pair{fill:var(--pairFill);stroke:var(--pairLine);stroke-width:2.5;stroke-dasharray:8 6;animation:march 1.2s linear infinite}
-.pair.enter{animation:pairIn .35s cubic-bezier(.3,1.5,.5,1) both, march 1.2s linear infinite;transform-box:fill-box;transform-origin:center}
-@keyframes march{to{stroke-dashoffset:-28}}
-@keyframes pairIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+    <div class="modal" id="mHelp">
+      <div class="sheet">
+        <h2>How to play</h2>
+        <ul>
+          <li>
+            Split the whole board into <b>parcels of 3 connected tiles</b>: a line, a bend, or a little
+            triangle.
+          </li>
+        </ul>
+        <div class="shapes" id="shapeDemo"></div>
+        <h3>Every parcel</h3>
+        <ul>
+          <li><b>Shape:</b> all the same or all different.</li>
+          <li><b>Color:</b> all the same or all different.</li>
+          <li id="countRule"><b>Count:</b> 1 to 3, all the same or all different.</li>
+          <li>
+            A parcel can follow the rules and still be wrong. Only one way of splitting the board works.
+          </li>
+        </ul>
+        <h3>Score</h3>
+        <ul>
+          <li>
+            Up to <b>1000 points</b>: beat the board's par time, make fewer mistakes, and pop fewer parcels.
+            Harder levels forgive more slips.
+          </li>
+        </ul>
+        <h3>Controls</h3>
+        <ul>
+          <li><b>Swipe across 3 tiles</b> (or tap them) to make a parcel.</li>
+          <li>
+            <b>Swipe across 2</b>, or tap 2 tiles and then tap either one again, to pencil in a pair when
+            you're not sure of the third. Tap an empty spot to clear a selection. Later, swipe from the pair
+            onto a third tile, or tap the pair and then the third tile. Tap a pair twice to erase it.
+          </li>
+          <li><b>Tap a parcel</b> to pop it.</li>
+          <li>
+            <b>Press and hold a parcel</b> to lock it when you're sure. Taps won't pop a locked parcel; press
+            and hold it again to pop it.
+          </li>
+        </ul>
+        <div class="row sticky"><button class="primary" id="bHelpClose">Let's play</button></div>
+      </div>
+    </div>
 
-.parcel{transform-box:fill-box;transform-origin:center}
-.outline{stroke-width:3.5;transition:stroke-width .2s}
-.parcel.pinned .outline{stroke-width:6}
-.parcel.enter .outline{stroke-dasharray:1;animation:draw .5s ease-out both}
-@keyframes draw{from{stroke-dashoffset:1;fill-opacity:0}to{stroke-dashoffset:0;fill-opacity:1}}
-.parcel.enter .pop{animation:popIn .55s cubic-bezier(.3,1.7,.5,1) both;animation-delay:calc(var(--k) * 70ms)}
-@keyframes popIn{0%{transform:scale(.82)}55%{transform:scale(1.12)}100%{transform:scale(1)}}
-.parcel.pinning{animation:pinPulse .45s cubic-bezier(.3,1.6,.5,1)}
-@keyframes pinPulse{0%{transform:scale(1)}40%{transform:scale(1.07)}100%{transform:scale(1)}}
-.parcel.nudge{animation:nudge .35s}
-@keyframes nudge{0%,100%{transform:rotate(0)}25%{transform:rotate(-2.5deg)}75%{transform:rotate(2.5deg)}}
-.badge{transform-box:fill-box;transform-origin:center}
-.parcel.pinning .badge,.badge.enter{animation:badgeIn .45s cubic-bezier(.3,1.8,.5,1) both}
-@keyframes badgeIn{from{transform:scale(0) rotate(-40deg)}to{transform:scale(1) rotate(0)}}
-/* press-and-hold ring */
-.holdring{fill:none;stroke:var(--ink);stroke-width:5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;pointer-events:none;animation:hold 350ms linear 100ms forwards}
-.holdring.popping{stroke:var(--bad)}
-@keyframes hold{to{stroke-dashoffset:0}}
-.parcel.holding{transition:transform .45s ease;transform:scale(.95)}
-#trail{fill:none;stroke:var(--trail);stroke-width:30;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+    <div class="modal" id="mWin">
+      <div class="sheet">
+        <button class="xclose" id="bWinClose" aria-label="Close">✕</button>
+        <div class="big" id="winTitle">Solved!</div>
+        <div class="stars" id="stars"></div>
+        <div class="score"><b id="score">0</b><span>points</span></div>
+        <div class="compliment" id="compliment"></div>
+        <div class="breakdown" id="breakdown"></div>
+        <div class="award" id="award"></div>
+        <div class="statgrid" id="statgrid"></div>
+        <div class="diag" id="diag"></div>
+        <div class="row">
+          <button class="primary" id="bShare">Share result</button
+          ><button id="bWinNext">Next unsolved</button>
+        </div>
+        <div class="sharebox" id="shareBox"></div>
+      </div>
+    </div>
 
-/* celebration */
-.dancing .gl{animation:spin .9s cubic-bezier(.5,0,.3,1.3) 2}
-@keyframes spin{to{transform:rotate(360deg)}}
-#hole{transform-box:fill-box;transform-origin:center;opacity:0}
-#hole.show{animation:holeIn 1s cubic-bezier(.3,1.5,.5,1) forwards}
-@keyframes holeIn{0%{opacity:0;transform:scale(0) rotate(-180deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
-#hole.show .rays{animation:rays 6s linear infinite;transform-box:fill-box;transform-origin:center}
-@keyframes rays{to{transform:rotate(360deg)}}
+    <div class="modal" id="mSettings">
+      <div class="sheet">
+        <button class="xclose" id="bSettingsClose" aria-label="Close">✕</button>
+        <h2>Settings</h2>
+        <h3>Sound</h3>
+        <div class="setrow"><span>Sound effects</span><button id="bSound"></button></div>
+        <h3>Play history</h3>
+        <p class="setnote">
+          Your scores are saved in this browser only. Export them to a file to move to another device, then
+          import that file there.
+        </p>
+        <div class="setbtns">
+          <button id="bExportJson">Export history</button
+          ><label class="filebtn" id="bImportLbl"
+            >Import history<input type="file" id="importFile" accept=".json,application/json"
+          /></label>
+        </div>
+        <div class="setbtns"><button id="bClear" class="danger">Clear all history</button></div>
+        <div id="confirmClear" class="setnote" style="display: none; text-align: center">
+          Delete every saved score on this device?
+          <div class="setbtns">
+            <button id="bClearYes" class="danger">Yes, clear it</button><button id="bClearNo">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40}
+    <div class="modal" id="mReveal">
+      <div class="sheet" style="text-align: center">
+        <h2>Show the solution?</h2>
+        <div style="font-size: 14.5px; color: var(--muted)">
+          You’ll get <b>0 points</b> and the 🫠 <b>Loser</b> badge for this board, and it’s final.
+        </div>
+        <div class="row">
+          <button class="primary" id="bRevealYes">Show it</button><button id="bRevealNo">Keep trying</button>
+        </div>
+      </div>
+    </div>
 
-/* ---- overlays ---- */
-.modal{position:fixed;inset:0;background:var(--backdrop);display:none;align-items:center;justify-content:center;z-index:30;padding:18px}
-.modal.open{display:flex;animation:fade .2s ease}
-@keyframes fade{from{opacity:0}}
-.sheet{background:var(--sheet);border-radius:18px;padding:18px 18px 16px;max-width:420px;width:100%;max-height:88vh;max-height:88dvh;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,.18);animation:rise .3s cubic-bezier(.3,1.4,.5,1)}
-@keyframes rise{from{transform:translateY(24px) scale(.96);opacity:0}}
-.sheet h2{font-family:Georgia,serif;margin:0 0 8px;font-size:22px}
-.sheet h3{font-size:14px;margin:14px 0 4px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.sheet ul{margin:4px 0;padding-left:18px;font-size:14px;line-height:1.42}
-.sheet li{margin:4px 0}
-.sheet .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
-.shapes{display:flex;gap:10px;justify-content:center;margin:6px 0 2px}
-.shapes svg{width:34px;height:34px}
-#mWin{align-items:flex-end;background:rgba(35,28,15,.16)}
-#mWin .sheet{text-align:center;position:relative}
-.xclose{position:absolute;z-index:3;top:10px;right:10px;width:34px;height:34px;padding:0;border-radius:50%;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;border-color:rgba(255,255,255,.18)!important;background:rgba(255,255,255,.04)}
-.sheet .row.sticky{position:sticky;bottom:-16px;background:var(--sheet);padding:10px 0 6px;margin-top:8px}
-#mWin .big{font-family:Georgia,serif;font-size:34px;margin:2px 0 4px}
-#winline{font-size:15px;color:var(--muted);margin-top:2px}
-#winline b{color:var(--ink);font-family:var(--numFont);font-size:22px;letter-spacing:.04em;margin-right:4px}
-.award{display:inline-flex;align-items:center;gap:8px;margin:2px auto 6px;padding:6px 14px 6px 10px;border-radius:999px;font-weight:600;font-size:14px;
-  background:linear-gradient(90deg,rgba(122,108,255,.22),rgba(255,59,143,.22));border:1px solid rgba(255,59,143,.45);box-shadow:0 0 18px rgba(255,59,143,.25);
-  animation:awardIn .6s cubic-bezier(.3,1.7,.5,1) .15s both}
-.award .em{font-size:18px}
-.award small{display:block;font-weight:400;font-size:11.5px;color:var(--muted);letter-spacing:.01em;text-align:left}
-@keyframes awardIn{from{transform:scale(.6);opacity:0}}
-.stars{font-size:26px;letter-spacing:4px;margin:2px 0 0;min-height:34px}
-.stars i{font-style:normal;display:inline-block;animation:starIn .5s cubic-bezier(.3,1.8,.5,1) both}
-.stars i.off{opacity:.22;filter:grayscale(1)}
-@keyframes starIn{from{transform:scale(0) rotate(-90deg);opacity:0}}
-.score{display:flex;align-items:baseline;justify-content:center;gap:6px;margin-top:2px}
-.score b{font-family:var(--numFont);font-size:40px;letter-spacing:.04em;background:linear-gradient(90deg,#ffd43b,#ff3b8f,#9d8cff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(255,59,143,.45))}
-.score span{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
-.compliment{font-size:16px;font-weight:600;margin:4px 6px 2px;line-height:1.3;animation:statIn .5s ease .5s both}
-.breakdown{font-size:12px;color:var(--muted);margin:4px 0 8px;letter-spacing:.02em}
-.breakdown b{color:var(--ink);font-family:var(--numFont);font-weight:600}
-.setrow{display:flex;align-items:center;justify-content:space-between;font-size:14.5px;margin:4px 0}
-.setnote{font-size:13px;color:var(--muted);line-height:1.45;margin:4px 0 8px}
-.setbtns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
-.setbtns button,.filebtn{flex:1 1 auto}
-.filebtn{display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:9px 14px;font-size:14px;cursor:pointer}
-.filebtn input{display:none}
-button.danger{border-color:rgba(255,90,122,.6)!important;color:#ff8aa0!important}
-#mSettings .sheet{position:relative}
-.sharebox{display:none;white-space:pre;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.45;text-align:left;margin:12px auto 0;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);width:max-content;max-width:100%;overflow-x:auto;user-select:text;-webkit-user-select:text}
-.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 4px}
-.stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:9px 4px 7px;animation:statIn .45s cubic-bezier(.3,1.6,.5,1) both}
-.stat b{display:block;font-family:var(--numFont);font-size:20px;letter-spacing:.03em;color:var(--ink)}
-.stat .ico{font-size:15px;display:block;margin-bottom:2px}
-.stat span{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px;font-weight:600}
-@keyframes statIn{from{transform:translateY(8px) scale(.9);opacity:0}}
-.diag{margin-top:8px;font-size:12.5px;color:var(--muted);line-height:1.5}
+    <div id="menu">
+      <div class="top">
+        <button class="icon" id="bMenuClose" aria-label="Back to puzzle">
+          <svg viewBox="0 0 20 20">
+            <path
+              d="M12 4l-6 6 6 6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <h1>All puzzles</h1>
+      </div>
+      <div class="seg" id="catSeg">
+        <button data-c="easy">Easy</button><button data-c="medium">Medium</button
+        ><button data-c="hard">Hard</button><button data-c="extreme">Extreme</button>
+      </div>
+      <div class="summary">
+        <span><b id="nSolved">0</b> of <span id="nTotal">50</span> solved</span
+        ><button id="bNextUnsolved">Next unsolved</button>
+      </div>
+      <div class="scroll">
+        <div class="grid" id="grid"></div>
+        <p class="legend">
+          Green = solved, with your star rating. 🫠 = solution viewed (0 points). Solved boards are final.
+          Export or clear your history in ⚙ Settings.
+        </p>
+      </div>
+    </div>
 
-#menu{position:fixed;inset:0;background:var(--bg);z-index:20;display:none;flex-direction:column;padding:calc(8px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto}
-#menu.open{display:flex}
-#menu .scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:2px 2px 10px;user-select:text}
-.seg{display:flex;gap:4px;padding:4px;border-radius:999px;border:1px solid var(--line);background:var(--chip);margin-top:10px}
-.seg button{flex:1;border:none;padding:8px 6px;font-size:13px;border-radius:999px;background:transparent;color:var(--muted)}
-.seg button.on{background:var(--ink);color:var(--bg);font-weight:600}
-body.theme-neon .seg button.on{background:linear-gradient(90deg,#7a6cff,#ff3b8f);color:#fff;border:none}
-.summary{display:flex;justify-content:space-between;align-items:center;margin:10px 2px;font-size:14px;color:var(--muted)}
-.summary b{color:var(--ink)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:8px}
-.pz{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 4px 6px;text-align:center;font:inherit;color:var(--ink);line-height:1.2}
-.pz .n{font-weight:600;font-size:16px}
-.pz .st{font-size:11px;color:var(--muted);margin-top:2px;min-height:13px}
-.pz.solved{background:#d3ead6;border-color:#4f8f5b}
-.pz.solved,.pz.revealed{color:#2b2a27}
-.pz.solved .st{color:#2f6b3c}
-.pz.revealed{background:#ece6da;border-color:#b9ad97}
-.pz.current{box-shadow:0 0 0 2px var(--ink)}
-.legend{font-size:12px;color:var(--muted);margin:12px 2px 0;line-height:1.5}
-#share{color:#2b2a27;white-space:pre;font-family:ui-monospace,Menlo,monospace;font-size:12px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;margin:10px 0;overflow:auto;max-height:200px;display:none}
-</style>
-</head>
-<body>
-<div id="app">
-  <div class="top">
-    <button class="icon" id="bMenu" aria-label="All puzzles"><svg viewBox="0 0 20 20"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-    <h1>Parcels<small id="pzNum"></small></h1>
-    <button class="icon" id="bSettings" aria-label="Settings"><svg viewBox="0 0 24 24" style="width:20px;height:20px" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-    <button class="icon" id="bHelp" aria-label="How to play" style="font-weight:700;font-family:Georgia,serif">?</button>
-  </div>
-  <div class="stats">
-    <div class="chip"><span class="lbl">Misses</span><b id="misses">0</b></div>
-    <div class="chip"><span class="lbl">Parcels</span><b><span id="prog">0</span><span class="of" id="ofN">/12</span></b></div>
-    <div class="chip"><span class="lbl">Time</span><b id="timer">0:00</b></div>
-  </div>
-  <div class="progress"><i id="progBar"></i></div>
-  <div id="msgSlot"><div id="msg" role="status" aria-live="polite"></div></div>
-  <div id="stage"><svg id="board" role="group" aria-label="Puzzle board"></svg></div>
-  <div class="controls">
-    <button class="nav" id="bPrev" aria-label="Previous puzzle">‹</button>
-    <button id="bReset">Start over</button>
-    <button id="bReveal">Solution</button>
-    <button class="nav" id="bNext" aria-label="Next puzzle">›</button>
-  </div>
-</div>
-
-<canvas id="fx"></canvas>
-
-<div class="modal" id="mHelp"><div class="sheet">
-  <h2>How to play</h2>
-  <ul><li>Split the whole board into <b>parcels of 3 connected tiles</b>: a line, a bend, or a little triangle.</li></ul>
-  <div class="shapes" id="shapeDemo"></div>
-  <h3>Every parcel</h3>
-  <ul>
-    <li><b>Shape:</b> all the same or all different.</li>
-    <li><b>Color:</b> all the same or all different.</li>
-    <li id="countRule"><b>Count:</b> 1 to 3, all the same or all different.</li>
-    <li>A parcel can follow the rules and still be wrong. Only one way of splitting the board works.</li>
-  </ul>
-  <h3>Score</h3>
-  <ul>
-    <li>Up to <b>1000 points</b>: beat the board's par time, make fewer mistakes, and pop fewer parcels. Harder levels forgive more slips.</li>
-  </ul>
-  <h3>Controls</h3>
-  <ul>
-    <li><b>Swipe across 3 tiles</b> (or tap them) to make a parcel.</li>
-    <li><b>Swipe across 2</b>, or tap 2 tiles and then tap either one again, to pencil in a pair when you're not sure of the third. Tap an empty spot to clear a selection. Later, swipe from the pair onto a third tile, or tap the pair and then the third tile. Tap a pair twice to erase it.</li>
-    <li><b>Tap a parcel</b> to pop it.</li>
-    <li><b>Press and hold a parcel</b> to lock it when you're sure. Taps won't pop a locked parcel; press and hold it again to pop it.</li>
-  </ul>
-  <div class="row sticky"><button class="primary" id="bHelpClose">Let's play</button></div>
-</div></div>
-
-<div class="modal" id="mWin"><div class="sheet">
-  <button class="xclose" id="bWinClose" aria-label="Close">✕</button>
-  <div class="big" id="winTitle">Solved!</div>
-  <div class="stars" id="stars"></div>
-  <div class="score"><b id="score">0</b><span>points</span></div>
-  <div class="compliment" id="compliment"></div>
-  <div class="breakdown" id="breakdown"></div>
-  <div class="award" id="award"></div>
-  <div class="statgrid" id="statgrid"></div>
-  <div class="diag" id="diag"></div>
-  <div class="row"><button class="primary" id="bShare">Share result</button><button id="bWinNext">Next unsolved</button></div>
-  <div class="sharebox" id="shareBox"></div>
-</div></div>
-
-<div class="modal" id="mSettings"><div class="sheet">
-  <button class="xclose" id="bSettingsClose" aria-label="Close">✕</button>
-  <h2>Settings</h2>
-  <h3>Sound</h3>
-  <div class="setrow"><span>Sound effects</span><button id="bSound"></button></div>
-  <h3>Play history</h3>
-  <p class="setnote">Your scores are saved in this browser only. Export them to a file to move to another device, then import that file there.</p>
-  <div class="setbtns"><button id="bExportJson">Export history</button><label class="filebtn" id="bImportLbl">Import history<input type="file" id="importFile" accept=".json,application/json"></label></div>
-  <div class="setbtns"><button id="bClear" class="danger">Clear all history</button></div>
-  <div id="confirmClear" class="setnote" style="display:none;text-align:center">Delete every saved score on this device? <div class="setbtns"><button id="bClearYes" class="danger">Yes, clear it</button><button id="bClearNo">Cancel</button></div></div>
-</div></div>
-
-<div class="modal" id="mReveal"><div class="sheet" style="text-align:center">
-  <h2>Show the solution?</h2>
-  <div style="font-size:14.5px;color:var(--muted)">You’ll get <b>0 points</b> and the 🫠 <b>Loser</b> badge for this board, and it’s final.</div>
-  <div class="row"><button class="primary" id="bRevealYes">Show it</button><button id="bRevealNo">Keep trying</button></div>
-</div></div>
-
-<div id="menu">
-  <div class="top">
-    <button class="icon" id="bMenuClose" aria-label="Back to puzzle"><svg viewBox="0 0 20 20"><path d="M12 4l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <h1>All puzzles</h1>
-  </div>
-  <div class="seg" id="catSeg"><button data-c="easy">Easy</button><button data-c="medium">Medium</button><button data-c="hard">Hard</button><button data-c="extreme">Extreme</button></div>
-  <div class="summary"><span><b id="nSolved">0</b> of <span id="nTotal">50</span> solved</span><button id="bNextUnsolved">Next unsolved</button></div>
-  <div class="scroll">
-    <div class="grid" id="grid"></div>
-    <p class="legend">Green = solved, with your star rating. 🫠 = solution viewed (0 points). Solved boards are final. Export or clear your history in ⚙ Settings.</p>
-  </div>
-</div>
-
-<script>
-// ===== RUNTIME START (shared by the game page and the generator) =====
-// Board = any set of hex cells in axial coordinates [q, r]. Parcels = 3 connected cells.
-// Rules: shape, color and count (1-3) are each all the same or all different.
-let CELLS=[], N=0, GROUPS=0, NEIGH=[], PLACEMENTS=[], PKEYS=new Set();
-const DIRS=[[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
-function setCells(cells){
-  CELLS=cells; N=cells.length; GROUPS=N/3; PLACEMENTS=[]; PKEYS=new Set();
-  const idx=new Map(cells.map(([q,r],i)=>[q+','+r,i]));
-  NEIGH=cells.map(([q,r])=>DIRS.map(([dq,dr])=>idx.get((q+dq)+','+(r+dr))).filter(x=>x!==undefined));
-  for(let a=0;a<N;a++) for(const b of NEIGH[a]) for(const c of new Set([...NEIGH[a],...NEIGH[b]])){
-    if(c===a||c===b) continue;
-    const t=[a,b,c].sort((x,y)=>x-y), k=t.join(',');
-    if(!PKEYS.has(k)){PKEYS.add(k); PLACEMENTS.push(t);}
-  }
-}
-const sameOrDiff=(x,y,z)=>(x===y&&y===z)||(x!==y&&y!==z&&x!==z);
-function validTiles(A,B,C){ return sameOrDiff(A.s,B.s,C.s)&&sameOrDiff(A.c,B.c,C.c)&&sameOrDiff(A.n,B.n,C.n); }
-function whyInvalid(A,B,C){
-  const out=[];
-  if(!sameOrDiff(A.s,B.s,C.s)) out.push('Shapes: two match and one doesn’t.');
-  if(!sameOrDiff(A.c,B.c,C.c)) out.push('Colors: two match and one doesn’t.');
-  if(!sameOrDiff(A.n,B.n,C.n)) out.push('Counts: two match and one doesn’t.');
-  return out.join(' ');
-}
-
-// Four difficulty sets of 50 boards each; every board has its own shape and size.
-const CATS={
-  easy:   {name:'Easy',    data:[{"c":[0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2],"t":"213222221201223332102211101333121322033233312133122311","sol":[[0,1,3],[2,6,9],[4,5,8],[10,13,14],[7,11,15],[12,16,17]],"d":7,"f":4,"l":1,"h":0,"sym":"hex","look":{"real":0,"decoy":3,"traps":10}},{"c":[0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2],"t":"033222303223323002111103123131101311023113132032231102","sol":[[0,3,7],[1,2,6],[4,5,9],[8,11,15],[10,13,14],[12,16,17]],"d":7,"f":5,"l":1,"h":0,"sym":"hex","look":{"real":0,"decoy":4,"traps":10}},{"c":[-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1],"t":"102201321211011123003103001111302101002301233322311031","sol":[[0,1,6],[2,3,8],[7,12,13],[11,16,17],[4,5,10],[9,14,15]],"d":7,"f":4,"l":1,"h":0,"sym":"r2","look":{"real":0,"decoy":4,"traps":9}},{"c":[0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2],"t":"033222201211301001122022303322013302021113213231002313","sol":[[0,1,4],[2,6,10],[3,7,8],[11,12,13],[5,9,14],[15,16,17]],"d":7,"f":6,"l":1,"h":0,"sym":"hex","look":{"real":0,"decoy":5,"traps":9}},{"c":[0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2],"t":"113031131222001011021313122321133121322023312331022103","sol":[[2,5,9],[0,1,3],[4,7,8],[6,10,14],[11,12,13],[15,16,17]],"d":7,"f":8,"l":1,"h":0,"sym":"hex","look":{"real":0,"decoy":5,"traps":11}},{"c":[2,-3,3,-3,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,-1,0,1,0,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,-3,3,-2,3],"t":"011331302102131123223002023323211203132332201021113022","sol":[[1,3,6],[0,2,5],[4,7,9],[8,10,13],[11,12,15],[14,16,17]],"d":7,"f":6,"l":1,"h":0,"sym":"d2","look":{"real":0,"decoy":3,"traps":9}},{"c":[0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2],"t":"332103311203002032202102112033111301122233031001132333","sol":[[0,4,8],[1,2,5],[3,7,11],[6,9,10],[12,13,15],[14,16,17]],"d":7,"f":6,"l":1,"h":0,"sym":"hex","look":{"real":0,"decoy":4,"traps":9}},{"c":[1,-2,2,-2,0,-1,1,-1,2,-1,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2],"t":"111301302113112002223232231011321233023101322203213332","sol":[[1,3,7],[0,2,6],[4,8,12],[5,10,11],[9,14,15],[13,16,17]],"d":7,"f":6,"l":1,"h":0,"sym":"m","look":{"real":0,"decoy":5,"traps":10}},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,-2,0,-1,0,0,0,1,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2],"t":"203022111331311121221321232223021212013213122003031102","sol":[[5,8,12],[9,10,14],[2,3,6],[0,1,4],[7,11,15],[13,16,17]],"d":7,"f":6,"l":1,"h":0,"sym":"m","look":{"real":0,"decoy":4,"traps":12}},{"c":[2,-3,3,-3,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,-1,0,1,0,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,-3,3,-2,3],"t":"333001212312201321012133221103021011123203131031332202","sol":[[0,1,2],[3,4,7],[5,6,9],[8,11,14],[10,13,16],[12,15,17]],"d":7,"f":5,"l":1,"h":0,"sym":"d2","look":{"real":0,"decoy":4,"traps":11}},{"c":[-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2],"t":"231103213011322332101201131302202301001133233111003312112222002","sol":[[0,1,4],[2,5,6],[3,7,8],[9,14,15],[10,11,16],[12,13,17],[18,19,20]],"d":8,"f":9,"l":1,"h":0,"sym":"m","look":{"real":0,"decoy":6,"traps":14}},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-1,0,0,0,1,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"212232131312322303103012223203221112013133122031123132111331233","sol":[[1,4,7],[0,2,5],[3,6,10],[8,11,15],[13,14,18],[9,12,16],[17,19,20]],"d":8,"f":7,"l":1,"h":0,"sym":"r2","look":{"real":0,"decoy":4,"traps":12}},{"c":[-1,-2,0,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-1,1,0,1,1,1,2,1,-1,2,0,2,1,2],"t":"112031102223131003133023331312302333301322221213332001","sol":[[4,5,9],[6,10,14],[2,7,8],[0,1,3],[11,12,13],[15,16,17]],"d":8,"f":6,"l":1,"h":0,"sym":"m","look":{"real":0,"decoy":4,"traps":9}},{"c":[2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-1,0,0,0,1,0,2,0,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"112331003113203002102333303201323313103211121321202032","sol":[[0,1,4],[2,3,7],[6,10,13],[5,8,9],[12,15,17],[11,14,16]],"d":8,"f":7,"l":1,"h":0,"sym":"m","look":{"real":0,"decoy":5,"traps":10}},{"c":[0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2],"t":"321202102212033133333013233311211123231111011001203122","sol":[[2,6,10],[0,3,4],[1,5,9],[7,8,11],[12,13,15],[14,16,17]],"d":8,"f":8,"l":1,"h":0,"sym":"hex","look":{"real":0,"decoy":6,"traps":10}},{"c":[0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2],"t":"022231103201211232203221322233111132013213302313021332","sol":[[0,1,2],[4,5,6],[3,8,12],[7,11,15],[9,10,14],[13,16,17]],"d":8,"f":5,"l":1,"h":0,"sym":"hex","look":{"real":0,"decoy":5,"traps":11}},{"c":[-1,-2,0,-2,1,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-1,2,0,2,1,2],"t":"321221032122112233103012301203133123113213013132311302111131023","sol":[[1,2,6],[3,8,13],[0,4,5],[7,12,16],[9,10,14],[11,15,18],[17,19,20]],"d":8,"f":7,"l":1,"h":0,"sym":"d2","look":{"real":0,"decoy":5,"traps":13}},{"c":[0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2],"t":"031311222101121323201111131331202133231033232113022001212313011","sol":[[2,4,5],[0,1,3],[6,11,16],[7,12,17],[8,13,14],[9,10,15],[18,19,20]],"d":8,"f":9,"l":1,"h":0,"sym":"m","look":{"real":0,"decoy":6,"traps":12}},{"c":[0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2],"t":"233223012203213113211003102013232032321121022021221323","sol":[[2,5,6],[7,11,15],[4,8,12],[0,1,3],[9,10,13],[14,16,17]],"d":9,"f":6,"l":1,"h":0,"sym":"hex","look":{"real":1,"decoy":8,"traps":11}},{"c":[-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"012203021132333011103221002211321303003202033122121302102312131331013213","sol":[[0,6,7],[1,2,3],[4,8,9],[5,11,15],[12,16,19],[18,21,23],[10,13,14],[17,20,22]],"d":9,"f":11,"l":1,"h":0,"sym":"d3","look":{"real":0,"decoy":6,"traps":14}},{"c":[2,-3,3,-3,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,-1,0,1,0,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,-3,3,-2,3],"t":"121301133022202112113111212033323012123131231312203031","sol":[[0,2,5],[1,3,6],[4,7,9],[15,16,17],[8,10,13],[11,12,14]],"d":9,"f":4,"l":1,"h":0,"sym":"d2","look":{"real":0,"decoy":4,"traps":8}},{"c":[2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-1,0,0,0,1,0,2,0,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"101132103122201032313133323001223123023102213203031013","sol":[[1,4,8],[0,3,7],[2,6,10],[5,9,12],[11,15,17],[13,14,16]],"d":9,"f":3,"l":1,"h":0,"sym":"m","look":{"real":0,"decoy":6,"traps":12}},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,-2,-1,-1,-1,0,-1,1,-1,-3,0,-2,0,-1,0,0,0,1,0,-3,1,-2,1,-1,1,0,1],"t":"231212213122021321013203103331102113123003322313323333","sol":[[0,3,6],[1,4,8],[2,5,10],[9,14,15],[7,11,16],[12,13,17]],"d":9,"f":5,"l":1,"h":0,"sym":"m","look":{"real":0,"decoy":5,"traps":11}},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2],"t":"001232222031011133302323021331113013121321103012032221301213002022123231","sol":[[1,4,7],[0,2,5],[3,6,10],[9,14,15],[8,11,16],[12,18,23],[13,19,20],[17,21,22]],"d":9,"f":10,"l":1,"h":0,"sym":"d3","look":{"real":0,"decoy":8,"traps":14}},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,0,2,-2,3,-1,3],"t":"202033023111131211011112123022201032113133002313132221121333232332323001","sol":[[0,1,3],[2,6,11],[4,7,8],[5,9,13],[10,15,16],[12,17,21],[14,18,19],[20,22,23]],"d":10,"f":6,"l":1,"h":0,"sym":"d2","look":{"real":0,"decoy":5,"traps":12}},{"c":[-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"333301322231013103311312332003033222302211303221223031213123022131323012","sol":[[5,6,11],[8,9,13],[2,3,4],[0,1,7],[10,14,18],[12,16,17],[15,19,20],[21,22,23]],"d":10,"f":5,"l":1,"h":0,"sym":"d3","look":{"real":0,"decoy":6,"traps":17}},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2],"t":"221112323032033231031131023102013233213011202002223121333133302203101322","sol":[[0,1,4],[2,5,9],[3,7,11],[6,10,15],[8,12,18],[13,14,19],[16,17,23],[20,21,22]],"d":10,"f":7,"l":1,"h":0,"sym":"d3","look":{"real":0,"decoy":7,"traps":13}},{"c":[-1,-2,0,-2,1,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-1,2,0,2,1,2],"t":"303033221123133333233313001002003213223322331203302211122131202","sol":[[0,1,3],[2,5,9],[4,8,13],[6,7,10],[14,15,18],[11,16,19],[12,17,20]],"d":10,"f":7,"l":1,"h":0,"sym":"d2","look":{"real":0,"decoy":7,"traps":13}},{"c":[-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"313101222201233001232212113202333332032311011213203111211223121303322122","sol":[[2,3,4],[0,1,6],[5,11,15],[7,8,13],[9,10,14],[12,16,17],[18,21,23],[19,20,22]],"d":10,"f":8,"l":1,"h":0,"sym":"d3","look":{"real":0,"decoy":7,"traps":18}},{"c":[-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"233222133311303232202212101333313111211123323003321022223023112012231331","sol":[[0,6,12],[1,2,3],[5,11,15],[7,8,9],[4,10,14],[13,16,17],[18,21,23],[19,20,22]],"d":10,"f":8,"l":1,"h":0,"sym":"d3","look":{"real":1,"decoy":7,"traps":17}},{"c":[-1,-2,0,-2,1,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-1,2,0,2,1,2],"t":"103201102311002032212123133022312112331231012323031131303202023","sol":[[0,1,4],[3,8,9],[6,7,12],[2,5,10],[11,15,16],[13,14,18],[17,19,20]],"d":11,"f":5,"l":1,"h":0,"sym":"d2","look":{"real":0,"decoy":7,"traps":12}},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,0,2,-2,3,-1,3],"t":"123101202122112113212312313032132001012221231133322211333233011111033222","sol":[[0,1,4],[2,3,7],[5,9,13],[6,11,15],[8,12,17],[10,14,18],[16,19,20],[21,22,23]],"d":12,"f":8,"l":1,"h":0,"sym":"d2","look":{"real":0,"decoy":7,"traps":17}},{"c":[2,-3,3,-3,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,-1,0,1,0,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,-3,3,-2,3],"t":"013332203031103133233223301333121011033231003211312302","sol":[[0,2,5],[1,3,6],[4,7,9],[12,15,17],[8,10,11],[13,14,16]],"d":6,"f":6,"l":2,"h":1,"sym":"d2","look":{"real":0,"decoy":3,"traps":7}},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,-1,-1,0,-1,1,-1,-1,0,1,0,-1,1,0,1,1,1,-1,2,0,2,1,2,-1,3,0,3],"t":"033232331233231301223202022303031122201313102321112003","sol":[[0,1,2],[3,5,8],[4,6,7],[15,16,17],[9,12,14],[10,11,13]],"d":6,"f":7,"l":2,"h":1,"sym":"r2","look":{"real":0,"decoy":2,"traps":8}},{"c":[2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-3,2,-2,2],"t":"213031103331011223302023003312203233033222332121101212","sol":[[2,7,11],[3,8,13],[12,16,17],[10,14,15],[0,4,9],[1,5,6]],"d":7,"f":5,"l":2,"h":1,"sym":"r2","look":{"real":0,"decoy":2,"traps":9}},{"c":[-1,-2,0,-2,1,-2,-2,-1,-1,-1,0,-1,1,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,0,2,1,2],"t":"102121113333203012331023123031231223002311232033133132","sol":[[0,1,2],[9,14,16],[10,15,17],[3,4,7],[5,6,8],[11,12,13]],"d":7,"f":5,"l":2,"h":1,"sym":"m","look":{"real":0,"decoy":2,"traps":8}},{"c":[2,-3,3,-3,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,-1,0,1,0,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,-3,3,-2,3],"t":"323211033022032003011012213132123133302113023303232301","sol":[[0,1,4],[2,3,6],[7,9,12],[5,8,10],[11,14,15],[13,16,17]],"d":9,"f":4,"l":2,"h":1,"sym":"d2","look":{"real":0,"decoy":3,"traps":10}},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-1,0,1,0,2,0,3,0,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,-3,3,-2,3],"t":"202021333301011103132131031003121022012231122321111002323023123223322221","sol":[[0,1,2],[3,4,7],[5,6,10],[8,9,11],[12,13,18],[16,17,21],[14,15,19],[20,22,23]],"d":9,"f":5,"l":2,"h":1,"sym":"r3","look":{"real":0,"decoy":3,"traps":12}},{"c":[0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2],"t":"013321231323322132112233213102023003031122312012232022","sol":[[2,6,10],[0,1,5],[4,8,12],[3,7,11],[9,14,17],[13,15,16]],"d":10,"f":2,"l":2,"h":1,"sym":"hex","look":{"real":0,"decoy":4,"traps":8}},{"c":[-1,-2,0,-2,1,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-1,2,0,2,1,2],"t":"212222303123232111211002201202311021033032132011031102323001213","sol":[[3,8,13],[7,11,12],[16,17,20],[14,18,19],[0,4,9],[1,2,5],[6,10,15]],"d":10,"f":7,"l":2,"h":1,"sym":"d2","look":{"real":2,"decoy":8,"traps":12}},{"c":[0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2],"t":"323121002232032012233301101213311113001223203132131022","sol":[[14,16,17],[0,4,8],[3,7,11],[12,13,15],[5,9,10],[1,2,6]],"d":10,"f":1,"l":2,"h":1,"sym":"hex","look":{"real":0,"decoy":5,"traps":10}},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,0,-1,1,-1,2,-1,-1,0,1,0,-2,1,-1,1,0,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"321212231003033322312013233332223111121302131101133112","sol":[[15,16,17],[0,1,4],[7,9,12],[2,3,6],[5,8,11],[10,13,14]],"d":10,"f":2,"l":2,"h":1,"sym":"r2","look":{"real":0,"decoy":6,"traps":11}},{"c":[-1,-2,0,-2,1,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-1,2,0,2,1,2],"t":"031203002113011112312001302212222023033012232202322022131013121","sol":[[0,1,5],[2,6,10],[3,4,9],[7,12,17],[8,13,14],[11,16,20],[15,18,19]],"d":11,"f":5,"l":2,"h":1,"sym":"d2","look":{"real":0,"decoy":6,"traps":11}},{"c":[2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-1,0,0,0,1,0,2,0,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"001312122233332223232201032031101033021301023003132013","sol":[[6,10,14],[2,7,11],[8,12,15],[13,16,17],[3,4,9],[0,1,5]],"d":11,"f":2,"l":2,"h":1,"sym":"m","look":{"real":0,"decoy":6,"traps":12}},{"c":[2,-3,3,-3,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,1,0,-3,1,-2,1,-1,1,0,1,1,1,-1,2,0,2,1,2,-1,3,0,3],"t":"322111302332102033003233312123112323013133201223333103021222113132011121","sol":[[1,4,9],[8,13,18],[0,2,3],[20,21,23],[5,10,14],[6,7,11],[12,15,16],[17,19,22]],"d":11,"f":5,"l":2,"h":1,"sym":"r3","look":{"real":1,"decoy":6,"traps":8}},{"c":[-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"332222003121013032132012312112021101303211231223011111311203322233001302","sol":[[2,3,8],[4,9,13],[10,14,18],[5,11,15],[0,1,7],[6,12,16],[19,22,23],[17,20,21]],"d":11,"f":8,"l":2,"h":1,"sym":"d3","look":{"real":0,"decoy":5,"traps":12}},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-1,0,1,0,2,0,3,0,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,-3,3,-2,3],"t":"313111012131011331321311213022312232133303322323123023211113112223031001","sol":[[0,1,2],[3,4,6],[5,10,15],[14,19,22],[20,21,23],[7,11,16],[8,12,17],[9,13,18]],"d":12,"f":6,"l":2,"h":1,"sym":"r3","look":{"real":0,"decoy":5,"traps":14}},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,-2,-1,-1,-1,0,-1,1,-1,-3,0,-2,0,-1,0,0,0,1,0,-3,1,-2,1,-1,1,0,1],"t":"033333021001122012112102032301212312202013123222232321","sol":[[0,2,5],[9,10,14],[1,3,6],[4,8,12],[13,16,17],[7,11,15]],"d":13,"f":2,"l":2,"h":1,"sym":"m","look":{"real":0,"decoy":7,"traps":13}},{"c":[2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3],"t":"033232022322311023231211222301221303233133333313003212213112323001312111","sol":[[18,22,23],[0,3,7],[2,6,11],[1,4,5],[8,9,13],[10,14,19],[12,15,16],[17,20,21]],"d":13,"f":3,"l":2,"h":1,"sym":"d2","look":{"real":0,"decoy":5,"traps":13}},{"c":[-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2],"t":"313101203323331121002201001111032012112312021022023223221123301","sol":[[1,2,6],[0,5,10],[4,9,14],[15,18,19],[3,7,11],[8,13,17],[12,16,20]],"d":14,"f":3,"l":2,"h":1,"sym":"m","look":{"real":0,"decoy":8,"traps":16}}],    key:'parcels-pt3-easy'},
-  medium: {name:'Medium',  data:[{"c":[2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,1,2,-2,3,-1,3,0,3],"t":"311123322102033313032222232202203201101111003002323112001233333303133122121012131301213132","sol":[[2,3,8],[7,13,14],[15,20,24],[18,19,23],[21,25,26],[27,28,29],[0,4,9],[1,5,10],[6,11,16],[12,17,22]],"d":22,"f":0,"l":2,"h":2,"sym":"r3","look":{"real":0,"decoy":6,"traps":17}},{"c":[2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,1,2,-1,3,0,3],"t":"013232233101323321123312121022032201012203231103112331131031222023302113213322001","sol":[[0,1,5],[3,4,10],[2,7,8],[9,14,15],[6,11,12],[13,16,17],[18,21,22],[24,25,26],[19,20,23]],"d":23,"f":0,"l":2,"h":2,"sym":"r3","look":{"real":0,"decoy":3,"traps":10}},{"c":[0,-3,1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,1,2,-2,3,-1,3,0,3],"t":"022211033113231221302201031101222333311331131032322301303111321121313323232013202","sol":[[0,3,4],[1,2,6],[7,8,12],[5,9,13],[10,14,18],[11,16,17],[15,19,23],[20,24,25],[21,22,26]],"d":23,"f":0,"l":2,"h":2,"sym":"r2","look":{"real":0,"decoy":10,"traps":19}},{"c":[1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-2,3,-1,3],"t":"232123023101001302231021213332312322013133311233131202102211011012203033321111331201002113","sol":[[0,2,3],[7,8,9],[13,14,17],[1,4,10],[5,6,12],[11,15,20],[16,21,22],[18,19,23],[24,28,29],[25,26,27]],"d":24,"f":0,"l":2,"h":2,"sym":"d6","look":{"real":0,"decoy":6,"traps":14}},{"c":[1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3],"t":"233101103223312332221133213021302333303122013002023031331123113203131012001321231","sol":[[0,1,4],[3,7,12],[2,5,9],[6,10,14],[15,18,19],[8,13,17],[21,22,23],[11,16,20],[24,25,26]],"d":24,"f":0,"l":2,"h":2,"sym":"r2","look":{"real":0,"decoy":5,"traps":12}},{"c":[2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,1,2,-1,3,0,3],"t":"103011022332232311031313122112002102231222223123213003322301032111333201323012101","sol":[[0,1,4],[2,3,9],[5,10,14],[15,20,23],[18,19,22],[13,17,21],[6,11,16],[7,8,12],[24,25,26]],"d":24,"f":0,"l":2,"h":2,"sym":"r3","look":{"real":0,"decoy":3,"traps":10}},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-2,3,-1,3],"t":"202033311331013102103113003321001022122222233112201322131313323133011303132203021","sol":[[0,1,2],[6,12,18],[11,16,21],[17,22,25],[4,5,9],[3,7,13],[8,14,19],[10,15,20],[23,24,26]],"d":25,"f":0,"l":2,"h":2,"sym":"d2","look":{"real":0,"decoy":5,"traps":11}},{"c":[0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2],"t":"101213001122111332223113022313322203233201222102231131032232212331312121303202013","sol":[[0,1,5],[2,7,14],[3,9,16],[8,15,22],[21,25,26],[4,10,11],[12,17,18],[6,13,20],[19,23,24]],"d":25,"f":0,"l":2,"h":2,"sym":"r2","look":{"real":0,"decoy":6,"traps":13}},{"c":[-1,-2,0,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,3,0,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2,-2,3,-1,3,0,3],"t":"203003201132103303311122313001322101013213222312011331113233133022023021302211102","sol":[[2,3,8],[1,6,7],[0,4,5],[10,11,12],[13,17,21],[9,14,18],[15,19,23],[16,20,24],[22,25,26]],"d":25,"f":0,"l":2,"h":2,"sym":"m","look":{"real":1,"decoy":7,"traps":8}},{"c":[2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3],"t":"002221233021133312302013012212113121011231101301102323023311022213223123232122331","sol":[[0,3,7],[2,6,11],[10,15,20],[21,25,26],[1,4,5],[8,13,17],[9,14,18],[12,16,22],[19,23,24]],"d":26,"f":0,"l":2,"h":2,"sym":"m","look":{"real":0,"decoy":6,"traps":12}},{"c":[1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3],"t":"131013322232033201223332023101312132211302001123213103003233321212203121231303012","sol":[[0,3,4],[1,2,5],[6,9,10],[13,14,17],[7,8,12],[11,16,20],[15,18,19],[21,22,24],[23,25,26]],"d":26,"f":0,"l":2,"h":2,"sym":"r2","look":{"real":0,"decoy":7,"traps":13}},{"c":[-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2],"t":"123302011001303131031132233322012231331113323033101003122222232212321301013202133","sol":[[0,1,6],[2,7,14],[3,8,9],[15,16,21],[22,25,26],[20,23,24],[12,13,19],[4,5,10],[11,17,18]],"d":26,"f":0,"l":2,"h":2,"sym":"r2","look":{"real":0,"decoy":8,"traps":13}},{"c":[1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-2,3,-1,3],"t":"232032021313332311223202321121213101022133033012111333112102322131203201122132222003331013","sol":[[1,5,6],[0,3,9],[2,7,13],[4,10,11],[12,16,22],[8,14,19],[15,20,25],[17,18,23],[24,28,29],[21,26,27]],"d":27,"f":0,"l":2,"h":2,"sym":"d3","look":{"real":0,"decoy":8,"traps":16}},{"c":[0,-3,1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2],"t":"322211003133312231332001011323023101021202331123223232113302002012102221313032022","sol":[[4,5,10],[1,2,6],[11,16,21],[17,22,26],[23,24,25],[0,3,7],[8,9,13],[12,18,19],[14,15,20]],"d":29,"f":0,"l":2,"h":2,"sym":"m","look":{"real":0,"decoy":10,"traps":16}},{"c":[0,-3,1,-3,-2,-2,-1,-2,0,-2,1,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-1,2,0,2,1,2,2,2,-1,3,0,3],"t":"321111303132201001021113301013203312121232222022131223233302202332102031331213003231002333123313122","sol":[[27,31,32],[0,1,5],[3,4,9],[2,6,13],[15,20,21],[7,8,14],[17,22,23],[10,11,16],[12,18,19],[24,25,28],[26,29,30]],"d":29,"f":1,"l":2,"h":2,"sym":"r2","look":{"real":0,"decoy":7,"traps":13}},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"331113213333031123022302021312231103321121202223012032232013301002132222011003122311332203322033102023211201","sol":[[0,1,6],[2,7,13],[3,8,14],[4,9,15],[5,10,16],[21,22,23],[11,12,17],[18,19,20],[25,30,34],[24,28,29],[26,31,35],[27,32,33]],"d":32,"f":0,"l":2,"h":2,"sym":"hex","look":{"real":0,"decoy":6,"traps":15}},{"c":[-1,-3,0,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-2,1,-1,1,0,1,1,1,2,1,3,1,-2,2,-1,2,0,2,1,2,2,2,0,3,1,3],"t":"313031122132102221331223001112013332202021333211003023201123212033131203032311101121303022133012002","sol":[[6,12,17],[18,19,24],[22,23,29],[25,30,32],[27,28,31],[0,1,2],[3,7,8],[4,5,10],[9,13,14],[11,15,16],[20,21,26]],"d":32,"f":1,"l":2,"h":2,"sym":"d2","look":{"real":0,"decoy":11,"traps":19}},{"c":[-1,-3,0,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-2,1,-1,1,0,1,1,1,2,1,3,1,-2,2,-1,2,0,2,1,2,2,2,0,3,1,3],"t":"333021001212133232322323112312023103031201012101301321213231302222113013313131033121202102002331223","sol":[[6,12,18],[5,11,17],[9,10,15],[1,3,4],[0,2,8],[7,13,14],[20,26,27],[16,21,22],[19,24,29],[23,28,31],[25,30,32]],"d":32,"f":0,"l":2,"h":2,"sym":"d2","look":{"real":0,"decoy":8,"traps":14}},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"103212112312321031203021132033023303133202002102012003013313213311222302123231121111022201211032333113221332","sol":[[0,1,4],[2,6,7],[5,10,16],[9,15,21],[11,12,18],[3,8,13],[17,22,27],[28,29,32],[33,34,35],[20,26,31],[14,19,25],[23,24,30]],"d":33,"f":0,"l":2,"h":2,"sym":"hex","look":{"real":0,"decoy":7,"traps":16}},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"001222101033213322022233111333122211133123302011203132201102131332021003012323202321121212031013303232112002","sol":[[0,4,5],[1,2,3],[7,8,14],[6,11,12],[9,10,15],[16,17,22],[21,27,32],[13,18,24],[19,25,30],[20,26,31],[23,28,29],[33,34,35]],"d":33,"f":0,"l":2,"h":2,"sym":"hex","look":{"real":0,"decoy":7,"traps":16}},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"123031212323103011132333101222311232303012131033111211313022331302322203122002213133312202231032021332201113","sol":[[0,5,11],[4,9,10],[1,6,7],[2,3,8],[12,13,14],[17,22,27],[15,16,21],[23,28,32],[24,29,33],[18,25,30],[19,20,26],[31,34,35]],"d":34,"f":0,"l":2,"h":2,"sym":"hex","look":{"real":0,"decoy":10,"traps":21}},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"121113302011213332021031133002132203312001222212122102223201313012112231323032101233023033232013301331202321","sol":[[21,27,32],[9,15,16],[0,4,5],[1,2,7],[3,8,14],[6,10,11],[12,13,18],[17,23,24],[19,20,25],[22,28,33],[26,30,31],[29,34,35]],"d":37,"f":0,"l":2,"h":2,"sym":"hex","look":{"real":0,"decoy":9,"traps":18}},{"c":[-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2],"t":"033201313123223023322122001203003031131111222231212303312302233133211012112311013022333221021103232","sol":[[4,11,18],[5,12,19],[24,25,26],[9,15,16],[2,3,10],[8,14,21],[0,1,7],[6,13,20],[17,23,29],[22,27,28],[30,31,32]],"d":23,"f":0,"l":2,"h":3,"sym":"r2","look":{"real":0,"decoy":7,"traps":19}},{"c":[1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2],"t":"001322222133301101111131333313013303323121332032022012212232132311103031312202203","sol":[[6,11,16],[0,2,3],[5,10,14],[1,4,8],[9,13,19],[15,21,26],[20,24,25],[7,12,17],[18,22,23]],"d":24,"f":0,"l":2,"h":3,"sym":"m","look":{"real":0,"decoy":9,"traps":20}},{"c":[1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2,-2,3,-1,3],"t":"103211111221303032001331332132302121333202232012311033321212031102013112323231003","sol":[[0,3,8],[2,6,7],[11,12,13],[16,17,21],[14,18,22],[1,4,5],[9,10,15],[19,20,24],[23,25,26]],"d":27,"f":0,"l":2,"h":3,"sym":"r2","look":{"real":0,"decoy":7,"traps":14}},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2,-1,3,0,3],"t":"221303012333132011212201223311203032123312101122202222001232313022332112021113302322213131","sol":[[0,2,3],[1,4,5],[6,7,8],[12,13,18],[9,10,15],[11,17,23],[16,21,22],[14,19,20],[24,25,26],[27,28,29]],"d":28,"f":0,"l":2,"h":3,"sym":"d2","look":{"real":0,"decoy":3,"traps":13}},{"c":[1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3],"t":"212103331102113031202122131011322231013201203233223301003012213121303302313032022211033123002323111","sol":[[3,9,15],[8,14,19],[20,21,25],[22,26,27],[6,11,16],[4,5,10],[0,1,2],[7,12,17],[13,18,23],[24,28,29],[30,31,32]],"d":29,"f":0,"l":2,"h":3,"sym":"d2","look":{"real":0,"decoy":7,"traps":14}},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2,-1,3,0,3],"t":"032201123012323331133211002213003212302113022303121131021301222103111232233122011332001223","sol":[[5,8,9],[1,3,4],[0,2,7],[6,12,18],[13,14,19],[20,21,26],[24,25,28],[22,27,29],[10,11,17],[15,16,23]],"d":30,"f":0,"l":2,"h":3,"sym":"d2","look":{"real":0,"decoy":6,"traps":14}},{"c":[1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3],"t":"321131111221121323002021212333211112233203303122001322332331003231011031312022313133222103","sol":[[11,12,16],[17,22,27],[7,13,18],[0,3,4],[1,5,8],[2,6,9],[23,28,29],[14,19,24],[10,15,20],[21,25,26]],"d":31,"f":0,"l":2,"h":4,"sym":"m","look":{"real":1,"decoy":8,"traps":14}},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"323302211102012231311033013123121312003221321301032313021132203201213031011133112113322303202001022222122333","sol":[[0,1,6],[2,3,7],[4,9,15],[5,11,12],[8,13,19],[14,20,26],[10,16,17],[22,23,28],[18,25,30],[21,27,32],[31,34,35],[24,29,33]],"d":37,"f":0,"l":2,"h":6,"sym":"hex","look":{"real":0,"decoy":8,"traps":19}},{"c":[1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3],"t":"112011033021223001022233302322222121312213131122003111133002232331221211012103231","sol":[[0,4,5],[1,2,6],[9,10,15],[3,7,12],[8,13,14],[11,16,20],[17,21,22],[18,19,23],[24,25,26]],"d":21,"f":0,"l":3,"h":4,"sym":"r2","look":{"real":1,"decoy":5,"traps":10}},{"c":[1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3],"t":"303031112323221122331032132003113201021111321202312211311203023332011322101123103","sol":[[0,1,2],[3,4,5],[6,10,15],[7,13,19],[8,9,14],[11,12,18],[16,20,24],[17,21,25],[22,23,26]],"d":22,"f":0,"l":3,"h":4,"sym":"d2","look":{"real":0,"decoy":4,"traps":9}},{"c":[2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3],"t":"101303223002221132123331311021003023301321121131312212233012322201112001203122313","sol":[[0,4,8],[1,5,9],[10,15,20],[2,3,7],[6,12,17],[11,16,21],[23,25,26],[13,18,22],[14,19,24]],"d":24,"f":0,"l":3,"h":4,"sym":"r2","look":{"real":0,"decoy":8,"traps":14}},{"c":[-1,-2,0,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,0,2,1,2],"t":"021102222103333303231022331031221112313201212123302113032133301001223202321012023","sol":[[0,1,4],[2,3,8],[10,17,18],[5,6,11],[7,12,13],[19,23,24],[14,15,20],[9,16,22],[21,25,26]],"d":24,"f":0,"l":3,"h":4,"sym":"r2","look":{"real":0,"decoy":3,"traps":10}},{"c":[1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-1,3,0,3],"t":"322203102031213233301323111001122311211002221112212302133231003013312123012321201033011131","sol":[[1,2,6],[0,3,4],[5,9,10],[7,8,13],[11,16,21],[22,26,27],[25,28,29],[15,19,20],[12,17,23],[14,18,24]],"d":25,"f":0,"l":3,"h":4,"sym":"r3","look":{"real":0,"decoy":3,"traps":13}},{"c":[1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3],"t":"302322001211033113133023123103311331102213222022013012303011111121333232212101323","sol":[[0,3,4],[1,2,5],[6,10,15],[8,13,18],[7,11,12],[9,14,19],[16,20,24],[17,21,22],[23,25,26]],"d":25,"f":0,"l":3,"h":4,"sym":"d2","look":{"real":0,"decoy":6,"traps":14}},{"c":[1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2,-2,3,-1,3],"t":"303313011232111201323223102022122101212333002311012221233033133321121021202203312","sol":[[1,5,9],[0,3,4],[2,7,8],[10,15,19],[20,23,24],[6,11,12],[13,14,17],[16,21,25],[18,22,26]],"d":28,"f":0,"l":3,"h":4,"sym":"r2","look":{"real":0,"decoy":5,"traps":12}},{"c":[1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-2,3,-1,3],"t":"132011122223032232103013301211123332021331311201113023202321131313221212033121213002101022","sol":[[2,7,13],[14,17,18],[0,3,8],[1,5,6],[11,12,16],[4,9,10],[15,19,20],[21,22,27],[23,24,25],[26,28,29]],"d":31,"f":0,"l":3,"h":4,"sym":"d6","look":{"real":0,"decoy":7,"traps":14}},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"133333121012211002233111302103332202022131222101212102322113001023021223122013231312031321003033203112331132","sol":[[0,4,5],[1,2,3],[6,7,8],[9,16,22],[10,11,12],[13,18,25],[14,19,20],[15,21,27],[17,23,28],[24,30,34],[26,31,35],[29,32,33]],"d":32,"f":0,"l":3,"h":4,"sym":"hex","look":{"real":0,"decoy":5,"traps":16}},{"c":[2,-4,3,-4,4,-4,1,-3,2,-3,3,-3,4,-3,0,-2,1,-2,2,-2,3,-2,4,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,-3,1,-2,1,-1,1,0,1,-4,2,-3,2,-2,2,-1,2,-4,3,-3,3,-2,3,-1,3,-4,4,-3,4,-2,4],"t":"313231102002213021133131022122111202032012223123011311303323121203132221322233211023321222201301013001101232","sol":[[11,15,16],[6,9,10],[2,4,5],[0,1,3],[8,14,20],[7,13,19],[23,24,27],[12,17,21],[18,22,26],[25,29,30],[28,32,35],[31,33,34]],"d":33,"f":0,"l":3,"h":4,"sym":"m","look":{"real":1,"decoy":8,"traps":20}},{"c":[1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3],"t":"132112122113301102003121223222331022302221312233211013323101023333011012203133202","sol":[[0,3,7],[11,16,21],[12,13,17],[1,4,8],[2,6,10],[5,9,14],[15,19,23],[18,22,26],[20,24,25]],"d":19,"f":0,"l":3,"h":5,"sym":"r2","look":{"real":0,"decoy":5,"traps":10}},{"c":[2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3],"t":"213322313302131231121002331112103333111022203003222233202221101312201303033102001","sol":[[0,3,4],[1,5,10],[2,6,7],[8,9,15],[17,18,19],[12,13,14],[11,16,20],[21,22,24],[23,25,26]],"d":23,"f":0,"l":3,"h":5,"sym":"m","look":{"real":0,"decoy":3,"traps":10}},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-2,3,-1,3],"t":"111002233012121202022301313333331133003223311023323322231013102321203112303222031","sol":[[5,10,15],[1,4,9],[0,3,8],[2,6,7],[11,12,16],[17,18,19],[13,14,20],[21,22,23],[24,25,26]],"d":24,"f":0,"l":3,"h":5,"sym":"d2","look":{"real":0,"decoy":1,"traps":7}},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2,-1,3,0,3],"t":"013222331131212023303012312101301201231103003033322333112203221302011122321032113133121102","sol":[[0,1,3],[2,7,13],[6,12,18],[8,14,20],[19,24,25],[21,22,27],[11,17,23],[4,5,10],[9,15,16],[26,28,29]],"d":25,"f":0,"l":3,"h":5,"sym":"d2","look":{"real":0,"decoy":5,"traps":13}},{"c":[0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2],"t":"022321232311131203003103123032222322031303102111223013122012332001132331202231213","sol":[[0,6,12],[1,2,7],[4,5,11],[10,17,23],[3,9,16],[8,15,22],[13,14,21],[24,25,26],[18,19,20]],"d":26,"f":0,"l":3,"h":5,"sym":"r2","look":{"real":0,"decoy":4,"traps":8}},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"033203032321123313213013331023022121232303202212301201003223113101133233333031302312222112001311132002021221","sol":[[7,8,14],[2,3,6],[9,15,21],[11,12,13],[16,22,28],[5,10,17],[0,1,4],[27,32,33],[18,19,24],[20,25,26],[30,31,35],[23,29,34]],"d":32,"f":0,"l":3,"h":5,"sym":"hex","look":{"real":0,"decoy":4,"traps":14}},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-2,3,-1,3],"t":"132001011323321213103211031231102322222013131331012122022002223232311233332003111","sol":[[1,4,9],[5,10,15],[0,3,7],[2,6,12],[14,19,20],[8,13,18],[11,16,21],[17,22,23],[24,25,26]],"d":26,"f":0,"l":3,"h":6,"sym":"d2","look":{"real":0,"decoy":8,"traps":13}},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"332302311323203111023232002303021201223123211012212112103101032221333233013113213001033301132321222133121102","sol":[[1,2,3],[8,13,14],[7,11,12],[0,5,6],[4,10,17],[9,15,21],[16,22,27],[18,23,24],[28,29,32],[33,34,35],[19,25,30],[20,26,31]],"d":37,"f":0,"l":3,"h":6,"sym":"hex","look":{"real":0,"decoy":7,"traps":16}},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"011111033232132322202333331223203121131031023233001003013231102112312332221113302301012133103002303211022201","sol":[[32,33,34],[30,31,35],[15,21,27],[24,28,29],[11,17,23],[9,16,22],[19,25,26],[8,14,20],[3,7,13],[6,12,18],[1,2,5],[0,4,10]],"d":37,"f":1,"l":3,"h":6,"sym":"hex","look":{"real":0,"decoy":7,"traps":20}},{"c":[1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-2,3,-1,3,0,3],"t":"213001232022122301323131103222033212101111231311322133121312201031321102233003013303112021023211132","sol":[[0,1,4],[2,6,12],[7,13,18],[11,17,22],[5,9,10],[16,20,26],[3,8,15],[14,19,25],[21,27,28],[23,24,29],[30,31,32]],"d":29,"f":0,"l":3,"h":7,"sym":"r3","look":{"real":1,"decoy":8,"traps":13}}],  key:'parcels-pt3-medium'},
-  hard:   {name:'Hard',    data:[{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3],"t":"021202131332122323322113302012232013213031011231313203101211033333233223331003112201111002102311132222023321133022301","sol":[[0,3,7],[8,12,13],[16,17,20],[21,26,27],[22,28,29],[33,34,35],[1,2,5],[4,9,10],[6,11,15],[14,18,24],[19,25,32],[23,30,31],[36,37,38]],"d":26,"f":0,"l":3,"h":3,"sym":"d3","look":{"real":0,"decoy":4,"traps":14}},{"c":[-1,-3,0,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,0,3,1,3],"t":"333101103012022021301111321331211231311203223032221001102002233201322302312332121013113232222212031213131112132303122","sol":[[0,4,10],[12,16,17],[1,5,11],[2,3,8],[9,15,20],[7,14,19],[6,13,18],[24,30,36],[23,29,35],[31,32,37],[28,34,38],[21,22,27],[25,26,33]],"d":30,"f":0,"l":3,"h":3,"sym":"d2","look":{"real":0,"decoy":6,"traps":19}},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3],"t":"111223003321002001312102333212322231233033201211101311133132221022222131202023301031103122331013313113232021332213121","sol":[[0,1,4],[2,6,11],[5,8,9],[10,14,18],[15,19,25],[3,7,13],[12,16,21],[17,22,28],[20,26,27],[33,34,35],[36,37,38],[29,30,31],[23,24,32]],"d":27,"f":0,"l":3,"h":4,"sym":"d3","look":{"real":0,"decoy":5,"traps":15}},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"013121311101233322332001031223302111022023201312333011102301133202212132131222232231012331103211002323303203123033113","sol":[[0,6,14],[13,19,23],[7,15,20],[1,2,8],[3,4,5],[9,10,11],[12,18,22],[16,17,21],[24,28,33],[26,31,35],[25,29,30],[27,32,36],[34,37,38]],"d":28,"f":0,"l":3,"h":4,"sym":"d3","look":{"real":0,"decoy":7,"traps":20}},{"c":[3,-4,4,-4,1,-3,2,-3,3,-3,4,-3,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-1,3,0,3,1,3,-1,4,0,4],"t":"131213032002331103211323012231011303021313321111031222232202322101302113203121332233013221033312123311201212132301023","sol":[[0,1,3],[2,6,7],[4,5,8],[9,14,15],[10,11,17],[16,22,23],[12,13,19],[18,24,29],[25,30,31],[26,32,34],[20,21,27],[28,33,35],[36,37,38]],"d":31,"f":0,"l":3,"h":4,"sym":"r3","look":{"real":0,"decoy":5,"traps":15}},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"233203011122333311213301231212223323023321022012103332132002133033211221313322003201032302031111131123112113021303232","sol":[[2,3,4],[1,8,9],[0,7,14],[6,13,19],[15,20,23],[24,27,28],[32,33,34],[29,30,35],[36,37,38],[5,11,17],[10,16,21],[12,18,22],[25,26,31]],"d":33,"f":0,"l":3,"h":4,"sym":"d3","look":{"real":0,"decoy":4,"traps":12}},{"c":[-1,-3,0,-3,-2,-2,-1,-2,0,-2,1,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-1,2,0,2,1,2,2,2,0,3,1,3],"t":"302113012313221233213003211122303032131033321133011333223332323212202203311111101001121103021132022123112222232102312","sol":[[0,1,4],[2,3,8],[9,10,16],[17,25,32],[23,24,31],[5,11,12],[6,7,15],[13,14,22],[18,19,27],[20,28,35],[21,29,30],[26,33,34],[36,37,38]],"d":34,"f":0,"l":3,"h":4,"sym":"r2","look":{"real":0,"decoy":3,"traps":12}},{"c":[2,-4,3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,-1,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4],"t":"213012311212023301013233011103133123232002333031203032121122222321003303211102021221313323231302113112132201322111033001332223","sol":[[2,7,13],[0,4,10],[1,5,11],[3,9,15],[6,12,18],[16,17,21],[8,14,20],[19,23,24],[22,27,33],[25,29,30],[26,31,32],[28,34,35],[36,37,38],[39,40,41]],"d":34,"f":0,"l":3,"h":4,"sym":"d2","look":{"real":0,"decoy":8,"traps":22}},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"113321232032132011003112202332201033203131222002313122102223111311233302333312021031213103221121023123133012212301303","sol":[[0,1,2],[7,8,9],[3,10,16],[4,5,12],[11,17,21],[18,22,26],[31,35,38],[6,13,14],[15,20,24],[19,23,27],[28,29,32],[25,30,34],[33,36,37]],"d":34,"f":0,"l":3,"h":4,"sym":"d3","look":{"real":0,"decoy":6,"traps":18}},{"c":[2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,0,0,1,0,-3,1,-2,1,-1,1,0,1,-4,2,-3,2,-2,2,-1,2,-4,3,-3,3,-2,3,-4,4,-3,4],"t":"202321022013223133301113201302312103311032123121131101332222012111233322213112323002331212231011132003023122211102303","sol":[[2,6,7],[0,1,5],[8,14,20],[28,29,33],[3,9,15],[4,10,16],[11,12,13],[18,19,25],[17,23,24],[21,22,27],[26,31,32],[30,34,37],[35,36,38]],"d":36,"f":0,"l":3,"h":4,"sym":"m","look":{"real":0,"decoy":6,"traps":17}},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3],"t":"002301113021102203032001202213321202303011302223211322012331223233231221131023103332111201113312212212003021302231103331111232301123123","sol":[[0,1,5],[2,6,10],[17,22,30],[23,31,38],[28,29,35],[41,42,43],[36,37,44],[27,34,40],[3,4,9],[7,8,12],[11,16,21],[13,14,15],[18,19,20],[26,33,39],[24,25,32]],"d":36,"f":0,"l":3,"h":4,"sym":"d3","look":{"real":0,"decoy":9,"traps":19}},{"c":[0,-4,1,-4,-1,-3,0,-3,1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-2,0,-1,0,1,0,2,0,3,0,4,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-4,4,-3,4],"t":"011333202233001112323203312021131223103133122101012002013301033222303113313213232003111231022032132321332201221211123","sol":[[0,1,2],[3,4,5],[6,10,17],[7,8,9],[11,12,18],[13,14,15],[16,22,29],[19,20,21],[26,27,28],[24,31,36],[23,30,35],[25,32,33],[34,37,38]],"d":38,"f":0,"l":3,"h":4,"sym":"r3","look":{"real":0,"decoy":7,"traps":16}},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"121233001201213303012312132313301001123333021203312101023332033332331333223112003103221221112031023012323122303033022222302032322113031","sol":[[4,11,19],[5,12,20],[26,32,37],[0,6,13],[1,2,7],[3,8,9],[10,18,25],[16,17,24],[14,15,21],[22,27,33],[23,29,30],[31,35,36],[28,34,38],[39,40,41],[42,43,44]],"d":39,"f":0,"l":3,"h":4,"sym":"d3","look":{"real":1,"decoy":12,"traps":22}},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3],"t":"213031203332001322312212021113231302321103123331003232323002132013121011102313211303012301233202221111032223122311033","sol":[[1,2,6],[14,15,19],[9,10,11],[0,4,5],[3,8,13],[7,12,16],[20,26,27],[17,21,22],[24,25,32],[18,23,31],[33,34,35],[28,29,30],[36,37,38]],"d":40,"f":0,"l":3,"h":4,"sym":"d3","look":{"real":0,"decoy":3,"traps":10}},{"c":[0,-4,1,-4,-1,-3,0,-3,1,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-2,2,-1,2,0,2,1,2,2,2,-1,3,0,3,1,3,-1,4,0,4],"t":"011202222333133002102312021233332122202022301212012012122203322002112321312212303011311132001103303112231003113232221333133103223311222","sol":[[9,13,14],[20,21,22],[30,36,37],[15,23,31],[28,29,35],[40,43,44],[39,41,42],[32,33,38],[16,24,25],[17,26,34],[1,4,8],[0,3,6],[2,5,10],[7,11,12],[18,19,27]],"d":41,"f":0,"l":3,"h":4,"sym":"d2","look":{"real":1,"decoy":13,"traps":24}},{"c":[1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4],"t":"103032102031303112311033003301003233322111211122111021312011311011032121122203303103213233332222231211132013321102012022001021113302132131313202","sol":[[0,1,6],[2,7,14],[3,4,5],[8,15,20],[9,16,17],[10,18,23],[11,12,13],[22,27,33],[26,32,39],[28,34,40],[45,46,47],[35,36,37],[19,24,29],[21,25,30],[31,38,44],[41,42,43]],"d":44,"f":0,"l":3,"h":4,"sym":"d6","look":{"real":0,"decoy":10,"traps":20}},{"c":[3,-4,4,-4,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,1,2,-2,3,-1,3,0,3,1,3,-1,4,0,4],"t":"233211103223202122011333013101113131021203332303032102313132311221323331213022033112031222012003312301133201231302023","sol":[[0,1,4],[10,11,17],[12,18,19],[23,24,25],[20,26,29],[30,33,34],[22,27,28],[5,6,13],[8,9,14],[2,3,7],[15,16,21],[31,35,37],[32,36,38]],"d":33,"f":0,"l":3,"h":5,"sym":"r3","look":{"real":0,"decoy":1,"traps":10}},{"c":[-1,-3,0,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,0,3,1,3],"t":"332221301132103113322023013201312001123302122223031011133331232311233021313203032012022212202222033131111121333101303","sol":[[2,3,7],[1,6,12],[0,5,11],[4,10,16],[13,17,18],[9,15,20],[8,14,19],[21,25,26],[22,28,34],[27,33,38],[31,32,37],[29,35,36],[23,24,30]],"d":33,"f":0,"l":3,"h":5,"sym":"d2","look":{"real":0,"decoy":8,"traps":17}},{"c":[1,-4,2,-4,0,-3,1,-3,2,-3,0,-2,1,-2,2,-2,3,-2,4,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,-4,2,-3,2,-2,2,-1,2,0,2,-2,3,-1,3,0,3,-2,4,-1,4],"t":"213233132321013133102303323221222131113122022322111333301121011003211331101202033203332021231311212123001201031223312","sol":[[0,2,3],[1,4,7],[5,10,18],[16,17,25],[23,24,29],[30,31,34],[6,11,12],[8,9,14],[15,21,22],[13,20,27],[19,26,32],[28,33,35],[36,37,38]],"d":34,"f":0,"l":3,"h":5,"sym":"d2","look":{"real":0,"decoy":2,"traps":9}},{"c":[-1,-3,0,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,0,3,1,3],"t":"222213231113022003303211302013301331032203103322102313221233311121033323202111002133212001012031112223131312201023123","sol":[[0,3,10],[1,4,11],[2,8,9],[7,15,22],[30,36,38],[34,35,37],[27,28,29],[12,13,21],[5,6,14],[19,20,26],[16,17,18],[23,24,25],[31,32,33]],"d":34,"f":0,"l":3,"h":5,"sym":"r2","look":{"real":1,"decoy":6,"traps":15}},{"c":[2,-4,3,-4,4,-4,1,-3,2,-3,3,-3,4,-3,0,-2,1,-2,2,-2,3,-2,4,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-4,2,-3,2,-2,2,-1,2,0,2,-4,3,-3,3,-2,3,-1,3,-4,4,-3,4,-2,4],"t":"021203121112113132211221032213331001303301321312233102201302322101022103003033323231122311023111313222232202031133011","sol":[[0,1,3],[4,7,8],[5,9,14],[12,13,19],[17,18,24],[26,31,35],[20,21,25],[11,15,16],[2,6,10],[29,30,34],[22,23,27],[28,32,36],[33,37,38]],"d":39,"f":0,"l":3,"h":5,"sym":"d2","look":{"real":1,"decoy":5,"traps":17}},{"c":[1,-4,2,-4,0,-3,1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-2,3,-1,3,0,3],"t":"001132113323223003233123012101013212331023232313033302131111031322222211221231201121022122102312133311103112032203321","sol":[[0,1,4],[9,15,22],[21,28,29],[13,14,19],[7,8,12],[5,11,18],[2,3,6],[10,17,25],[16,23,30],[24,31,32],[20,26,27],[33,34,36],[35,37,38]],"d":41,"f":0,"l":3,"h":5,"sym":"m","look":{"real":1,"decoy":11,"traps":17}},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3],"t":"022222101233313322033111101211222331213001321113002113332121221211331002232021321103332323123221032103003203312131112203111132021212333","sol":[[0,3,8],[1,2,4],[5,6,9],[7,13,20],[14,15,16],[10,11,17],[21,27,28],[22,23,30],[29,37,43],[31,38,44],[35,36,42],[12,18,19],[24,25,33],[26,34,41],[32,39,40]],"d":41,"f":0,"l":3,"h":5,"sym":"d3","look":{"real":0,"decoy":10,"traps":21}},{"c":[2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-3,4,-2,4],"t":"313102221021112231111112303101013322003212303202202311322131231223023133001333002123223111212312323323023332211003123021022213131222101","sol":[[0,1,5],[2,7,14],[3,4,8],[9,10,11],[6,12,18],[13,20,21],[15,22,29],[16,17,23],[24,25,30],[31,37,42],[19,26,32],[34,35,36],[27,28,33],[38,39,43],[40,41,44]],"d":42,"f":0,"l":3,"h":5,"sym":"d2","look":{"real":1,"decoy":10,"traps":25}},{"c":[3,-4,4,-4,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,-4,4,-3,4],"t":"103031331122222312212123022013023133001322111131121021332203333202221113302011233033002223213102321231012032301323101","sol":[[0,1,4],[5,10,15],[2,3,9],[7,12,18],[6,11,17],[8,14,20],[13,19,25],[16,21,27],[22,23,24],[26,31,32],[28,33,37],[29,34,38],[30,35,36]],"d":42,"f":0,"l":3,"h":5,"sym":"d2","look":{"real":0,"decoy":6,"traps":15}},{"c":[3,-4,4,-4,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,-4,4,-3,4],"t":"012321312231103133101023323123212302131111202232301121213122311222002313032011203003113221132211303331332333102013201","sol":[[20,21,27],[30,31,32],[19,25,26],[29,35,36],[22,28,33],[17,23,24],[11,12,18],[2,6,7],[8,13,14],[9,15,16],[0,3,4],[1,5,10],[34,37,38]],"d":44,"f":0,"l":3,"h":5,"sym":"d2","look":{"real":0,"decoy":12,"traps":21}},{"c":[0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3],"t":"312231023322332213311102033013101112011223202201001302031111002132021133321333323313212103232203211303123331012131022","sol":[[0,1,2],[4,9,10],[3,8,15],[5,6,11],[14,19,25],[20,26,32],[16,21,27],[33,37,38],[7,13,18],[12,17,23],[22,29,30],[24,31,36],[28,34,35]],"d":45,"f":0,"l":3,"h":5,"sym":"r2","look":{"real":0,"decoy":7,"traps":17}},{"c":[3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4],"t":"333032012211021112021211013303121312003303132122131331203221003331231031121332103223102202321221301213002323113133103002131202111302311022322033","sol":[[0,4,5],[1,6,12],[2,9,16],[3,10,17],[11,18,24],[7,13,14],[8,15,22],[19,20,25],[26,32,39],[31,37,43],[29,30,36],[38,44,45],[21,27,34],[23,28,35],[33,40,46],[41,42,47]],"d":53,"f":0,"l":3,"h":5,"sym":"r2","look":{"real":0,"decoy":13,"traps":26}},{"c":[2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-3,4,-2,4],"t":"031123012212312001232301221103102032313233112312311232332231003221332023132301112003013033311032033023201322203223321102101323111103013","sol":[[2,7,13],[0,3,9],[8,14,20],[15,21,27],[19,26,33],[22,28,34],[32,38,39],[41,43,44],[29,35,40],[31,37,42],[24,30,36],[12,18,25],[1,5,6],[4,10,11],[16,17,23]],"d":55,"f":0,"l":3,"h":5,"sym":"d2","look":{"real":0,"decoy":13,"traps":26}},{"c":[1,-4,2,-4,0,-3,1,-3,2,-3,0,-2,1,-2,2,-2,3,-2,4,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,-4,2,-3,2,-2,2,-1,2,0,2,-2,3,-1,3,0,3,-2,4,-1,4],"t":"311132122003022032212333012121102302321201203111223031113221213233322202231112323002232331023312033301101103123211332","sol":[[0,1,3],[2,5,6],[4,7,13],[8,9,14],[10,16,17],[11,18,19],[12,20,27],[15,21,22],[23,29,30],[24,25,26],[28,33,36],[31,32,34],[35,37,38]],"d":28,"f":0,"l":3,"h":6,"sym":"d2","look":{"real":0,"decoy":2,"traps":13}},{"c":[-1,-3,0,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4],"t":"331133123201023202002311032012101102113321211323333222302231013301303313033221132332021312031232111223112322003131203","sol":[[1,6,7],[13,20,26],[15,21,27],[2,8,14],[3,9,16],[10,17,23],[22,28,31],[32,35,36],[29,33,37],[18,24,25],[0,5,12],[4,11,19],[30,34,38]],"d":36,"f":0,"l":3,"h":6,"sym":"r3","look":{"real":0,"decoy":7,"traps":17}},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3],"t":"332011122232203001301121032101023213303223031012032101003103322231102323103211212133323113121311322132201001232031022211023132301111233","sol":[[0,1,4],[2,6,11],[3,7,12],[8,9,13],[16,17,23],[5,10,15],[14,19,20],[21,22,28],[26,27,35],[29,36,42],[30,31,37],[38,43,44],[18,25,33],[24,32,39],[34,40,41]],"d":36,"f":0,"l":3,"h":6,"sym":"d3","look":{"real":0,"decoy":5,"traps":15}},{"c":[2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-3,4,-2,4],"t":"313021132021232311201112222212202232032331302133033213321003303322233223203013122103023123223133231031222303323333331231131002221031313","sol":[[0,1,4],[2,8,14],[3,9,15],[5,10,16],[6,11,17],[7,13,19],[12,18,24],[21,27,33],[20,26,32],[25,30,31],[22,28,35],[23,29,36],[34,40,44],[37,41,42],[38,39,43]],"d":39,"f":0,"l":3,"h":6,"sym":"d2","look":{"real":2,"decoy":20,"traps":32}},{"c":[2,-4,3,-4,4,-4,1,-3,2,-3,3,-3,4,-3,0,-2,1,-2,2,-2,3,-2,4,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-4,2,-3,2,-2,2,-1,2,0,2,-4,3,-3,3,-2,3,-1,3,-4,4,-3,4,-2,4],"t":"303212133121301302211321032103231023233213332221312203112013222131102122333201003132001031111322313021202113232011323","sol":[[0,1,3],[2,5,6],[4,8,13],[7,12,18],[10,11,16],[9,14,15],[17,22,28],[23,24,25],[19,20,21],[26,30,31],[27,32,33],[29,34,35],[36,37,38]],"d":40,"f":0,"l":3,"h":6,"sym":"d2","look":{"real":0,"decoy":8,"traps":18}},{"c":[1,-4,2,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,-4,2,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3,0,3,-2,4,-1,4],"t":"332101021213211023312312233102103231022323111203333023213131322221332003033311331203122221013112321002132122333233311211022133123301212","sol":[[2,7,8],[0,1,3],[6,10,11],[4,5,9],[12,13,21],[26,27,28],[18,19,20],[15,16,17],[14,22,23],[24,31,32],[25,33,37],[29,30,34],[35,36,39],[38,40,41],[42,43,44]],"d":46,"f":0,"l":3,"h":6,"sym":"m","look":{"real":0,"decoy":9,"traps":22}},{"c":[1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4],"t":"323003223321133313233312101132003301022023331023013131213102233132302022311201232213301123002221313021102032211103113101332203011133002223111302","sol":[[1,2,5],[0,4,10],[3,9,16],[6,11,12],[7,8,15],[14,20,21],[13,19,24],[25,30,37],[29,35,36],[31,38,44],[42,43,47],[26,32,39],[40,45,46],[28,34,41],[22,27,33],[17,18,23]],"d":46,"f":0,"l":3,"h":6,"sym":"r6","look":{"real":0,"decoy":4,"traps":12}},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"323201303002133321112012131321113232113001333133021312202031202223221223212313111312101131303121331003302002012201301102323231003132211","sol":[[15,16,17],[1,2,3],[4,11,19],[5,12,20],[0,7,8],[9,10,18],[24,25,26],[31,32,37],[6,14,22],[13,21,27],[28,33,34],[23,29,35],[30,36,41],[38,39,42],[40,43,44]],"d":47,"f":0,"l":3,"h":6,"sym":"d3","look":{"real":0,"decoy":3,"traps":19}},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"322211013221003133033132221231333322312302112003211223332121131321102122232101213123222321033301323032123202013132011303121311023233103313102311","sol":[[2,3,7],[8,14,15],[0,4,9],[1,5,11],[6,12,19],[10,16,23],[13,20,26],[17,18,25],[24,32,38],[33,39,40],[43,44,45],[21,27,28],[34,35,41],[42,46,47],[22,29,30],[31,36,37]],"d":50,"f":0,"l":3,"h":6,"sym":"r6","look":{"real":0,"decoy":11,"traps":23}},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"013131133022021002311201211032333221001113012022323112001332113323333313031021011231112201312203011212002303133313121232303031003311003232122203","sol":[[0,4,9],[5,10,11],[1,6,12],[2,3,8],[7,14,22],[15,23,29],[21,27,34],[28,35,41],[43,46,47],[36,37,42],[38,44,45],[24,30,31],[16,17,18],[13,19,25],[20,26,33],[32,39,40]],"d":51,"f":0,"l":3,"h":6,"sym":"r6","look":{"real":0,"decoy":11,"traps":23}},{"c":[1,-4,2,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,-2,4,-1,4],"t":"331113022032002221011103021203211302202301322312111123011333222003231331133033321131031131033233321102203312232333221112233101223032202302132022","sol":[[1,4,5],[0,2,9],[3,10,17],[6,12,19],[11,18,24],[13,20,25],[26,33,40],[31,32,39],[30,38,45],[44,46,47],[7,15,22],[8,16,23],[14,21,27],[28,34,35],[29,36,37],[41,42,43]],"d":53,"f":0,"l":3,"h":6,"sym":"r6","look":{"real":0,"decoy":18,"traps":27}},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,0,3,1,3],"t":"322031122213013313002111231113012212003331201023101222022103032312223001131311112332123133221033102021011211302233203","sol":[[0,4,8],[1,2,5],[3,7,10],[6,9,13],[11,15,16],[21,22,23],[14,20,28],[29,35,36],[30,31,32],[26,33,37],[18,19,25],[12,17,24],[27,34,38]],"d":33,"f":0,"l":3,"h":7,"sym":"d3","look":{"real":0,"decoy":2,"traps":11}},{"c":[3,-4,4,-4,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,-4,4,-3,4],"t":"233301311122232113333313002231001211303312031323112022012131202123133221223212023101011302201032102331103332322222013","sol":[[1,4,5],[0,2,3],[10,15,16],[7,8,9],[6,11,17],[13,19,24],[12,18,23],[14,20,21],[22,28,29],[25,26,27],[30,35,38],[31,32,36],[33,34,37]],"d":35,"f":0,"l":3,"h":7,"sym":"d2","look":{"real":0,"decoy":6,"traps":18}},{"c":[1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4],"t":"301302303303032031123131223232132123031202012321021011332313122022113001001333103332213032313201011221301111002323122223132233012211333302021133","sol":[[0,4,11],[2,7,14],[1,5,6],[12,13,19],[8,15,21],[3,10,17],[9,16,22],[18,23,28],[26,27,33],[32,39,40],[34,41,42],[35,36,37],[29,30,31],[20,24,25],[38,43,44],[45,46,47]],"d":47,"f":0,"l":3,"h":7,"sym":"d6","look":{"real":0,"decoy":8,"traps":17}},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"323013323113032221301133203132211231113212123011303003122333002232103002223003331011201201012203123321331131303313111231313131031222022","sol":[[2,3,8],[0,1,7],[6,13,14],[4,11,19],[5,12,20],[24,30,35],[18,25,26],[9,10,17],[15,21,22],[31,32,37],[36,41,44],[40,42,43],[33,38,39],[27,28,34],[16,23,29]],"d":53,"f":0,"l":3,"h":7,"sym":"d3","look":{"real":0,"decoy":7,"traps":20}},{"c":[-1,-3,0,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,0,3,1,3],"t":"323133113302013203322031021213023132201001321002033101123111221131222212332011022103003121333102211303331012233122231","sol":[[10,11,12],[16,17,23],[9,14,15],[2,3,8],[5,6,7],[0,1,4],[13,19,20],[18,24,25],[30,31,32],[29,35,36],[33,37,38],[21,22,28],[26,27,34]],"d":36,"f":0,"l":3,"h":8,"sym":"d2","look":{"real":0,"decoy":6,"traps":16}},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3,0,3,-2,4,-1,4],"t":"212331123202333023031201332013101102323231311103232213132211133021221321022301003033312122322313233222131223302002111","sol":[[2,3,6],[0,4,10],[1,5,11],[13,14,21],[7,8,9],[15,16,23],[22,27,28],[12,18,19],[17,24,25],[20,26,31],[29,30,33],[32,36,38],[34,35,37]],"d":37,"f":0,"l":3,"h":8,"sym":"m","look":{"real":1,"decoy":5,"traps":14}},{"c":[-1,-3,0,-3,1,-3,2,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-2,3,-1,3,0,3,1,3],"t":"221032303213103102033122301022322211311133101313012231302011111222232323123023013202333201312112331131332021203031233","sol":[[0,1,2],[3,8,9],[4,10,11],[5,6,12],[7,13,20],[18,19,24],[16,17,23],[25,29,30],[31,35,36],[14,15,21],[22,28,33],[26,27,32],[34,37,38]],"d":40,"f":0,"l":3,"h":8,"sym":"r2","look":{"real":0,"decoy":5,"traps":19}},{"c":[0,-3,1,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-1,3,0,3],"t":"121212023223302033303112301132011322221021231311233123103232001203022003013113102012133313222331213111201101002321031","sol":[[24,30,35],[17,23,29],[10,11,16],[13,18,19],[25,31,36],[0,1,6],[4,5,12],[2,7,14],[3,8,9],[20,21,26],[15,22,28],[27,32,33],[34,37,38]],"d":40,"f":0,"l":3,"h":8,"sym":"r2","look":{"real":0,"decoy":2,"traps":10}},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"021132112031001203303313303323011211003211031112203332122033322222102021202111213013131132213232032121202033311221323101032331131001121313301311","sol":[[26,32,33],[19,24,25],[12,13,20],[6,11,18],[0,1,5],[4,9,15],[2,3,8],[10,16,17],[7,14,22],[21,27,28],[23,29,30],[34,35,36],[41,46,47],[37,42,43],[31,38,39],[40,44,45]],"d":54,"f":0,"l":3,"h":9,"sym":"r6","look":{"real":1,"decoy":8,"traps":19}},{"c":[2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,2,0,-3,1,-2,1,-1,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,-4,4,-3,4,-2,4],"t":"332111002331202023133203233001311023013003101111211033102102033223302121232321012003121013232101212021221313001323321032132113103332021","sol":[[0,1,5],[2,8,15],[3,4,11],[9,16,23],[10,17,18],[6,7,12],[13,14,22],[19,20,25],[21,26,31],[30,36,37],[24,28,29],[41,43,44],[34,35,40],[27,33,39],[32,38,42]],"d":52,"f":0,"l":3,"h":12,"sym":"m","look":{"real":0,"decoy":12,"traps":21}}],    key:'parcels-pt3-hard'},
-  extreme:{name:'Extreme', data:[{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"031313312123202331122121003031302313013331233001323132001113213112102011222222021303112232322011133332231122023202321213032121111101013232233302","sol":[[2,7,8],[13,19,25],[5,6,12],[0,1,4],[3,9,10],[20,26,33],[38,39,40],[43,44,45],[11,17,18],[14,15,21],[24,31,32],[36,37,42],[41,46,47],[16,22,23],[28,29,30],[27,34,35]],"d":47,"f":0,"l":3,"h":6,"sym":"r6","look":{"real":0,"decoy":6,"traps":19}},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"332021132211123201231032332323322101301122232232103011233011013113003233302133302301112033323113033121321311013213203223322202123122001213303031","sol":[[0,4,5],[2,3,9],[1,6,11],[7,8,15],[14,21,27],[10,16,17],[12,13,18],[20,26,33],[19,24,25],[40,44,45],[22,28,34],[23,30,36],[29,35,41],[37,42,46],[31,32,39],[38,43,47]],"d":50,"f":0,"l":3,"h":6,"sym":"r6","look":{"real":1,"decoy":12,"traps":26}},{"c":[1,-4,2,-4,3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4,-1,4],"t":"202322211302313103212032033021023301122301031231102003033112203221223331013132321312103112131311311202012012201121313031123233323101312001121222032213332","sol":[[0,4,9],[1,2,5],[3,7,12],[8,13,19],[14,20,27],[21,28,35],[6,10,11],[15,16,24],[18,26,33],[17,25,32],[22,23,29],[34,41,46],[39,40,44],[45,49,50],[30,31,36],[37,42,47],[38,43,48]],"d":50,"f":0,"l":3,"h":6,"sym":"d2","look":{"real":0,"decoy":10,"traps":24}},{"c":[1,-4,2,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,-2,4,-1,4],"t":"333323203113032103101122311023221111121111302033003032113112131211023013232021321033311002031313201131121102133021122202211302221312001223332213","sol":[[1,4,11],[5,12,19],[6,13,20],[3,10,17],[0,2,9],[18,24,25],[7,8,16],[14,15,21],[22,28,35],[27,34,41],[23,29,37],[36,42,43],[26,32,33],[39,40,45],[30,31,38],[44,46,47]],"d":51,"f":0,"l":3,"h":6,"sym":"r6","look":{"real":1,"decoy":15,"traps":24}},{"c":[1,-4,2,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,-2,4,-1,4],"t":"331013122021101323202311003002212212232131033122033301023031333102023013012323131003211231123002313032332221302301022231121113201032303012211123","sol":[[1,3,9],[0,2,8],[5,6,13],[4,11,18],[10,16,17],[7,14,15],[12,19,20],[21,22,28],[23,29,36],[27,34,35],[32,33,40],[41,42,43],[24,30,37],[25,26,31],[38,44,46],[39,45,47]],"d":53,"f":0,"l":3,"h":6,"sym":"r6","look":{"real":0,"decoy":12,"traps":20}},{"c":[0,-4,1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,0,3,1,3,-4,4,-3,4],"t":"232111232003023321003112231131312231303021303212122032113311311021001013201221111211101212333123103332011333133202133203211022012321233222101233","sol":[[4,9,10],[0,5,6],[1,2,3],[8,12,16],[7,11,14],[13,20,28],[15,22,30],[21,29,36],[37,38,43],[23,31,39],[40,44,45],[25,32,33],[17,18,24],[42,46,47],[27,35,41],[19,26,34]],"d":54,"f":0,"l":3,"h":6,"sym":"r3","look":{"real":1,"decoy":7,"traps":16}},{"c":[2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,-4,4,-3,4,-2,4],"t":"112213311003332022331203222221032102122102013033232132212112132301003303021301023321023333033311211331211002002111011031101032012202323022213131","sol":[[2,8,15],[0,4,5],[3,9,17],[10,11,18],[16,23,24],[29,36,37],[19,25,30],[45,46,47],[35,41,42],[1,6,12],[7,13,21],[14,22,28],[27,32,39],[20,26,31],[33,34,40],[38,43,44]],"d":55,"f":0,"l":3,"h":6,"sym":"m","look":{"real":2,"decoy":21,"traps":32}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"101213121332013221022032211023033233133333203123033023212112312223003013112012301113311002312323333012212123201122101113122303231001201132313031131301313322202323","sol":[[5,12,20],[11,19,26],[25,31,36],[18,24,30],[0,6,13],[1,2,7],[14,15,16],[3,8,9],[4,10,17],[21,22,27],[23,28,34],[29,35,42],[33,41,48],[47,52,53],[38,39,40],[44,45,46],[32,37,43],[49,50,51]],"d":55,"f":0,"l":3,"h":6,"sym":"d3","look":{"real":2,"decoy":23,"traps":30}},{"c":[1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4],"t":"301032203302113021111311031113231022132211101111302023003331003112321121213231102213122331203021221322222333301112103022322101233332222122033012012202211","sol":[[21,30,31],[16,23,24],[5,10,15],[0,1,4],[3,8,9],[2,6,11],[13,14,22],[32,38,43],[17,25,26],[7,12,18],[45,48,49],[40,46,50],[33,39,44],[34,35,41],[36,42,47],[20,29,37],[19,27,28]],"d":57,"f":0,"l":3,"h":6,"sym":"r2","look":{"real":1,"decoy":15,"traps":24}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"313323313132312011333303002201221231202333221211033211101002323302123301113321113301032131222031231202121213331103322132012033302332312213322101212021203021031103","sol":[[2,3,9],[4,10,16],[8,13,14],[15,21,22],[17,23,29],[27,28,35],[34,41,42],[45,46,47],[33,39,40],[48,52,53],[44,50,51],[37,43,49],[26,32,38],[24,30,36],[11,19,20],[5,6,12],[0,1,7],[18,25,31]],"d":58,"f":0,"l":3,"h":6,"sym":"d6","look":{"real":1,"decoy":14,"traps":22}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"222033302121131122022301101233302122222231032212023013213322322113323123001112001031103303333223323311213231233013133103011111123003313033303332232232312203003223132311131212023301","sol":[[0,1,7],[2,3,9],[8,14,22],[15,23,24],[4,10,16],[17,25,33],[32,41,48],[11,18,26],[30,31,39],[40,47,53],[54,58,59],[52,56,57],[44,45,51],[37,38,46],[21,29,36],[13,20,28],[19,27,34],[5,6,12],[35,43,50],[42,49,55]],"d":58,"f":0,"l":3,"h":6,"sym":"hex","look":{"real":1,"decoy":21,"traps":40}},{"c":[0,-4,1,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-1,4,0,4],"t":"201002013131302103303203333222211003032002313233123332111101323022121102311122121333131323012203301331003212012101233013023331112201132102033212312123321311001133","sol":[[0,1,5],[4,10,16],[2,7,8],[3,9,14],[6,12,18],[11,17,26],[13,20,28],[21,22,29],[30,37,38],[15,24,25],[23,31,32],[39,44,50],[19,27,36],[33,34,35],[45,46,51],[40,41,42],[47,52,53],[43,48,49]],"d":61,"f":0,"l":3,"h":6,"sym":"d6","look":{"real":0,"decoy":16,"traps":28}},{"c":[0,-4,1,-4,2,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-2,4,-1,4,0,4],"t":"121223112022031202333111232323011021202313032212123011102333221113313001301023332222013213122123323211211101131302001212223132003031023322332111322231303103112331","sol":[[0,3,9],[1,2,4],[8,16,17],[10,18,19],[5,6,7],[11,12,13],[14,20,21],[22,30,38],[29,36,37],[27,28,35],[44,49,52],[43,48,51],[45,50,53],[23,31,39],[15,24,25],[26,34,42],[32,33,41],[40,46,47]],"d":62,"f":0,"l":3,"h":6,"sym":"d2","look":{"real":0,"decoy":14,"traps":24}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"313201122013201132232313011301332113121332203012012123101111003103331223323231301132131221123023211302023212323312231002102202112122233321031321033003102011111311131331333002211001","sol":[[6,7,12],[0,1,5],[11,18,27],[13,19,20],[2,8,14],[3,4,10],[21,29,37],[28,35,36],[26,34,42],[43,49,55],[44,50,51],[38,45,52],[31,39,46],[53,54,59],[56,57,58],[15,22,30],[9,16,23],[17,25,33],[24,32,40],[41,47,48]],"d":64,"f":0,"l":3,"h":6,"sym":"hex","look":{"real":0,"decoy":18,"traps":34}},{"c":[0,-4,1,-4,2,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4,-1,4],"t":"032201012111323231123013013222303111221301222331033333022301233212202212023213221313232023331003131011001113101203322231021213132001302113322332032232112202132332","sol":[[7,13,14],[8,15,22],[12,20,21],[23,29,30],[2,5,6],[0,1,4],[3,9,16],[10,11,18],[17,24,25],[19,26,33],[31,32,38],[39,45,46],[47,50,51],[40,41,42],[27,28,34],[35,43,49],[36,37,44],[48,52,53]],"d":65,"f":0,"l":3,"h":6,"sym":"r3","look":{"real":1,"decoy":19,"traps":27}},{"c":[1,-4,2,-4,3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4],"t":"211201123002302332231221331123312322113222223333303013231103132233211011331122003311122323102013201112303102001002202333021203001313202302233112031222321133011021","sol":[[0,4,9],[10,16,24],[1,2,5],[25,31,32],[3,7,12],[6,11,17],[8,13,19],[14,20,27],[18,26,33],[21,28,36],[34,35,42],[43,48,49],[15,23,30],[22,29,37],[38,39,40],[41,47,53],[44,50,51],[45,46,52]],"d":66,"f":0,"l":3,"h":6,"sym":"m","look":{"real":0,"decoy":18,"traps":33}},{"c":[2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4],"t":"102102223003221121233311132112033212021021313321012233221103312113312231133332302031322023223211322103001301101201232332113032301231011123123121","sol":[[1,2,7],[8,13,14],[0,6,12],[5,10,11],[3,4,9],[15,16,17],[18,19,20],[22,29,36],[23,24,25],[35,41,46],[30,37,38],[31,32,33],[21,26,27],[28,34,40],[39,44,45],[42,43,47]],"d":49,"f":0,"l":3,"h":7,"sym":"m","look":{"real":0,"decoy":13,"traps":32}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-4,0,-3,0,-2,0,-1,0,0,0,1,0,2,0,-4,1,-3,1,-2,1,-1,1,0,1,-4,2,-3,2,-2,2,-1,2,0,2,-4,3,-3,3,-2,3,-1,3,-4,4,-3,4,-2,4],"t":"022331203112221032012231003211202201113103123233333011103332322302002021122203003131031311202031303112231133233301012301222223323212133131312001","sol":[[0,1,2],[5,11,12],[6,7,13],[3,4,8],[9,10,15],[16,23,30],[14,21,28],[17,18,19],[20,26,27],[22,29,35],[24,25,31],[32,33,34],[36,37,38],[41,45,46],[42,43,47],[39,40,44]],"d":49,"f":0,"l":3,"h":7,"sym":"m","look":{"real":0,"decoy":12,"traps":28}},{"c":[0,-4,1,-4,2,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-2,4,-1,4,0,4],"t":"102121333113002202021333201131323232101332013301032123322303331312201133113103133223302111111022222331001011031321031311222312132102213121221003223302332011233203","sol":[[5,6,7],[1,2,4],[0,3,9],[10,11,12],[8,16,17],[13,14,22],[19,20,21],[18,26,34],[30,37,38],[27,28,29],[35,42,48],[25,33,40],[15,24,32],[23,31,39],[41,46,47],[36,43,44],[45,50,53],[49,51,52]],"d":52,"f":0,"l":3,"h":7,"sym":"d2","look":{"real":0,"decoy":9,"traps":27}},{"c":[0,-4,1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4,0,4],"t":"022012003031203103303001102321331311011323232221032022203132102231313002101331011223323032333221131023312012211101031311013212123312333003112223113303231","sol":[[1,2,3],[6,7,8],[12,13,14],[4,9,16],[0,5,10],[11,18,19],[15,22,23],[17,24,30],[29,36,42],[20,26,27],[21,28,35],[25,31,37],[32,33,34],[38,43,47],[39,40,41],[44,45,48],[46,49,50]],"d":56,"f":0,"l":3,"h":7,"sym":"r2","look":{"real":0,"decoy":12,"traps":30}},{"c":[1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4],"t":"322002113231112031313231303303201323213302103022112033203033113321031111322101103202222003232232302331021212131013101323012222333202021201132001333121002023213332","sol":[[0,5,12],[1,2,7],[6,13,21],[8,15,23],[14,22,28],[29,35,36],[37,44,50],[3,9,16],[30,38,39],[31,32,40],[17,24,25],[4,10,11],[18,19,20],[26,33,41],[27,34,42],[43,48,49],[45,46,51],[47,52,53]],"d":58,"f":0,"l":3,"h":7,"sym":"d6","look":{"real":0,"decoy":4,"traps":18}},{"c":[1,-4,2,-4,3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4,-1,4],"t":"312222132313223001002312001302131121003232311102023302231332032123311321233333133121213233102033033013003213002011333133103123113212021323122221332013201","sol":[[3,8,13],[14,20,21],[19,27,28],[9,10,16],[0,4,5],[11,17,24],[7,12,18],[1,2,6],[15,23,31],[22,29,36],[30,37,38],[42,47,48],[39,43,44],[34,35,41],[25,26,32],[33,40,45],[46,49,50]],"d":58,"f":0,"l":3,"h":7,"sym":"d2","look":{"real":1,"decoy":13,"traps":25}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"122303231211201013011231221333022331223303122211302111032132232112002033221222332102202323112132012031011031203333121213021001322023213103302113113133323001232332","sol":[[0,5,11],[1,7,14],[12,17,18],[20,21,22],[6,13,19],[15,16,23],[24,30,37],[25,26,32],[27,33,39],[31,38,45],[35,36,42],[28,29,34],[43,44,49],[40,46,47],[41,48,53],[50,51,52],[2,3,8],[4,9,10]],"d":59,"f":0,"l":3,"h":7,"sym":"r2","look":{"real":1,"decoy":20,"traps":27}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"213322033111102103101112202303123011211032232101201002311111332132332221211201302011302223013032231221012223311131322003103033232031102231112203123122313113321233303222131013213023","sol":[[0,6,13],[5,12,20],[11,18,19],[2,3,8],[1,7,14],[4,9,16],[10,17,24],[15,22,30],[21,29,36],[23,31,40],[25,32,33],[26,34,42],[27,28,35],[43,49,50],[55,56,57],[37,44,51],[38,39,45],[41,47,48],[46,52,53],[54,58,59]],"d":63,"f":0,"l":3,"h":7,"sym":"hex","look":{"real":2,"decoy":25,"traps":34}},{"c":[0,-4,1,-4,2,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3],"t":"131322213003103122031212332111113001123103201132232323233113321013021213013133123311122131203301331232032331301223012002311223101012032022321211","sol":[[10,17,18],[16,24,31],[3,8,9],[0,4,5],[1,2,6],[7,11,12],[20,27,35],[13,19,26],[25,32,33],[42,46,47],[34,40,41],[15,22,23],[14,21,28],[29,30,38],[36,37,43],[39,44,45]],"d":49,"f":0,"l":3,"h":8,"sym":"m","look":{"real":3,"decoy":13,"traps":23}},{"c":[0,-4,1,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"113221032022002313031232323201333332122131023131201211021303033111202321012231103113013301122211221022231023033103002312212012321133101212133001","sol":[[1,4,5],[6,12,19],[0,2,9],[3,10,17],[7,13,20],[14,21,22],[8,16,24],[15,23,31],[32,37,41],[25,26,33],[11,18,27],[34,35,39],[28,29,30],[36,40,44],[45,46,47],[38,42,43]],"d":50,"f":0,"l":3,"h":8,"sym":"m","look":{"real":0,"decoy":9,"traps":24}},{"c":[0,-4,1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4,0,4],"t":"101213032301322033002011122233133101023233001021302211033312222113322312132111131221102122001103311003212003032112213212232111303021332202222333121013232113331202","sol":[[3,8,13],[0,1,2],[4,5,11],[6,7,12],[10,16,17],[9,15,23],[18,19,27],[24,25,31],[32,33,40],[26,34,35],[14,21,22],[20,28,36],[29,30,38],[37,42,43],[41,46,47],[39,45,50],[44,48,49],[51,52,53]],"d":52,"f":0,"l":3,"h":8,"sym":"r2","look":{"real":1,"decoy":10,"traps":22}},{"c":[2,-4,3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,4,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"222333001112233122322212221333001011211102321012103111103101313033133331301132332232021112233032123032332232201033223101123201113133322102012132301302211023311223","sol":[[0,1,2],[6,7,13],[19,20,27],[28,35,42],[47,48,53],[45,51,52],[43,49,50],[36,37,44],[14,21,29],[23,30,31],[8,15,22],[16,17,25],[12,18,26],[4,5,11],[3,9,10],[24,32,33],[34,40,41],[38,39,46]],"d":55,"f":0,"l":3,"h":8,"sym":"m","look":{"real":0,"decoy":12,"traps":29}},{"c":[2,-4,3,-4,4,-4,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,-4,4,-3,4,-2,4],"t":"312101023322001233312301111112233113322031113002232301101111002013221302112011213213333212102321021222022123121122203103303012333302121332203131303003103","sol":[[7,8,13],[5,12,19],[1,2,6],[0,4,10],[11,16,17],[3,9,15],[18,26,34],[14,22,23],[21,30,31],[24,32,38],[20,28,36],[27,35,42],[29,37,43],[25,33,39],[40,41,47],[44,45,46],[48,49,50]],"d":56,"f":0,"l":3,"h":8,"sym":"r2","look":{"real":1,"decoy":10,"traps":22}},{"c":[2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4],"t":"231302011301123201202033311011133103122031212111221302322222201303323232313132113031013213212202023101001021113002001103301213223332321331022101332222013","sol":[[0,2,3],[1,4,9],[5,10,18],[6,7,8],[11,19,27],[12,20,28],[29,37,44],[35,36,43],[16,17,26],[13,14,21],[15,23,32],[22,30,38],[24,25,34],[31,39,40],[33,41,46],[42,47,48],[45,49,50]],"d":58,"f":0,"l":3,"h":8,"sym":"r2","look":{"real":0,"decoy":10,"traps":24}},{"c":[1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4,-1,4],"t":"311133002121332132203321213331311011223012032013113132203103303201113202021003023033333022331302013033233323111032233023112231003002323302133011322131211031121211","sol":[[2,3,8],[1,7,13],[14,21,22],[0,5,6],[9,15,23],[16,24,31],[30,37,38],[28,29,36],[43,44,49],[10,17,25],[4,11,18],[12,20,27],[19,26,34],[32,33,39],[35,40,41],[42,48,53],[45,46,47],[50,51,52]],"d":61,"f":0,"l":3,"h":8,"sym":"m","look":{"real":1,"decoy":14,"traps":26}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"313102013322101023231231022111311132102211333233002221222313221201213211133113312112302013003123302021212132301201122121011332012223301001122002103112233203213333332031312001123212","sol":[[4,10,17],[2,3,7],[0,1,6],[5,12,13],[11,19,20],[18,27,28],[8,14,21],[9,15,16],[22,30,31],[23,24,32],[25,33,41],[26,34,42],[39,47,53],[40,48,54],[57,58,59],[45,46,52],[29,37,38],[51,55,56],[44,49,50],[35,36,43]],"d":67,"f":0,"l":3,"h":8,"sym":"hex","look":{"real":1,"decoy":15,"traps":34}},{"c":[2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4,0,4],"t":"031222313133021303211122001212321312321322022122003033121023222003111313232013033312111233231023301212121303032002301112012103221113133012022201221302002032123211","sol":[[12,19,20],[0,1,5],[6,13,21],[2,7,8],[14,22,29],[15,23,30],[28,35,36],[40,41,42],[37,43,48],[44,49,53],[47,51,52],[45,46,50],[26,33,34],[17,18,27],[3,4,11],[9,10,16],[24,25,32],[31,38,39]],"d":68,"f":0,"l":3,"h":8,"sym":"r3","look":{"real":1,"decoy":22,"traps":33}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"202333011201121333222111001331012331111001301021011303101323232021233203031131211321223113122112203121032123201033311031312012103022312102323322332113123231002212122133023313131132","sol":[[10,17,25],[11,18,26],[20,21,29],[19,28,35],[27,34,42],[1,6,13],[0,5,12],[7,8,9],[2,3,4],[14,22,30],[15,16,24],[23,31,39],[37,38,45],[36,43,49],[55,56,57],[44,50,51],[32,33,40],[41,48,54],[46,52,58],[47,53,59]],"d":75,"f":0,"l":3,"h":8,"sym":"hex","look":{"real":2,"decoy":9,"traps":31}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"233312323301322322302331313313331332001111001213122222213303232113102201321013102222131202321232003111013132033012121212033201112303131332003221","sol":[[0,6,13],[5,12,18],[1,2,7],[11,17,22],[19,23,26],[3,4,9],[10,15,16],[8,14,20],[21,24,29],[25,30,35],[27,28,34],[31,32,33],[36,41,42],[45,46,47],[38,39,40],[37,43,44]],"d":50,"f":0,"l":3,"h":9,"sym":"r2","look":{"real":0,"decoy":6,"traps":16}},{"c":[1,-4,2,-4,3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,0,-2,1,-2,2,-2,3,-2,4,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"212321133202033301003122111112211213012333033221013032002022313102021321121021121213031202123331232313132301302223002113011303103131203311233122231032233011102022","sol":[[6,7,10],[1,2,3],[0,4,5],[9,14,15],[8,11,12],[13,18,26],[19,27,35],[42,48,53],[17,24,33],[16,23,32],[20,21,22],[25,34,41],[31,38,39],[28,29,30],[36,37,43],[44,45,49],[50,51,52],[40,46,47]],"d":55,"f":0,"l":3,"h":9,"sym":"m","look":{"real":0,"decoy":9,"traps":25}},{"c":[1,-4,2,-4,3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-2,4,-1,4,0,4],"t":"033003331002023112321112323023232301223011131231331311032332121101011202123232001201001133123021113013322031213222321022231121313122322221313002202022122131213222","sol":[[1,2,7],[0,5,6],[3,8,14],[15,21,22],[28,29,37],[4,10,11],[9,16,23],[30,38,39],[25,31,32],[17,18,24],[12,19,26],[13,20,27],[45,46,47],[33,34,40],[41,42,48],[49,51,52],[35,36,43],[44,50,53]],"d":57,"f":0,"l":3,"h":9,"sym":"r3","look":{"real":1,"decoy":13,"traps":27}},{"c":[1,-4,2,-4,3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,0,-2,1,-2,2,-2,3,-2,4,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"333021103232102011121321013013221331311232333012202003321113322123133011132012021302001113201323311233213121322033102223203101332231211132122031313003112303221032","sol":[[0,1,4],[2,3,7],[5,6,11],[8,13,18],[12,17,24],[19,26,27],[25,33,41],[34,35,42],[9,14,21],[10,15,22],[16,23,31],[20,28,29],[30,36,37],[43,49,50],[44,45,51],[32,38,39],[40,46,47],[48,52,53]],"d":59,"f":0,"l":3,"h":9,"sym":"m","look":{"real":0,"decoy":14,"traps":26}},{"c":[1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"113333332023112223203011102211331321233102301233133013122003213022311331222323012123002213231131133013032231201021313101232321113222101001301112033221311201023132","sol":[[0,1,6],[2,3,9],[7,8,15],[11,12,13],[4,5,10],[14,20,21],[16,22,28],[25,32,33],[26,27,35],[34,41,42],[46,47,48],[38,39,40],[29,36,43],[51,52,53],[45,49,50],[30,37,44],[19,24,31],[17,18,23]],"d":49,"f":0,"l":3,"h":10,"sym":"m","look":{"real":0,"decoy":9,"traps":22}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"102122123121211112231312323301031331312323201232101201203223023123223013301113112103131231132232303032321012023102333001001121233331311212021222212012233132133131333321002311222313","sol":[[0,6,13],[1,2,3],[4,9,10],[7,14,21],[8,15,16],[17,25,33],[22,30,39],[23,24,31],[32,41,48],[40,47,54],[53,58,59],[5,11,18],[12,19,28],[20,29,37],[26,34,42],[27,35,43],[36,44,51],[38,45,46],[49,50,55],[52,56,57]],"d":58,"f":0,"l":3,"h":10,"sym":"hex","look":{"real":1,"decoy":9,"traps":25}},{"c":[1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4],"t":"223011132113102303122333323022311321013031212112331301331202202121321031313002301113033203302131213103221032112312223002111032303103021102311233022111233011203322","sol":[[3,9,17],[16,24,30],[8,15,23],[37,43,44],[22,29,36],[14,21,28],[2,7,13],[1,5,6],[0,4,10],[11,12,20],[18,25,32],[19,26,33],[31,38,39],[45,46,47],[40,41,42],[27,34,35],[51,52,53],[48,49,50]],"d":63,"f":0,"l":3,"h":10,"sym":"d6","look":{"real":0,"decoy":8,"traps":21}},{"c":[0,-4,1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-4,0,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3],"t":"213312111323122002121131101212232313002012213202032122232323112332123212001302231013021133011302203111032211312201203132001102033013322021331211123313003","sol":[[0,1,2],[8,14,21],[3,7,13],[19,20,26],[12,17,18],[6,10,11],[4,5,9],[15,22,30],[16,23,31],[24,25,32],[27,28,34],[38,39,45],[29,37,44],[35,36,43],[48,49,50],[33,40,46],[41,42,47]],"d":53,"f":0,"l":3,"h":11,"sym":"m","look":{"real":0,"decoy":5,"traps":16}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"131033102311112232302223322011213323011213203111211122101223233002121311112303323012331002131111023231201032022123303201023331133012221022321332202301031121231001123312203033302211","sol":[[0,1,5],[2,3,7],[4,9,10],[8,14,15],[11,18,27],[26,34,35],[6,12,20],[13,21,22],[19,28,29],[36,37,44],[42,43,49],[50,55,56],[16,17,25],[23,30,39],[24,32,33],[38,45,52],[46,53,59],[31,40,47],[41,48,54],[51,57,58]],"d":60,"f":0,"l":3,"h":11,"sym":"hex","look":{"real":0,"decoy":17,"traps":28}},{"c":[0,-4,1,-4,2,-4,-1,-3,0,-3,1,-3,2,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-2,3,-1,3,0,3,1,3,-2,4,-1,4,0,4],"t":"313302331101033222022232032211103203331312132332123231012123301333301023201201012333311223323211221131101021302132001231011111121213111121003332321232013","sol":[[1,4,9],[2,5,10],[6,11,12],[0,3,7],[8,16,24],[13,20,21],[14,22,29],[15,23,31],[30,37,38],[39,44,48],[17,18,19],[32,33,40],[25,26,27],[28,34,35],[36,42,43],[45,49,50],[41,46,47]],"d":69,"f":0,"l":3,"h":11,"sym":"r2","look":{"real":0,"decoy":24,"traps":36}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"101232301013132212023313231102022131333232301331023212122011021111202321113323103303203003002102011123203121332003111302202031303032222223031133021032221312033211302223101033312121","sol":[[4,10,17],[1,2,3],[7,8,9],[15,16,22],[23,24,30],[14,20,21],[11,12,13],[0,5,6],[18,19,28],[29,35,36],[26,27,34],[37,38,44],[42,43,50],[49,55,56],[45,46,51],[57,58,59],[52,53,54],[25,31,32],[33,40,41],[39,47,48]],"d":70,"f":0,"l":3,"h":11,"sym":"hex","look":{"real":1,"decoy":13,"traps":26}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,-4,0,-3,0,-2,0,-1,0,0,0,1,0,2,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-4,4,-3,4],"t":"212333101022233101323313231322001011023122303011113103221013211032222332322123122021301201021203231301132213013112303103213321132003121312332221","sol":[[21,28,35],[29,36,42],[34,40,41],[10,16,22],[4,9,15],[27,32,33],[19,25,31],[14,20,26],[30,37,38],[39,45,47],[43,44,46],[0,5,6],[1,2,3],[7,8,13],[12,18,24],[11,17,23]],"d":54,"f":0,"l":3,"h":12,"sym":"m","look":{"real":0,"decoy":6,"traps":15}},{"c":[1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4,-1,4],"t":"133233311003303033321301222132223113031012022302232011003022113322122032311102313303202201301123323333131211001013233011222012313103112102331223112001203032111323","sol":[[0,6,13],[1,7,14],[2,3,9],[8,15,23],[16,24,31],[50,51,52],[48,49,53],[30,38,44],[22,29,37],[12,20,21],[28,36,43],[35,41,42],[45,46,47],[4,5,11],[10,18,26],[19,27,34],[33,39,40],[17,25,32]],"d":58,"f":0,"l":3,"h":12,"sym":"m","look":{"real":0,"decoy":9,"traps":19}},{"c":[0,-4,1,-4,-1,-3,0,-3,1,-3,2,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-2,3,-1,3,0,3,1,3,-1,4,0,4],"t":"303223013313113022021313201213331103132203132301122013212111203032002101322131331222321012022233101111201003221103312033121021233312212321121033","sol":[[0,1,2],[3,8,14],[4,5,10],[6,7,12],[9,15,16],[11,18,26],[19,27,35],[13,22,23],[17,24,25],[33,34,41],[20,21,28],[29,36,37],[30,31,32],[38,39,40],[42,43,46],[44,45,47]],"d":57,"f":0,"l":3,"h":13,"sym":"d2","look":{"real":0,"decoy":11,"traps":24}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"323221033102213123312022232331031223012131333022013122102112301223313101322033323011121103222101201133231002333021202001011322123202031313312021211121201311132133332122203311001103","sol":[[0,1,7],[2,8,9],[3,4,10],[5,12,20],[6,13,21],[11,18,27],[14,15,23],[17,25,32],[16,24,31],[19,28,29],[22,30,39],[26,34,35],[33,40,41],[48,54,59],[46,47,53],[45,52,58],[36,37,38],[55,56,57],[42,43,44],[49,50,51]],"d":63,"f":0,"l":3,"h":13,"sym":"hex","look":{"real":0,"decoy":7,"traps":28}},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"001112031303021133323113203112132212222023202122132003022011311123331113101211303302232103013213121332013133123301202131322302223031323223111003213021312102101332131103232011312033","sol":[[11,18,27],[0,5,12],[19,28,36],[29,37,38],[14,20,21],[7,8,13],[1,2,6],[15,22,30],[3,4,9],[10,17,25],[16,23,24],[26,34,35],[42,43,50],[44,51,57],[49,55,56],[31,32,33],[41,48,54],[52,58,59],[39,40,47],[45,46,53]],"d":66,"f":0,"l":3,"h":14,"sym":"hex","look":{"real":0,"decoy":8,"traps":29}}], key:'parcels-pt3-extreme'},
-};
-let CAT='easy', PUZZLES=CATS.easy.data;
-// load a board's shape: cells come stored as a flat list q0,r0,q1,r1,...
-function loadShape(raw){ const c=[]; for(let i=0;i<raw.c.length;i+=2) c.push([raw.c[i],raw.c[i+1]]); setCells(c); CARD=CELLS.map((_,i)=>blobPath([i],6,9)); svgFrame(); }
-// ---- hex geometry (pointy-top hexes, radius S) ----
-const S=50, W3=Math.sqrt(3), PAD=4;
-function center(i){ const [q,r]=CELLS[i]; return [W3*S*(q+r/2), 1.5*S*r]; }
-function hexVerts(i){ const [x,y]=center(i); return [0,1,2,3,4,5].map(k=>{const a=Math.PI/180*(30+60*k); return [x+S*Math.cos(a), y+S*Math.sin(a)];}); }
-const vkey=([x,y])=>(Math.round(x*10)||0)+','+(Math.round(y*10)||0);  // ||0 folds -0 into 0
-
-// Trace the outside edge of a group of hexes (clockwise), pull it in by `inset`, round every corner.
-function blobPath(cells, inset, R){
-  const set=new Set(cells), next=new Map(), at=new Map();
-  for(const i of cells){
-    const v=hexVerts(i), [cx,cy]=center(i);
-    for(let k=0;k<6;k++){
-      const a=Math.PI/180*(60+60*k), nx=cx+W3*S*Math.cos(a), ny=cy+W3*S*Math.sin(a);
-      const shared=cells.some(j=>j!==i && Math.hypot(center(j)[0]-nx, center(j)[1]-ny)<1);
-      if(shared) continue;
-      const p1=v[k], p2=v[(k+1)%6]; next.set(vkey(p1), vkey(p2)); at.set(vkey(p1),p1); at.set(vkey(p2),p2);
-    }
-  }
-  const start=next.keys().next().value; const pts=[]; let key=start;
-  do{ pts.push(at.get(key)); key=next.get(key); }while(key!==start && pts.length<200);
-  const n=pts.length, unit=(a,b)=>{const dx=b[0]-a[0], dy=b[1]-a[1], L=Math.hypot(dx,dy); return [dx/L,dy/L];};
-  const corners=pts.map((p,i)=>{
-    const d1=unit(pts[(i-1+n)%n],p), d2=unit(p,pts[(i+1)%n]);
-    const n1=[-d1[1],d1[0]], n2=[-d2[1],d2[0]], m=inset/(1+n1[0]*n2[0]+n1[1]*n2[1]);
-    const P=[p[0]+m*(n1[0]+n2[0]), p[1]+m*(n1[1]+n2[1])];
-    const cross=d1[0]*d2[1]-d1[1]*d2[0], theta=Math.acos(Math.max(-1,Math.min(1,d1[0]*d2[0]+d1[1]*d2[1]))), t=R*Math.tan(theta/2);
-    return {a:[P[0]-d1[0]*t,P[1]-d1[1]*t], b:[P[0]+d2[0]*t,P[1]+d2[1]*t], sweep:cross>0?1:0};
-  });
-  const f=v=>v.toFixed(2);
-  let d=`M${f(corners[0].b[0])},${f(corners[0].b[1])}`;
-  for(let k=1;k<=n;k++){ const c=corners[k%n]; d+=`L${f(c.a[0])},${f(c.a[1])}A${R},${R} 0 0 ${c.sweep} ${f(c.b[0])},${f(c.b[1])}`; }
-  return d+'Z';
-}
-
-
-
-// ================= look =================
-// ================= themes: shapes, colors, tile style =================
-const POS={1:[[50,50]],2:[[29,50],[71,50]],3:[[50,29],[29,69],[71,69]],4:[[29,29],[71,29],[29,71],[71,71]]};
-const STAR=(()=>{let d='';for(let k=0;k<10;k++){const r=k%2?7.2:16.5,a=(-90+36*k)*Math.PI/180;d+=(k?'L':'M')+(r*Math.cos(a)).toFixed(2)+','+(r*Math.sin(a)+1.2).toFixed(2);}return d+'Z';})();
-const pts=a=>a.map(p=>p.map(v=>(+v).toFixed(2)).join(',')).join(' ');
-const sparkle=(x,y,r=3)=>`<path d="M${x},${y-r} L${x+r*.32},${y-r*.32} ${x+r},${y} ${x+r*.32},${y+r*.32} ${x},${y+r} ${x-r*.32},${y+r*.32} ${x-r},${y} ${x-r*.32},${y-r*.32}Z" fill="#fff" opacity=".95"/>`;
-
-// --- Neon: glowing outline shapes on a dark board
-const NEON=['#9d8cff','#ff3b5c','#ffd43b','#2bff88'];   // violet, red, yellow, green: far apart on the color wheel
-const NEON_PATHS=['M-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0','M-10,-10 h20 v20 h-20Z','M0,-12.5 L12,9 L-12,9Z','M3,-14 L-8,2 L-1,2 L-4,14 L9,-3 L1.5,-3Z'];
-const lighten=(hex,t)=>'#'+[1,3,5].map(i=>{const v=parseInt(hex.slice(i,i+2),16); return Math.round(v+(255-v)*t).toString(16).padStart(2,'0');}).join('');
-const NEON_FILL=NEON.map(c=>lighten(c,.38));
-function neon(s,x,y,c){
-  // solid shapes in a lighter tint of the color, edged in the full color, with a soft glow behind
-  const col=NEON[c], d=NEON_PATHS[s];
-  return `<g transform="translate(${x},${y})"><path d="${d}" fill="none" stroke="${col}" stroke-opacity=".22" stroke-width="7" stroke-linejoin="round"/>`+
-    `<path d="${d}" fill="${NEON_FILL[c]}" stroke="${col}" stroke-width="2.2" stroke-linejoin="round"/></g>`;
-}
-
-const THEMES={
-  neon:{name:'Neon', glyph:neon, colors:NEON, body:'theme-neon',
-    tints:[['#221d55','#8f80ff'],['#123844','#2ee6ff'],['#3d1638','#ff4fd8'],['#3a2a12','#ffa23b'],['#163a2a','#4dffa6']], merge:{fill:'#2d2246',stroke:'#ffd43b'},
-    shapes:['circle','square','triangle','bolt'], colorNames:['violet','red','yellow','green']},
-};
-let TH, COLORS, TINTS;
-function glyph(s,x,y,c){ return TH.glyph(s,x,y,c); }
-const tileLabel=t=>`${t.n} ${TH.colorNames[t.c]} ${TH.shapes[t.s]}${t.n>1?'s':''}`;
-function setTheme(key){
-  TH=THEMES[key]||THEMES.neon; COLORS=TH.colors; TINTS=TH.tints;
-  document.body.className=TH.body;
-  const demo=document.querySelector('#shapeDemo');
-  if(demo) demo.innerHTML=[0,1,2,3].map(s=>`<svg viewBox="-20 -20 40 40" aria-label="${TH.shapes[s]}">${glyph(s,0,0,s)}</svg>`).join('');
-}
-let CARD=[];
-const GK=S/68;   // glyph scale: keeps every symbol well inside its hexagon
-
-// ================= state =================
-const $=s=>document.querySelector(s);
-const board=$('#board');
-let P, cur, groups, pairs, nextId, sel, misses, startT, endT, done, busy, revealed, celebrating;
-let timers=[], rafs=[], released=null;
-const later=(f,ms)=>{const t=setTimeout(f,ms); timers.push(t); return t;};
-function clearFx(){ timers.forEach(clearTimeout); timers=[]; rafs.forEach(cancelAnimationFrame); rafs=[]; }
-
-const KEY='parcels-playtest-v1';
-let store={};
-function loadStore(){ store={}; try{ store=JSON.parse(localStorage.getItem(CATS[CAT].key)||'{}')||{}; }catch(e){} }
-function save(){ try{ localStorage.setItem(CATS[CAT].key, JSON.stringify(store)); }catch(e){} }
-function setCat(k){
-  CAT=CATS[k]?k:'easy'; PUZZLES=CATS[CAT].data; loadStore();
-  document.querySelectorAll('#catSeg button').forEach(b=>b.classList.toggle('on', b.dataset.c===CAT));
-}
-let prefs={sound:true, seenHelp:false}; try{ Object.assign(prefs, JSON.parse(localStorage.getItem(KEY+'-prefs')||'{}')); }catch(e){}
-function savePrefs(){ try{ localStorage.setItem(KEY+'-prefs', JSON.stringify(prefs)); }catch(e){} }
-
-const fmt=ms=>{const s=Math.round(ms/1000); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;};
-const LEVELS=['','gentle','tricky','chain reasoning','needs a guess'];
-const statText=p=>`${p.d} decoy parcels · ${p.f} tile${p.f===1?'':'s'} with only one possible parcel · logic: ${LEVELS[p.l]}`;
-
-const groupOf=i=>{ for(const g of Object.values(groups)) if(g.cells.includes(i)) return g; return null; };
-const pairOf=i=>pairs.find(p=>p.cells.includes(i))||null;
-const adj=(a,b)=>NEIGH[a].includes(b);
-const connected=cells=>PKEYS.has(cells.slice().sort((a,b)=>a-b).join(','));
-const centroid=cells=>{const c=cells.map(center); return [c.reduce((s,p)=>s+p[0],0)/c.length, c.reduce((s,p)=>s+p[1],0)/c.length];};
-
-// ================= sound: soft 80s synth palette (Web Audio, made on the fly) =================
-// Warm and gentle: FM electric-piano and bell tones (think DX7), a soft triangle pad,
-// a mellow echo. Parcels walk an Am–F–C–G progression as you place them.
-let AC=null, OUT=null, ECHO=null;
-function audio(){
-  if(!prefs.sound) return null;
-  try{
-    if(!AC){
-      AC=new (window.AudioContext||window.webkitAudioContext)();
-      const comp=AC.createDynamicsCompressor(); comp.threshold.value=-20; comp.ratio.value=3; comp.connect(AC.destination);
-      OUT=AC.createGain(); OUT.gain.value=1.6; OUT.connect(comp);
-      ECHO=AC.createGain(); ECHO.gain.value=1;
-      const d=AC.createDelay(1), fb=AC.createGain(), lp=AC.createBiquadFilter();
-      d.delayTime.value=.22; fb.gain.value=.24; lp.type='lowpass'; lp.frequency.value=1800;
-      ECHO.connect(d); d.connect(lp); lp.connect(fb); fb.connect(d); lp.connect(OUT);
-    }
-    if(AC.state==='suspended') AC.resume();
-  }catch(e){ AC=null; }
-  return AC;
-}
-const nf=m=>440*Math.pow(2,(m-69)/12);
-function send(g,echo){ if(echo){ const e=AC.createGain(); e.gain.value=echo; g.connect(e); e.connect(ECHO); } }
-// FM voice: ratio 1 = mellow electric piano, ratio ~3.5 = glassy bell
-function fm(f,{at=0,dur=.6,vol=.05,ratio=1,index=1.2,idecay=.25,attack=.005,echo=.2}={}){
-  const ac=audio(); if(!ac) return;
-  const t=ac.currentTime+at, car=ac.createOscillator(), mod=ac.createOscillator(), mg=ac.createGain(), g=ac.createGain();
-  car.type='sine'; mod.type='sine'; car.frequency.value=f; mod.frequency.value=f*ratio;
-  mg.gain.setValueAtTime(f*index,t); mg.gain.exponentialRampToValueAtTime(Math.max(f*index*.04,.01),t+idecay);
-  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+attack); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
-  mod.connect(mg); mg.connect(car.frequency); car.connect(g); g.connect(OUT); send(g,echo);
-  car.start(t); mod.start(t); car.stop(t+dur+.05); mod.stop(t+dur+.05);
-}
-// soft pad / glide voice: two slightly detuned triangles through a gentle low-pass
-function soft(f,{at=0,dur=.5,vol=.04,attack=.02,cut=1800,glide=null,detune=6,echo=.15,type='triangle'}={}){
-  const ac=audio(); if(!ac) return;
-  const t=ac.currentTime+at, g=ac.createGain(), lp=ac.createBiquadFilter();
-  lp.type='lowpass'; lp.frequency.value=cut; lp.Q.value=.5;
-  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+attack); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
-  [-detune,detune].forEach(dt=>{ const o=ac.createOscillator(); o.type=type; o.frequency.setValueAtTime(f,t);
-    if(glide) o.frequency.exponentialRampToValueAtTime(glide,t+Math.min(dur*.6,.12)); o.detune.value=dt; o.connect(lp); o.start(t); o.stop(t+dur+.05); });
-  lp.connect(g); g.connect(OUT); send(g,echo);
-}
-const PROG=[[57,60,64],[53,57,60],[48,52,55],[55,59,62]];          // Am  F  C  G
-const PENTA=[57,60,62,64,67,69,72,74,76,79,81,84,86,88];           // A minor pentatonic, climbing
-// A minor pentatonic from A3 up to D7: 18 notes, enough for the biggest board
-const MELODY=[]; for(let o=0;o<4;o++) for(const off of [0,3,5,7,10]){ const m=57+12*o+off; if(m<=98) MELODY.push(m); }
-const ep=(m,at=0,vol=.045,dur=.8)=>fm(nf(m),{at,dur,vol,ratio:1,index:1.1,idecay:.3,echo:.22});
-const bell=(m,at=0,vol=.035,dur=1.1)=>fm(nf(m),{at,dur,vol,ratio:3.5,index:1.6,idecay:.45,echo:.3});
-const sfx={
-  tap:()=>fm(nf(84),{dur:.16,vol:.028,ratio:2,index:.5,idecay:.05,echo:.08}),
-  step:n=>fm(nf([72,76,79][Math.min(n,3)-1]||72),{dur:.22,vol:.035,ratio:1,index:.7,idecay:.08,echo:.1}),
-  pair:()=>{ ep(76,0,.04,.45); ep(81,.08,.035,.5); },
-  group:n=>{
-    // a melody note that climbs one step with every parcel, so the board sounds like it's rising toward the finish,
-    // over a quieter chord from the Am–F–C–G loop
-    // Every board climbs to the same peak on its last parcel, one new note per parcel, so even 17-parcel boards never repeat a note.
-    const ch=PROG[n%4], top=MELODY[Math.min(MELODY.length-1, Math.max(0,MELODY.length-GROUPS)+n)];
-    ch.forEach((m,i)=>ep(m+12,i*.03,.022,.8));
-    ep(top,.07,.05,1); bell(Math.min(top+12,105),.07,.012,.8);
-    soft(nf(ch[0]-12),{dur:.55,vol:.045,type:'sine',cut:600,detune:0,echo:0});
-  },
-  bad:()=>{ soft(nf(64),{dur:.22,vol:.045,cut:1200,echo:.05}); soft(nf(60),{at:.13,dur:.32,vol:.045,cut:1000,echo:.05}); },
-  pin:()=>{ bell(88,0,.035,.9); bell(93,.07,.025,1); },
-  unpin:()=>bell(84,0,.03,.8),
-  brk:()=>sfx.pop(),
-  pop:(quiet)=>{ soft(nf(67),{dur:.13,vol:quiet?.035:.06,type:'sine',cut:4000,glide:nf(79),detune:0,attack:.004,echo:.12}); fm(nf(91),{at:.04,dur:.25,vol:quiet?.012:.02,ratio:3.5,index:.8,idecay:.12,echo:.2}); },
-  note:k=>ep(PENTA[k%PENTA.length]+12,0,.04,.7),
-  fanfare:()=>{
-    [[0,PROG[0]],[.32,PROG[1]],[.58,PROG[3]]].forEach(([t,ch])=>ch.forEach((m,i)=>ep(m+12,t+i*.025,.035,.6)));
-    for(let i=0;i<10;i++) bell(PENTA[(i*2)%PENTA.length]+12,.86+i*.1,.022,.9);
-    [57,64,69,73,76].forEach(m=>soft(nf(m),{at:.86,dur:2.2,vol:.022,attack:.25,cut:2000,echo:.2}));
-  },
-  finale:()=>{
-    [57,64,69,73,76].forEach(m=>soft(nf(m),{dur:2.6,vol:.026,attack:.3,cut:2400,echo:.25}));
-    soft(nf(45),{dur:1.8,vol:.05,type:'sine',cut:500,detune:0,echo:0});
-    bell(81,.1,.03,1.4); bell(88,.35,.025,1.4); bell(93,.6,.02,1.6);
-  },
-};
-function buzz(ms){ try{ navigator.vibrate&&navigator.vibrate(ms); }catch(e){} }
-function paintSound(){ const b=$('#bSound'); b.textContent=prefs.sound?'On':'Off'; b.classList.toggle('primary',prefs.sound); }
-
-// ================= particles =================
-const fx=$('#fx'), ctx=fx.getContext('2d'); let parts=[], fxOn=false;
-function sizeFx(){ const d=window.devicePixelRatio||1; fx.width=innerWidth*d; fx.height=innerHeight*d; ctx.setTransform(d,0,0,d,0,0); }
-sizeFx(); addEventListener('resize',sizeFx);
-function burst(x,y,colors,n=16,power=5,dir=null,spread=Math.PI*2){
-  for(let k=0;k<n;k++){
-    const a=dir===null? Math.random()*Math.PI*2 : dir+(Math.random()-.5)*spread, v=power*(.45+Math.random()*.8);
-    parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-(dir===null?1.5:0),r:Math.random()*6,vr:(Math.random()-.5)*.35,s:3.5+Math.random()*4.5,
-      c:colors[k%colors.length],life:1,dec:.011+Math.random()*.012,sh:Math.random()<.55?0:1});
-  }
-  if(!fxOn){ fxOn=true; requestAnimationFrame(fxLoop); }
-}
-function fxLoop(){
-  ctx.clearRect(0,0,innerWidth,innerHeight);
-  parts=parts.filter(p=>p.life>0 && p.y<innerHeight+40);
-  for(const p of parts){
-    p.vy+=.17; p.vx*=.985; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; p.life-=p.dec;
-    ctx.save(); ctx.globalAlpha=Math.max(0,Math.min(1,p.life*1.6)); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.c;
-    if(p.sh===0) ctx.fillRect(-p.s/2,-p.s/3.2,p.s,p.s/1.6); else { ctx.beginPath(); ctx.arc(0,0,p.s/2.4,0,Math.PI*2); ctx.fill(); }
-    ctx.restore();
-  }
-  if(parts.length) requestAnimationFrame(fxLoop); else { fxOn=false; ctx.clearRect(0,0,innerWidth,innerHeight); }
-}
-function toScreen(x,y){ const m=board.getScreenCTM(); if(!m) return [innerWidth/2,innerHeight/2]; const p=new DOMPoint(x,y).matrixTransform(m); return [p.x,p.y]; }
-function groupColors(g){ const [tint,dark]=TINTS[g.color]; const cs=new Set([tint,dark]); g.cells.forEach(i=>cs.add(COLORS[P.tiles[i].c])); return [...cs]; }
-
-// ================= rendering =================
-function svgFrame(){
-  const xs=CELLS.map((_,i)=>center(i)[0]), ys=CELLS.map((_,i)=>center(i)[1]);
-  const x0=Math.min(...xs)-W3*S/2-8, y0=Math.min(...ys)-S-8, x1=Math.max(...xs)+W3*S/2+8, y1=Math.max(...ys)+S+8;
-  board.setAttribute('viewBox',`${x0} ${y0} ${x1-x0} ${y1-y0}`);
-}
-function tileSVG(i,k){
-  const [x,y]=center(i), t=P.tiles[i];
-  const cls='tile'+(sel.includes(i)?' sel':'')+(pairOf(i)?' paired':'')+(released&&released.has(i)?' release':'');
-  return `<g class="${cls}" data-i="${i}" style="--k:${k}" role="button" aria-label="${tileLabel(t)}"><g class="pop"><path class="card" d="${CARD[i]}"/>`+
-    `<g transform="translate(${(x-50*GK).toFixed(2)},${(y-50*GK).toFixed(2)}) scale(${GK.toFixed(4)})"><g class="gl">${POS[t.n].map(([gx,gy])=>glyph(t.s,gx,gy,t.c)).join('')}</g></g></g></g>`;
-}
-function badgeSVG(g){
-  // Triangle (all three touch): center of the parcel. Line or bend: center of the middle tile.
-  const [a,b,c]=g.cells, tri=adj(a,b)&&adj(b,c)&&adj(a,c);
-  const mid=g.cells.find(m=>g.cells.every(o=>o===m||adj(m,o)));
-  const [x,y]=tri ? centroid(g.cells) : center(mid);
-  const dark=TINTS[g.color][1];
-  // position lives on the outer group; the pop-in animation runs on the inner one so it can't override the position
-  return `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})"><g class="badge${g.badgeFresh?' enter':''}"><circle r="11" fill="${dark}" stroke="#fffaf0" stroke-width="2.5"/>`+
-    `<rect x="-5" y="-1.5" width="10" height="8" rx="1.5" fill="#fffaf0"/><path d="M-3,-1.5 V-4 a3,3 0 0 1 6,0 V-1.5" fill="none" stroke="#fffaf0" stroke-width="2"/></g></g>`;
-}
-function render(){
-  const inGroup=new Set(); Object.values(groups).forEach(g=>g.cells.forEach(i=>inGroup.add(i)));
-  const pairSVG=pairs.map(p=>`<path class="pair${p.fresh?' enter':''}" d="${blobPath(p.cells,2,13)}"/>`).join('');
-  const parcelSVG=Object.values(groups).map(g=>{
-    const [tint,dark]=TINTS[g.color];
-    return `<g class="pwrap" data-g="${g.id}"><g class="parcel${g.pinned?' pinned':''}${g.fresh?' enter':''}">`+
-      `<path class="outline" pathLength="1" d="${blobPath(g.cells,1.5,13)}" fill="${tint}" stroke="${dark}"/>`+
-      g.cells.map((i,k)=>tileSVG(i,k)).join('')+(g.pinned?badgeSVG(g):'')+`</g></g>`;
-  }).join('');
-  let free=''; for(let i=0;i<N;i++) if(!inGroup.has(i)) free+=tileSVG(i,0);
-  const [bx,by]=centroid(CELLS.map((_,i)=>i));
-  board.innerHTML=`<g id="world"><g>${pairSVG}</g><g>${parcelSVG}</g><path id="trail" d=""/><g>${free}</g><g transform="translate(${bx.toFixed(1)},${by.toFixed(1)})"><g id="hole">${holeSVG()}</g></g></g>`;
-  Object.values(groups).forEach(g=>{g.fresh=false; g.badgeFresh=false;}); pairs.forEach(p=>p.fresh=false);
-  $('#misses').textContent=misses;
-  $('#prog').textContent=Object.keys(groups).length;
-  $('#progBar').style.width=(Object.keys(groups).length/GROUPS*100)+'%';
-}
-function holeSVG(){
-  let rays=''; for(let k=0;k<12;k++){ const a=k*30*Math.PI/180; rays+=`<path d="M0,0 L${(46*Math.cos(a-0.12)).toFixed(1)},${(46*Math.sin(a-0.12)).toFixed(1)} L${(46*Math.cos(a+0.12)).toFixed(1)},${(46*Math.sin(a+0.12)).toFixed(1)}Z" fill="#f6c945" opacity=".55"/>`; }
-  return `<g class="rays">${rays}</g><g transform="scale(1.9)"><path d="${STAR}" fill="#f2b705" stroke="#a87500" stroke-width="1.4" stroke-linejoin="round"/></g>`;
-}
-// Light update while a finger is moving: classes and the trail only, no rebuild.
-function paintSel(path){
-  board.querySelectorAll('.tile').forEach(el=>el.classList.toggle('sel', sel.includes(+el.dataset.i)));
-  const tr=$('#trail'); if(!tr) return;
-  tr.setAttribute('d', path && path.length>1 ? path.map((i,k)=>{const [x,y]=center(i); return (k?'L':'M')+x.toFixed(1)+','+y.toFixed(1);}).join('') : '');
-}
-let msgTimer=null;
-function setMsg(t,cls,sticky){
-  const m=$('#msg'); clearTimeout(msgTimer);
-  if(!t){ m.classList.remove('show'); return; }
-  const icon=cls==='bad'?'✕':cls==='ok'?'✓':'i';
-  m.innerHTML=`<span class="ic">${icon}</span><span class="tx"></span>`; m.querySelector('.tx').textContent=t;
-  m.className=(cls||'')+(t.length>52?' long':''); void m.offsetWidth; m.classList.add('show');
-  if(!sticky) msgTimer=setTimeout(()=>m.classList.remove('show'), cls==='bad'?3800 : t.length>60?4200 : 2800);
-}
-function tick(){ if(startT && !done) $('#timer').textContent=fmt(Date.now()-startT); }
-
-// ================= actions =================
-function begin(){ if(!startT) startT=Date.now(); }
-
-function freeColor(cells){
-  const near=new Set(); cells.forEach(i=>NEIGH[i].forEach(j=>{const g=groupOf(j); if(g) near.add(g.color);}));
-  const use=new Array(TINTS.length).fill(0); Object.values(groups).forEach(g=>use[g.color]++);
-  const ok=[...TINTS.keys()].filter(i=>!near.has(i)); const pool=ok.length?ok:[...TINTS.keys()];
-  return pool.sort((a,b)=>use[a]-use[b]||a-b)[0];
-}
-
-function makePair(cells){
-  st.pairs++;
-  pairs=pairs.filter(p=>!p.cells.some(c=>cells.includes(c)));
-  pairs.push({cells:cells.slice(), fresh:true});
-  sel=[]; sfx.pair(); buzz(8); setMsg('Pair pencilled in. Add a third tile when you’re sure.'); render();
-}
-
-function submit(cells){
-  cells=cells.slice();
-  let msg=null, rule=false;
-  if(!connected(cells)) msg='The three tiles have to touch.';
-  else { msg=whyInvalid(...cells.map(k=>P.tiles[k])); rule=!!msg; }
-  if(msg){
-    busy=true; if(rule){ misses++; st.streak=0; st.trail.push('🟥'); sfx.bad(); buzz([20,40,20]); }
-    setMsg(msg,'bad'); sel=[]; render();
-    board.querySelectorAll('.tile').forEach(el=>{ if(cells.includes(+el.dataset.i)) el.classList.add('shake'); });
-    later(()=>{ busy=false; board.querySelectorAll('.shake').forEach(el=>el.classList.remove('shake')); },420);
-    return;
-  }
-  pairs=pairs.filter(p=>!p.cells.some(c=>cells.includes(c)));
-  const now=Date.now(); st.trail.push('🟩'); st.built++; st.streak++; st.best=Math.max(st.best,st.streak); if(viaSwipe) st.swipes++;
-  if(st.lastT){ const gap=now-st.lastT; st.fast=st.fast===null?gap:Math.min(st.fast,gap); } st.lastT=now;
-  const id=nextId++; const g={id, cells, color:freeColor(cells), pinned:false, fresh:true};
-  groups[id]=g; sel=[];
-  const n=Object.keys(groups).length;
-  sfx.group(n-1); buzz(14);
-  setMsg(n===1 ? 'Nice! Tap to pop a parcel, hold to lock it.' : '', 'ok');
-  render();
-  const [cx,cy]=centroid(cells), [sx,sy]=toScreen(cx,cy); burst(sx,sy,groupColors(g),18,5.5);
-  if(n===GROUPS) win();
-}
-
-// Clearing a parcel: it swells, the outline bursts outward, confetti puffs, and the tiles spring back loose.
-function breakGroup(g){
-  st.pops++; st.streak=0; st.trail.push('🫧');
-  const el=board.querySelector(`.pwrap[data-g="${g.id}"] .parcel`);
-  const [cx,cy]=centroid(g.cells), [sx,sy]=toScreen(cx,cy);
-  sfx.pop(); buzz(10); setMsg('');
-  burst(sx,sy,groupColors(g),16,4.2);
-  const finish=()=>{ delete groups[g.id]; released=new Set(g.cells); render(); released=null; busy=false; };
-  if(!el){ finish(); return; }
-  busy=true;
-  el.querySelector('.outline').animate([{transform:'scale(1)',opacity:1},{transform:'scale(1.08)',opacity:1,offset:.35},{transform:'scale(1.22)',opacity:0}],
-    {duration:230,easing:'cubic-bezier(.2,.8,.3,1)',fill:'forwards'});
-  el.querySelectorAll('.pop').forEach(p=>p.animate([{transform:'scale(1)'},{transform:'scale(1.14)',offset:.45},{transform:'scale(.84)'}],
-    {duration:210,easing:'ease-out',fill:'forwards'}));
-  later(finish,215);
-}
-// Erasing a pencilled pair gets a smaller version of the same pop.
-function erasePair(p){
-  const path=[...board.querySelectorAll('.pair')][pairs.indexOf(p)];
-  const [cx,cy]=centroid(p.cells), [sx,sy]=toScreen(cx,cy);
-  sfx.pop(true); burst(sx,sy,[getComputedStyle(document.body).getPropertyValue('--paired').trim()||'#8d846f','#ddd3c1','#9c97cc'],8,3);
-  sel=[]; setMsg('Pair erased.');
-  const finish=()=>{ pairs=pairs.filter(x=>x!==p); released=new Set(p.cells); render(); released=null; busy=false; };
-  if(!path){ finish(); return; }
-  busy=true;
-  path.animate([{transform:'scale(1)',opacity:1},{transform:'scale(1.2)',opacity:0}],{duration:180,easing:'ease-out',fill:'forwards'});
-  later(finish,170);
-}
-function togglePin(g){
-  g.pinned=true; g.badgeFresh=true; st.locks++;
-  sfx.pin(); buzz(12);
-  setMsg('Locked in. Hold it again to pop it.', 'ok');
-  render();
-  const el=board.querySelector(`.pwrap[data-g="${g.id}"] .parcel`); if(el){ el.classList.add('pinning'); }
-  if(g.pinned){ const [cx,cy]=centroid(g.cells), [sx,sy]=toScreen(cx,cy); burst(sx,sy,['#fffaf0',TINTS[g.color][1],'#f2b705'],10,3.5); }
-}
-
-// Parcels: a quick tap pops an unlocked parcel (on release). Press and hold locks it;
-// press and hold a locked parcel pops it. A quick tap on a locked parcel just wiggles.
-const HOLD=450;
-function startHold(g){
-  const wrap=board.querySelector(`.pwrap[data-g="${g.id}"]`), inner=wrap&&wrap.querySelector('.parcel');
-  const h={g, done:false, ring:null};
-  if(wrap){
-    const ns='http://www.w3.org/2000/svg', ring=document.createElementNS(ns,'path');
-    ring.setAttribute('class','holdring'+(g.pinned?' popping':'')); ring.setAttribute('pathLength','1');
-    ring.setAttribute('d', blobPath(g.cells,-3,15)); wrap.appendChild(ring); h.ring=ring;
-    inner.classList.add('holding'); h.inner=inner;
-  }
-  h.timer=setTimeout(()=>{ h.done=true; clearHold(h); if(!groups[g.id]) return; if(g.pinned) breakGroup(g); else togglePin(g); }, HOLD);
-  return h;
-}
-function clearHold(h){ clearTimeout(h.timer); if(h.ring) h.ring.remove(); if(h.inner) h.inner.classList.remove('holding'); }
-function releaseHold(h){
-  if(h.done) return;
-  clearHold(h); h.done=true;
-  const g=h.g; if(!groups[g.id]) return;
-  if(!g.pinned){ breakGroup(g); return; }
-  setMsg('Locked. Press and hold to pop it.');
-  const el=board.querySelector(`.pwrap[data-g="${g.id}"] .parcel`); if(el){ el.classList.remove('nudge'); void el.getBBox(); el.classList.add('nudge'); }
-  sfx.tap();
-}
-
-function tapCell(i){
-  if(i<0){ if(sel.length){ sel=[]; paintSel(); } return; }
-  const g=groupOf(i);
-  if(g){ return; }
-  const p=pairOf(i);
-  if(p){
-    const same=sel.length===2 && p.cells.every(c=>sel.includes(c));
-    if(same){ erasePair(p); return; }
-    const u=[...new Set([...sel,...p.cells])];
-    sel = u.length<=3 ? u : p.cells.slice();
-    sfx.tap();
-    if(sel.length===3){ submit(sel); return; }
-    setMsg('Tap a third tile, or tap the pair again to erase it.'); paintSel(); return;
-  }
-  // With two tiles picked, tapping either one again pencils them in as a pair.
-  if(sel.length===2 && sel.includes(i)){
-    const [a,b]=sel;
-    if(adj(a,b)){ makePair([a,b]); return; }
-    sel=sel.filter(x=>x!==i); setMsg('Pairs have to touch.','bad'); paintSel(); return;
-  }
-  sel = sel.includes(i) ? sel.filter(x=>x!==i) : sel.concat(i);
-  sfx.tap();
-  if(sel.length===3){ submit(sel); return; }
-  paintSel();
-}
-
-// ================= pointer handling =================
-function svgXY(x,y){ const m=board.getScreenCTM(); if(!m) return null; return new DOMPoint(x,y).matrixTransform(m.inverse()); }
-function cellAt(x,y){
-  const p=svgXY(x,y); if(!p) return -1;
-  let best=-1, bd=S*0.93;
-  for(let i=0;i<N;i++){ const [cx,cy]=center(i), d=Math.hypot(cx-p.x,cy-p.y); if(d<bd){bd=d; best=i;} }
-  return best;
-}
-let gest=null;   // {id,start,x0,y0,moved,units:[[cells]]}
-const flat=units=>units.flat();
-board.addEventListener('pointerdown',e=>{
-  if(done||celebrating||gest) return;
-  const i=cellAt(e.clientX,e.clientY);
-  if(busy) return;
-  e.preventDefault(); audio();
-  try{ board.setPointerCapture(e.pointerId); }catch(_){}
-  begin();
-  if(i>=0 && groupOf(i)){ gest={id:e.pointerId, consumed:true, x0:e.clientX, y0:e.clientY, hold:startHold(groupOf(i))}; return; }
-  gest={id:e.pointerId, start:i, x0:e.clientX, y0:e.clientY, moved:false, units:[]};
-});
-board.addEventListener('pointermove',e=>{
-  if(!gest||e.pointerId!==gest.id) return;
-  if(gest.consumed){ if(gest.hold && !gest.hold.done && Math.hypot(e.clientX-gest.x0,e.clientY-gest.y0)>18){ clearHold(gest.hold); gest.hold.done=true; } return; }
-  if(!gest.moved){
-    if(Math.hypot(e.clientX-gest.x0,e.clientY-gest.y0)<10) return;
-    gest.moved=true;
-    const s=gest.start;
-    if(s<0||groupOf(s)){ gest.dead=true; return; }      // swipes start on a loose or pencilled tile
-    begin(); sel=[];
-    const p=pairOf(s); gest.units=[p? p.cells.slice() : [s]];
-  }
-  if(gest.dead) return;
-  const i=cellAt(e.clientX,e.clientY); if(i<0) return;
-  const path=flat(gest.units);
-  if(path.includes(i)){
-    // slid back onto an earlier tile: drop what came after it
-    const k=gest.units.findIndex(u=>u.includes(i));
-    if(k<gest.units.length-1){ gest.units=gest.units.slice(0,k+1); sel=flat(gest.units); paintSel(sel); }
-    return;
-  }
-  if(groupOf(i)) return;
-  const p=pairOf(i), add=(p? p.cells : [i]).filter(c=>!path.includes(c));
-  if(path.length+add.length>3) return;
-  if(!add.some(c=>path.some(q=>adj(c,q)))) return;
-  gest.units.push(add); sel=flat(gest.units); sfx.step(sel.length); paintSel(sel);
-});
-function endGesture(e,cancel){
-  if(!gest||e.pointerId!==gest.id) return;
-  const g=gest; gest=null;
-  if(g.consumed){ if(g.hold){ cancel ? (clearHold(g.hold), g.hold.done=true) : releaseHold(g.hold); } return; }
-  if(cancel){ sel=[]; paintSel(); return; }
-  if(!g.moved){ begin(); tapCell(g.start); return; }
-  if(g.dead) return;
-  const cells=flat(g.units);
-  paintSel([]);
-  if(cells.length===3){ viaSwipe=true; submit(cells); viaSwipe=false; }
-  else if(cells.length===2) makePair(cells);
-  else { sel=[]; paintSel(); }
-}
-board.addEventListener('pointerup',e=>endGesture(e,false));
-board.addEventListener('pointercancel',e=>endGesture(e,true));
-board.addEventListener('contextmenu',e=>e.preventDefault());
-
-// ================= puzzles, winning =================
-let st, viaSwipe=false;
-const newStats=()=>({trail:[],pops:0,pairs:0,locks:0,built:0,swipes:0,streak:0,best:0,lastT:null,fast:null});
-// A fun title for how the board was solved: first match wins.
-// ---------- scoring ----------
-// Par time: what a focused first-time solver might need. Roughly a fixed amount per parcel
-// (more per parcel on harder levels, where each tile has more plausible options) plus a little per false parcel.
-const PAR_PER_PARCEL={easy:12, medium:18, hard:24, extreme:30}, PAR_PER_DECOY=2;
-const parFor=p=>1000*(PAR_PER_PARCEL[CAT]*p.c.length/6 + PAR_PER_DECOY*p.d);
-// Mistakes and pops cost less on bigger boards, where some are expected.
-const ALLOW={easy:{miss:4,pop:4}, medium:{miss:6,pop:6}, hard:{miss:8,pop:8}, extreme:{miss:10,pop:12}};
-// Score out of 1000: speed (500) + accuracy (300) + tidiness (200).
-function scoreFor(time,par,mistakes,pops){
-  const x=time/par;
-  const speed= x<=.5?500 : x<=1?500-300*(x-.5)/.5 : x<=2?350-250*(x-1) : Math.max(0,100-100*(x-2));
-  const acc=Math.max(0,300-300*mistakes/ALLOW[CAT].miss);
-  const tidy=Math.max(0,200-200*pops/ALLOW[CAT].pop);
-  const r=v=>Math.round(v);
-  return {speed:r(speed), acc:r(acc), tidy:r(tidy), total:r(speed)+r(acc)+r(tidy)};
-}
-// Star thresholds ease off a little as the levels get harder.
-const TIERS={easy:[930,800,620,400], medium:[900,770,590,380], hard:[870,740,560,360], extreme:[840,700,520,340]};
-const starsFor=total=>{ const t=TIERS[CAT]; return total>=t[0]?5:total>=t[1]?4:total>=t[2]?3:total>=t[3]?2:1; };
-const COMPLIMENTS={
-  easy:{5:['Perfect warm-up. You make it look effortless.','Not a single wasted move. Beautiful.'],
-        4:['Smooth and tidy. Nicely done.','Quick work. You’re ready for Medium.'],
-        3:['Solid solve. You found your rhythm.','Good going. A few detours, but you got there.'],
-        2:['Done and dusted. Next one will be quicker.','Every solve counts. Nice job sticking with it.'],
-        1:['You finished it, and that’s what matters.','Warm-up complete. Onward!']},
-  medium:{5:['Masterful. That board never stood a chance.','Clean, fast, and clever. Superb.'],
-          4:['Sharp thinking. That was a great solve.','Really nice work. Hard is calling your name.'],
-          3:['Nicely reasoned. You’re getting the hang of this.','Good solve. A couple of wobbles, nothing more.'],
-          2:['You worked it out. That’s real progress.','Tricky one, and you cracked it.'],
-          1:['Persistence pays off. Board solved!','A win is a win. Well played.']},
-  hard:{5:['Elite solve. Genuinely impressive.','That was surgical. Wow.'],
-        4:['Excellent. Hard boards bow to you.','Strong, steady, and smart. Great solve.'],
-        3:['Good solve on a tough board. Respect.','You untangled a hard one. Nicely done.'],
-        2:['Hard won and well earned.','That board fought back, and you still won.'],
-        1:['You beat a Hard board. Take the victory lap.','Grit over speed. Solved!']},
-  extreme:{5:['Legendary. That was an Extreme board, flawlessly.','Untouchable. Take a bow.'],
-           4:['Outstanding. Few people solve these this well.','Brilliant work on a brutal board.'],
-           3:['Great solve. Extreme is no joke.','You stayed cool under pressure. Excellent.'],
-           2:['You conquered an Extreme board. Huge.','Long haul, big reward. Well done.'],
-           1:['Extreme board: defeated. Seriously.','That took real determination. Solved!']},
-};
-const LEVEL_EMOJI={easy:'🟢', medium:'🟡', hard:'🟠', extreme:'🔴'};
-const starRow=n=>n===5?'🌟🌟🌟🌟🌟':'⭐'.repeat(n)+'☆'.repeat(5-n);
-
-// A fun title for how the board was solved: first match wins.
-// r = one run: {time, misses, pops, best, trail}
-function awardFor(r,par){
-  const A=[
-    [r.misses===0&&r.pops===0, '💎','Flawless','No mistakes, nothing popped'],
-    [r.time<=par*.5, '⚡','Speed Run',`Under ${fmt(par*.5)}, half of par`],
-    [r.pops>=Math.max(8,GROUPS), '🫧','Bubble Wrap Enthusiast',`${r.pops} parcels popped`],
-    [r.best>=Math.max(6,Math.round(GROUPS*.75)), '🔥','Unstoppable',`${r.best} parcels in a row without a slip`],
-    [r.misses===0, '🎯','Sharpshooter','Zero mistakes'],
-    [r.misses>=ALLOW[CAT].miss*2, '🧗','Never Gave Up',`${r.misses} mistakes and still solved it`],
-  ];
-  const a=A.find(a=>a[0]); return a?a.slice(1):null;
-}
-function shareText(r,sc,stars){
-  // the move-by-move trail, 10 per line: 🟩 parcel made, 🟥 mistake, 🫧 pop
-  const tr=r.trail||[], t=tr.slice(0,40), rows=[]; for(let i=0;i<t.length;i+=10) rows.push(t.slice(i,i+10).join('')); if(tr.length>40) rows[rows.length-1]+='…';
-  return `Parcels ${LEVEL_EMOJI[CAT]} ${CATS[CAT].name} #${cur}\n${starRow(stars)}  ${sc.total}\n⏱ ${fmt(r.time)}  ❌ ${r.misses}  🫧 ${r.pops}`+(rows.length?`\n${rows.join('\n')}`:'');
-}
-function countUp(el,to,fmtFn,delay){
-  const t0=performance.now()+delay, D=700;
-  const f=now=>{ const p=Math.max(0,Math.min(1,(now-t0)/D)), e=1-Math.pow(1-p,3); el.textContent=fmtFn(to*e); if(p<1) rafs.push(requestAnimationFrame(f)); };
-  rafs.push(requestAnimationFrame(f));
-}
-function showResults(r,note){
-  const par=parFor(P), sc=scoreFor(r.time,par,r.misses,r.pops), stars=starsFor(sc.total);
-  $('#stars').innerHTML=[0,1,2,3,4].map(k=>`<i class="${k<stars?'':'off'}" style="animation-delay:${300+k*120}ms">${stars===5?'🌟':'⭐'}</i>`).join('');
-  const sEl=$('#score'); sEl.textContent='0'; countUp(sEl,sc.total,v=>Math.round(v),250);
-  const pool=COMPLIMENTS[CAT][stars]; $('#compliment').textContent=pool[cur%pool.length];
-  $('#breakdown').innerHTML=`Speed <b>${sc.speed}</b> · Accuracy <b>${sc.acc}</b> · Tidiness <b>${sc.tidy}</b>`+(note?` · ${note}`:'');
-  const aw=awardFor(r,par), box=$('#award');
-  box.style.display=aw?'':'none';
-  if(aw) box.innerHTML=`<span class="em">${aw[0]}</span><span>${aw[1]}<small>${aw[2]}</small></span>`;
-  const items=[
-    ['⏱',`Par ${fmt(par)}`,r.time,v=>fmt(v)],
-    ['❌','Mistakes',r.misses,v=>Math.round(v)],
-    ['🫧','Popped',r.pops,v=>Math.round(v)],
-  ];
-  const g=$('#statgrid');
-  g.innerHTML=items.map(([ic,lbl],k)=>`<div class="stat" style="animation-delay:${200+k*70}ms"><span class="ico">${ic}</span><b>0</b><span>${lbl}</span></div>`).join('');
-  [...g.querySelectorAll('.stat b')].forEach((el,k)=>countUp(el,items[k][2],items[k][3],250+k*70));
-  $('#diag').textContent=statText(P);
-  const txt=shareText(r,sc,stars), sb=$('#shareBox'); sb.textContent=txt; sb.style.display='none';
-  $('#bShare').textContent='Share result';
-  $('#bShare').onclick=async()=>{
-    sb.style.display='block';
-    try{ await navigator.clipboard.writeText(txt); $('#bShare').textContent='Copied! Paste anywhere'; }
-    catch(e){ $('#bShare').textContent='Select the text below to copy'; }
-    setTimeout(()=>$('#bShare').textContent='Share result',2400);
-  };
-  return {score:sc.total, stars};
-}
-// "Results" on a solved board: the best run saved for it
-function showLoser(){
-  $('#winTitle').textContent='Peeked!';
-  $('#stars').innerHTML=[0,1,2,3,4].map(k=>`<i class="off" style="animation-delay:${300+k*120}ms">⭐</i>`).join('');
-  $('#score').textContent='0';
-  $('#compliment').textContent=['No points for peeking. The next one’s yours.','Peeked! It happens to the best of us.','Sometimes you just need to see it. Onward!'][cur%3];
-  $('#breakdown').textContent='Solution viewed · no points';
-  const box=$('#award'); box.style.display='';
-  box.innerHTML='<span class="em">🫠</span><span>Loser<small>Looked at the solution</small></span>';
-  $('#statgrid').innerHTML=''; $('#diag').textContent=statText(P);
-  const txt=`Parcels ${LEVEL_EMOJI[CAT]} ${CATS[CAT].name} #${cur}\n☆☆☆☆☆  0\n🫠 Peeked at the solution`, sb=$('#shareBox'); sb.textContent=txt; sb.style.display='none';
-  $('#bShare').textContent='Share result';
-  $('#bShare').onclick=async()=>{ sb.style.display='block';
-    try{ await navigator.clipboard.writeText(txt); $('#bShare').textContent='Copied! Paste anywhere'; }catch(e){ $('#bShare').textContent='Select the text below to copy'; }
-    setTimeout(()=>$('#bShare').textContent='Share result',2400); };
-}
-function openResults(){
-  const rec=store[cur]; if(!rec) return;
-  if(rec.revealed){ showLoser(); $('#mWin').classList.add('open'); return; }
-  $('#winTitle').textContent='Best result';
-  showResults({time:rec.time, misses:rec.misses||0, pops:rec.pops||0, best:rec.best||0, trail:rec.trail||[]}, '');
-  $('#mWin').classList.add('open');
-}
-// Opening a board you've already finished shows its solution. Finished boards can't be replayed.
-function openPuzzle(n, fresh=false){
-  clearFx(); closeAll(); parts=[];
-  cur=n; const raw=PUZZLES[n-1];
-  loadShape(raw);
-  P={...raw, tiles:[...Array(N)].map((_,i)=>({s:+raw.t[3*i],c:+raw.t[3*i+1],n:+raw.t[3*i+2]})), solution:raw.sol};
-  groups={}; pairs=[]; nextId=0; sel=[]; misses=0; st=newStats(); startT=null; endT=null; done=false; busy=false; revealed=false; celebrating=false;
-  board.classList.remove('dancing');
-  $('#pzNum').textContent=` ${CATS[CAT].name} #${n}`+(store[n]?(store[n].revealed?' 🫠':' ✓'):'');
-  $('#bPrev').disabled=n<=1; $('#bNext').disabled=n>=PUZZLES.length;
-  $('#ofN').textContent='/'+GROUPS;
-  $('#timer').textContent='0:00'; setMsg('');
-  setReset(false);
-  if(!fresh && store[n]) showFinished(store[n]); else render();
-}
-// Finished boards (solved or peeked) are final: Start over disappears and Solution becomes Results.
-function setReset(finished){
-  $('#bReset').style.display=finished?'none':'';
-  const r=$('#bReveal');
-  r.textContent=finished?'Results':'Solution'; r.classList.toggle('primary',finished);
-  r.disabled=celebrating;
-}
-function showFinished(rec){
-  done=true; revealed=!!rec.revealed;
-  P.solution.forEach(cells=>{ const id=nextId++; groups[id]={id,cells,color:0,pinned:false,fresh:false}; groups[id].color=freeColor(cells); });
-  if(!revealed){ misses=rec.misses||0; $('#timer').textContent=fmt(rec.time); }
-  render(); setReset(true);
-  if(revealed) $('#timer').textContent='—';
-  setMsg(revealed ? 'You viewed the solution for this one. 0 points.'
-                  : `Best: ${rec.score!=null?rec.score+' points · ':''}${fmt(rec.time)}, ${rec.misses||0} mistake${rec.misses===1?'':'s'}.`, 'ok', true);
-}
-
-function win(){
-  done=true; endT=Date.now();
-  const time=endT-(startT||endT);
-  const prev=store[cur];
-  $('#timer').textContent=fmt(time);
-  const run={time, misses, pops:st.pops, best:st.best, trail:st.trail.slice()};
-  $('#winTitle').textContent='Solved!';
-  const res=showResults(run, '');
-  const better=!prev || prev.revealed || (res.score>(prev.score??-1));
-  if(prev&&!prev.revealed&&better) $('#breakdown').innerHTML+=' · new best!';
-  else if(prev&&!prev.revealed) $('#breakdown').innerHTML+=` · best ${prev.score}`;
-  if(better) store[cur]={...run, pairs:st.pairs, locks:st.locks, score:res.score, stars:res.stars, at:new Date().toISOString()};
-  save(); setReset(true);
-  $('#pzNum').textContent=` ${CATS[CAT].name} #${cur} ✓`;
-  setMsg('');
-  later(celebrate,450);
-}
-
-// The big finish: a wave around the ring, a spinning dance, everything turns gold, star in the middle.
-function celebrate(){
-  celebrating=true; render(); $('#bReveal').disabled=true;
-  $('#mWin').classList.remove('open');
-  // spin around the board's own center of mass, scaled so the spinning, drifting board stays on screen
-  const [BX,BY]=centroid(CELLS.map((_,i)=>i)), vb=board.viewBox.baseVal;
-  const avail=Math.min(BX-vb.x, vb.x+vb.width-BX, BY-vb.y, vb.y+vb.height-BY);
-  const Rb=Math.max(...CELLS.map((_,i)=>{const [x,y]=center(i); return Math.hypot(x-BX,y-BY);}))+S;
-  const FIT=Math.min(1, avail/(Rb*1.18+10));
-  const wraps=[...board.querySelectorAll('.pwrap')].map(el=>{
-    const g=groups[el.dataset.g], [cx,cy]=centroid(g.cells);
-    return {el, inner:el.querySelector('.parcel'), g, cx, cy, ang:Math.atan2(cy-BY,cx-BX)};
-  }).sort((a,b)=>a.ang-b.ang);
-  // 1. wave
-  wraps.forEach((w,k)=>later(()=>{
-    w.inner.animate([{transform:'translateY(0) scale(1)'},{transform:'translateY(-18px) scale(1.12)'},{transform:'translateY(0) scale(1)'}],
-      {duration:460,easing:'cubic-bezier(.3,.7,.4,1)'});
-    const [sx,sy]=toScreen(w.cx,w.cy); burst(sx,sy,groupColors(w.g),14,5); sfx.note(k); buzz(6);
-  }, 120+k*95));
-  const t2=120+wraps.length*95+260;
-  // 2. dance: the ring spins while parcels drift out, bob, and their symbols twirl
-  later(()=>{
-    board.classList.add('dancing'); sfx.fanfare();
-    const world=$('#world'), D=2300, t0=performance.now();
-    const ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
-    const frame=now=>{
-      const p=Math.min(1,(now-t0)/D), e=ease(p), out=Math.sin(Math.PI*p);
-      const sc=1-(1-FIT)*Math.min(1,out*1.6);
-      world.setAttribute('transform',`translate(${BX.toFixed(1)},${BY.toFixed(1)}) rotate(${(360*e).toFixed(2)}) scale(${sc.toFixed(3)}) translate(${(-BX).toFixed(1)},${(-BY).toFixed(1)})`);
-      wraps.forEach((w,k)=>{ const bob=Math.sin(p*Math.PI*7+k*.8)*9*out, r=.18*out;
-        w.el.setAttribute('transform',`translate(${((w.cx-BX)*r).toFixed(2)},${((w.cy-BY)*r+bob).toFixed(2)})`); });
-      if(p<1) rafs.push(requestAnimationFrame(frame));
-      else { world.removeAttribute('transform'); wraps.forEach(w=>w.el.removeAttribute('transform')); }
-    };
-    rafs.push(requestAnimationFrame(frame));
-    for(let k=0;k<6;k++) later(()=>{ const w=wraps[(k*2)%wraps.length]; const [sx,sy]=toScreen(BX+(w.cx-BX)*1.2,BY+(w.cy-BY)*1.2); burst(sx,sy,groupColors(w.g),10,4); }, 300+k*300);
-  }, t2);
-  // 3. merge: every parcel turns gold, the gaps close, a star lands in the middle
-  later(()=>{
-    wraps.forEach((w,k)=>{
-      const o=w.inner.querySelector('.outline');
-      o.animate([{fill:o.getAttribute('fill'),stroke:o.getAttribute('stroke')},{fill:(TH.merge||{}).fill||'#f8e3a0',stroke:(TH.merge||{}).stroke||'#c99a1c'}],{duration:500,delay:k*25,fill:'forwards',easing:'ease-out'});
-      w.inner.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1.02)'}],{duration:600,delay:k*25,fill:'forwards',easing:'cubic-bezier(.3,1.5,.5,1)'});
-    });
-    $('#hole').classList.add('show');
-    const [hx,hy]=toScreen(BX,BY);
-    burst(hx,hy,['#f2b705','#fff',...COLORS],70,10);
-    later(()=>{
-      burst(0,innerHeight,['#f2b705',...COLORS,...TINTS.map(t=>t[1])],90,17,-Math.PI/3,.7);
-      burst(innerWidth,innerHeight,['#f2b705',...COLORS,...TINTS.map(t=>t[1])],90,17,-Math.PI*2/3,.7);
-    },180);
-    sfx.finale();
-    buzz([30,40,60]);
-  }, t2+2350);
-  // 4. results
-  later(()=>{ celebrating=false; board.classList.remove('dancing'); setReset(true); $('#mWin').classList.add('open'); }, t2+3500);
-}
-
-function reveal(){
-  if(done) return;
-  revealed=true; done=true; groups={}; pairs=[]; nextId=0; sel=[];
-  P.solution.forEach(cells=>{ const id=nextId++; groups[id]={id,cells,color:0,pinned:false,fresh:true}; groups[id].color=freeColor(cells); });
-  store[cur]={revealed:true, score:0, stars:0, at:new Date().toISOString()}; save();
-  $('#pzNum').textContent=` ${CATS[CAT].name} #${cur} 🫠`;
-  render(); setMsg('Here’s the only solution. 0 points.','bad',true); setReset(true);
-  later(openResults,700);
-}
-
-// ================= menu, modals =================
-function closeAll(){ document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); $('#menu').classList.remove('open'); }
-function showMenu(){
-  const g=$('#grid'); g.innerHTML=''; let solved=0;
-  PUZZLES.forEach((p,i)=>{
-    const r=store[i+1], b=document.createElement('button');
-    b.className='pz'+(r?(r.revealed?' revealed':' solved'):'')+(i+1===cur?' current':'');
-    if(r&&!r.revealed) solved++;
-    b.innerHTML=`<div class="n">${i+1}</div><div class="st">${r?(r.revealed?'🫠 0':(r.stars?'★'.repeat(r.stars)+'<span style="opacity:.3">'+'★'.repeat(5-r.stars)+'</span>':fmt(r.time))):''}</div>`;
-    b.onclick=()=>openPuzzle(i+1);
-    g.appendChild(b);
-  });
-  $('#nSolved').textContent=solved; $('#nTotal').textContent=PUZZLES.length;
-  $('#menu').classList.add('open');
-}
-function nextUnsolved(from){ const L=PUZZLES.length; for(let k=1;k<=L;k++){ const n=((from+k-1)%L)+1; if(!store[n]) return n; } return null; }
-
-$('#bMenu').onclick=showMenu;
-$('#bMenuClose').onclick=()=>$('#menu').classList.remove('open');
-$('#bHelp').onclick=()=>$('#mHelp').classList.add('open');
-$('#bHelpClose').onclick=()=>{ $('#mHelp').classList.remove('open'); prefs.seenHelp=true; savePrefs(); };
-$('#mHelp').onclick=e=>{ if(e.target.id==='mHelp') $('#bHelpClose').onclick(); };
-$('#bSound').onclick=()=>{ prefs.sound=!prefs.sound; savePrefs(); paintSound(); if(prefs.sound) sfx.pin(); };
-$('#bSettings').onclick=()=>{ $('#confirmClear').style.display='none'; $('#mSettings').classList.add('open'); };
-$('#bSettingsClose').onclick=()=>$('#mSettings').classList.remove('open');
-$('#mSettings').addEventListener('click',e=>{ if(e.target.id==='mSettings') $('#mSettings').classList.remove('open'); });
-function allHistory(){ const progress={}; for(const k of Object.keys(CATS)){ try{ progress[k]=JSON.parse(localStorage.getItem(CATS[k].key)||'{}')||{}; }catch(e){ progress[k]={}; } } return progress; }
-// Save a file: inside Claude the page asks the viewer to confirm the download; opened on its own, a normal browser download.
-async function saveFile(filename,text,btn){
-  const label=btn.textContent;
-  try{
-    const d = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
-    if(d){ await d.save({filename, data:text}); btn.textContent='Saved'; setTimeout(()=>btn.textContent=label,2000); return; }
-  }catch(e){ if(e&&e.code==='declined') return; }
-  try{
-    const url=URL.createObjectURL(new Blob([text],{type:filename.endsWith('.csv')?'text/csv':'application/json'}));
-    const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),4000); btn.textContent='Saved'; setTimeout(()=>btn.textContent=label,2000);
-  }catch(e){ setMsg('Couldn’t save the file here.','bad'); }
-}
-const stamp=()=>new Date().toISOString().slice(0,10);
-$('#bExportJson').onclick=()=>saveFile(`parcels-history-${stamp()}.json`, JSON.stringify({app:'parcels-playtest',version:2,exported:new Date().toISOString(),progress:allHistory()},null,1), $('#bExportJson'));
-$('#importFile').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>importHistory(rd.result); rd.readAsText(f); e.target.value=''; };
-// Importing merges: for each board, keep whichever result is better (a real solve beats a peek; higher score wins).
-function importHistory(text){
-  let data; try{ data=JSON.parse(text); }catch(e){ setMsg('That doesn’t look like exported history.','bad'); return; }
-  const incoming=data&&data.progress; if(!incoming||typeof incoming!=='object'){ setMsg('That doesn’t look like exported history.','bad'); return; }
-  let added=0;
-  for(const k of Object.keys(CATS)){ const mine=allHistory()[k], theirs=incoming[k]||{};
-    for(const [n,r] of Object.entries(theirs)){ const m=mine[n], sc=x=>x.revealed?-1:(x.score??0);
-      if(!m || sc(r)>sc(m)){ mine[n]=r; added++; } }
-    try{ localStorage.setItem(CATS[k].key, JSON.stringify(mine)); }catch(e){} }
-  loadStore(); $('#mSettings').classList.remove('open'); openPuzzle(cur); setMsg(`Imported ${added} result${added===1?'':'s'}.`,'ok');
-}
-$('#bPrev').onclick=()=>openPuzzle(cur-1);
-$('#bNext').onclick=()=>openPuzzle(cur+1);
-$('#bReset').onclick=()=>{ if(!done) openPuzzle(cur,true); };
-$('#bReveal').onclick=()=>{ if(done) openResults(); else $('#mReveal').classList.add('open'); };
-$('#bRevealNo').onclick=()=>$('#mReveal').classList.remove('open');
-$('#bRevealYes').onclick=()=>{ $('#mReveal').classList.remove('open'); reveal(); };
-$('#bWinNext').onclick=()=>{ const n=nextUnsolved(cur); n?openPuzzle(n):showMenu(); };
-$('#bWinClose').onclick=()=>$('#mWin').classList.remove('open');
-// tapping outside the results card closes it; if the tap landed on a top button (menu, sound, help), that button works too
-$('#mWin').addEventListener('click',e=>{
-  if(e.target.id!=='mWin') return;
-  const m=$('#mWin'); m.classList.remove('open');
-  const under=document.elementFromPoint(e.clientX,e.clientY), btn=under&&under.closest('.top button');
-  if(btn) btn.click();
-});
-$('#bNextUnsolved').onclick=()=>{ const n=nextUnsolved(0); if(n) openPuzzle(n); };
-$('#bClear').onclick=()=>{ $('#confirmClear').style.display='block'; };
-$('#bClearNo').onclick=()=>{ $('#confirmClear').style.display='none'; };
-$('#bClearYes').onclick=()=>{ for(const k of Object.keys(CATS)){ try{ localStorage.removeItem(CATS[k].key); }catch(e){} } loadStore(); $('#confirmClear').style.display='none'; $('#mSettings').classList.remove('open'); openPuzzle(1); setMsg('History cleared.','ok'); };
-
-setTheme('neon');
-paintSound();
-setInterval(tick,500);
-document.querySelectorAll('#catSeg button').forEach(b=>b.onclick=()=>{ prefs.cat=b.dataset.c; savePrefs(); setCat(prefs.cat); cur=0; showMenu(); });
-setCat(prefs.cat||'easy');
-openPuzzle(nextUnsolved(0)||1);
-showMenu();   // the site opens on the level and puzzle picker
-if(!prefs.seenHelp) $('#mHelp').classList.add('open');
-</script>
-</body>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>

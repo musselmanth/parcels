@@ -1,0 +1,123 @@
+#menu {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 20;
+  display: none;
+  flex-direction: column;
+  padding: calc(8px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));
+  max-width: 520px;
+  margin: 0 auto;
+}
+#menu.open {
+  display: flex;
+}
+#menu .scroll {
+  flex: 1;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 2px 10px;
+  user-select: text;
+}
+.seg {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--chip);
+  margin-top: 10px;
+}
+.seg button {
+  flex: 1;
+  border: none;
+  padding: 8px 6px;
+  font-size: 13px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+}
+.seg button.on {
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 600;
+}
+body.theme-neon .seg button.on {
+  background: linear-gradient(90deg, #7a6cff, #ff3b8f);
+  color: #fff;
+  border: none;
+}
+.summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.summary b {
+  color: var(--ink);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 8px;
+}
+.pz {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 10px;
+  padding: 8px 4px 6px;
+  text-align: center;
+  font: inherit;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.pz .n {
+  font-weight: 600;
+  font-size: 16px;
+}
+.pz .st {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  min-height: 13px;
+}
+.pz.solved {
+  background: #d3ead6;
+  border-color: #4f8f5b;
+}
+.pz.solved,
+.pz.revealed {
+  color: #2b2a27;
+}
+.pz.solved .st {
+  color: #2f6b3c;
+}
+.pz.revealed {
+  background: #ece6da;
+  border-color: #b9ad97;
+}
+.pz.current {
+  box-shadow: 0 0 0 2px var(--ink);
+}
+.legend {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 12px 2px 0;
+  line-height: 1.5;
+}
+#share {
+  color: #2b2a27;
+  white-space: pre;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  margin: 10px 0;
+  overflow: auto;
+  max-height: 200px;
+  display: none;
+}

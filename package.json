@@ -1,0 +1,25 @@
+{
+  "name": "parcels",
+  "version": "1.0.0",
+  "description": "Parcels: a hex-tile logic puzzle",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/musselmanth/parcels.git"
+  },
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/musselmanth/parcels/issues"
+  },
+  "homepage": "https://github.com/musselmanth/parcels#readme",
+  "devDependencies": {
+    "prettier": "^3.10.1",
+    "vite": "^7.3.8"
+  },
+  "private": true
+}

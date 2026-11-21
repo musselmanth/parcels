@@ -1,0 +1,200 @@
+:root {
+  --bg: #f6f1e7;
+  --ink: #2b2a27;
+  --muted: #6f6a60;
+  --card: #fffdf8;
+  --line: #ddd3c1;
+  --bad: #b3402f;
+  --good: #2f7a4a;
+  --chip: rgba(255, 255, 255, 0.55);
+  --accent: #2b2a27;
+  --numFont: inherit;
+  --backdrop: rgba(35, 28, 15, 0.42);
+  --sheet: #fffaf0;
+  --cardIn: rgba(255, 253, 248, 0.74);
+  --cardPin: rgba(255, 253, 248, 0.55);
+  --trail: rgba(43, 42, 39, 0.16);
+  --pairFill: rgba(43, 42, 39, 0.07);
+  --pairLine: #6f6a60;
+  --paired: #8d846f;
+}
+body.theme-neon {
+  --bg: #0d0b1f;
+  --ink: #efedff;
+  --muted: #958fc4;
+  --card: #1a1634;
+  --line: rgba(255, 255, 255, 0.1);
+  --bad: #ff5a7a;
+  --good: #2bff88;
+  --sheet: rgba(22, 18, 46, 0.96);
+  --cardIn: rgba(10, 8, 24, 0.5);
+  --cardPin: rgba(10, 8, 24, 0.3);
+  --trail: rgba(239, 237, 255, 0.14);
+  --pairFill: rgba(239, 237, 255, 0.05);
+  --pairLine: #958fc4;
+  --paired: #8a82d8;
+  --chip: rgba(255, 255, 255, 0.035);
+  --accent: linear-gradient(90deg, #7a6cff, #ff3b6e, #ffd43b, #2bff88);
+  --numFont: 'Orbitron', ui-monospace, Menlo, monospace;
+  --backdrop: rgba(4, 3, 12, 0.62);
+  background: radial-gradient(120% 70% at 50% 0%, #2a1a5c 0%, #140f33 45%, #0b0a1a 100%) fixed;
+  font-family:
+    'Space Grotesk',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+html:has(body.theme-neon) {
+  background: #0b0a1a;
+}
+body.theme-neon::before {
+  content: '';
+  position: fixed;
+  inset: auto 0 0 0;
+  height: 42vh;
+  pointer-events: none;
+  opacity: 0.22;
+  background:
+    linear-gradient(transparent 0 calc(100% - 1px), rgba(122, 108, 255, 0.35) 0) 0 0/100% 32px,
+    linear-gradient(90deg, transparent 0 calc(100% - 1px), rgba(122, 108, 255, 0.25) 0) 0 0/32px 100%;
+  -webkit-mask-image: linear-gradient(transparent, #000 70%);
+  mask-image: linear-gradient(transparent, #000 70%);
+  transform: perspective(320px) rotateX(55deg);
+  transform-origin: bottom;
+}
+body.theme-neon #app {
+  position: relative;
+  z-index: 1;
+}
+body.theme-neon h1 {
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 21px;
+  font-weight: 800;
+  background: linear-gradient(90deg, #9a8cff, #ff4fa8 60%, #ffb347);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 10px rgba(255, 79, 168, 0.45));
+}
+body.theme-neon h1 small {
+  -webkit-text-fill-color: #958fc4;
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-weight: 500;
+  filter: none;
+}
+body.theme-neon .icon {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #e6e2ff;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
+}
+body.theme-neon .icon:active {
+  box-shadow: 0 0 14px rgba(154, 140, 255, 0.6);
+  border-color: #9a8cff;
+}
+body.theme-neon .chip b {
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 10px rgba(154, 140, 255, 0.5);
+}
+body.theme-neon .progress {
+  background: rgba(255, 255, 255, 0.07);
+  height: 3px;
+}
+body.theme-neon .progress i {
+  box-shadow: 0 0 10px rgba(255, 59, 110, 0.7);
+}
+body.theme-neon button {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #efedff;
+  background: rgba(255, 255, 255, 0.03);
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.02em;
+}
+body.theme-neon button:disabled {
+  opacity: 0.3;
+}
+body.theme-neon button.primary {
+  background: linear-gradient(90deg, #7a6cff, #ff3b8f);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 0 22px rgba(255, 59, 143, 0.4);
+}
+body.theme-neon .controls button:not(:disabled):active {
+  box-shadow: 0 0 16px rgba(154, 140, 255, 0.55);
+}
+body.theme-neon .card {
+  fill: #1a1634;
+  stroke: rgba(255, 255, 255, 0.07);
+}
+body.theme-neon .tile.sel .card {
+  stroke: #fff;
+  stroke-width: 3.5;
+}
+body.theme-neon .sheet {
+  border: 1px solid rgba(154, 140, 255, 0.25);
+  box-shadow:
+    0 0 40px rgba(122, 108, 255, 0.18),
+    0 24px 60px rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+body.theme-neon .sheet h2,
+body.theme-neon #mWin .big {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.06em;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 20px;
+}
+body.theme-neon #mWin .big {
+  font-size: 26px;
+  background: linear-gradient(90deg, #ffd43b, #ff3b8f, #7a6cff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 14px rgba(255, 59, 143, 0.5));
+}
+body.theme-neon .sheet h3 {
+  color: #9a8cff;
+}
+body.theme-neon .sheet .row.sticky {
+  background: #17132f;
+}
+body.theme-neon #menu {
+  background: radial-gradient(120% 70% at 50% 0%, #2a1a5c 0%, #140f33 45%, #0b0a1a 100%);
+}
+body.theme-neon .pz {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #efedff;
+}
+body.theme-neon .pz .n {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+}
+body.theme-neon .pz.solved {
+  background: rgba(43, 255, 136, 0.1);
+  border-color: #2bff88;
+  color: #efedff;
+  box-shadow: 0 0 12px rgba(43, 255, 136, 0.25);
+}
+body.theme-neon .pz.solved .st {
+  color: #7dffb0;
+}
+body.theme-neon .pz.revealed {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #7d78a8;
+}
+body.theme-neon .pz.current {
+  box-shadow:
+    0 0 0 2px #9a8cff,
+    0 0 14px rgba(154, 140, 255, 0.5);
+}
