@@ -1,0 +1,278 @@
+/*
+ * The "How to play" sheet (#mHelp) and its examples (src/help.js). The example boards reuse the
+ * board classes from board.css (.tile, .parcel, .pair, ...), so they look and animate like the game.
+ */
+.help p {
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 8px 0;
+}
+.help .hnote {
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(154, 140, 255, 0.12);
+  border: 1px solid rgba(154, 140, 255, 0.3);
+}
+
+/* ---- example boxes ---- */
+.hdemo {
+  position: relative;
+  background: var(--chip);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 8px 8px;
+  margin: 8px 0;
+  text-align: center;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.hdemo.playing {
+  border-color: rgba(154, 140, 255, 0.65);
+  box-shadow: 0 0 16px rgba(154, 140, 255, 0.22);
+}
+.hboard {
+  display: block;
+  width: 100%;
+  height: 150px;
+  overflow: visible;
+  /* while watching, a drag over the example scrolls the sheet; while trying it, drags are swipes */
+  touch-action: pan-y;
+  cursor: pointer;
+}
+.hboard.short {
+  height: 92px;
+}
+.playing .hboard {
+  touch-action: none;
+  cursor: default;
+}
+.playing .hboard .tile {
+  cursor: pointer;
+}
+.hgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.hgrid .hdemo {
+  margin: 0;
+}
+.hgrid .hboard {
+  height: 96px;
+  margin-top: 14px;
+}
+.hgrid .hdemo b {
+  display: block;
+  font-size: 13.5px;
+  margin-top: 6px;
+}
+.hgrid .hdemo > span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.35;
+  margin-top: 2px;
+}
+.htrail {
+  fill: none;
+  stroke: var(--trail);
+  stroke-width: 30;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* "Try it" / "Watch" corner button */
+.help .hchip {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  padding: 3px 10px;
+  font-size: 11.5px;
+  border-radius: 999px;
+  border: 1px solid rgba(154, 140, 255, 0.45);
+  background: rgba(154, 140, 255, 0.14);
+  color: var(--ink);
+}
+
+/* message under an example */
+.hmsg {
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.hmsg:empty {
+  display: none;
+}
+/* reserve room so messages don't make the sheet jump */
+.playing .hmsg:empty,
+.hdemo:has(#hdDecoy) .hmsg:empty {
+  display: block;
+}
+.playing .hmsg,
+.hdemo:has(#hdDecoy) .hmsg {
+  min-height: 2.7em;
+}
+.hmsg.ok {
+  color: var(--good);
+}
+.hmsg.bad {
+  color: var(--bad);
+}
+
+/* ---- the pretend finger ---- */
+.hfinger {
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s;
+}
+.hfinger.on {
+  opacity: 1;
+}
+.hf {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.12s;
+}
+.hfinger.down .hf {
+  transform: scale(0.78);
+}
+.hf circle {
+  fill: rgba(255, 255, 255, 0.22);
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 2.5;
+}
+.hfinger.down .hf circle {
+  fill: rgba(255, 255, 255, 0.42);
+}
+
+/* ---- parcel shapes row ---- */
+.hshapes {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 4px 0 6px;
+}
+.hshapes figure {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+.hshapes svg {
+  display: block;
+  width: 92px;
+  height: 66px;
+  overflow: visible;
+}
+
+/* ---- the rule example: verdict and the three checks ---- */
+.hverdict {
+  font-weight: 600;
+  font-size: 14px;
+  min-height: 20px;
+  margin: 6px 0 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.hverdict.show {
+  opacity: 1;
+}
+.hverdict.ok {
+  color: var(--good);
+}
+.hverdict.bad {
+  color: var(--bad);
+}
+.hchecks {
+  display: grid;
+  gap: 4px;
+  max-width: 320px;
+  margin: 0 auto;
+  font-size: 12.5px;
+  text-align: left;
+}
+.hcheck {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
+}
+.hcheck.show {
+  opacity: 1;
+  transform: none;
+}
+.hcheck .k {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.hcheck .m {
+  font-weight: 600;
+}
+.hcheck.ok .m {
+  color: var(--good);
+}
+.hcheck.bad .m {
+  color: var(--bad);
+}
+
+/* ---- "More below" hint over the bottom of the sheet ---- */
+.help .row.sticky::before {
+  content: '';
+  position: absolute;
+  left: -18px;
+  right: -18px;
+  top: -48px;
+  height: 48px;
+  background: linear-gradient(transparent, var(--sheet));
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.help .row.sticky:has(.hmore.gone)::before {
+  opacity: 0;
+}
+.help .hmore {
+  position: absolute;
+  top: -42px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid rgba(154, 140, 255, 0.6);
+  background: #241d4d;
+  color: #efedff;
+  box-shadow: 0 0 16px rgba(154, 140, 255, 0.4);
+  animation: hbob 1.4s ease-in-out infinite;
+  transition: opacity 0.2s;
+}
+.help .hmore.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+@keyframes hbob {
+  50% {
+    transform: translate(-50%, 4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .help .hmore {
+    animation: none;
+  }
+}

@@ -1,3 +1,6 @@
+/*
+ * The puzzle picker (#menu): level tabs (.seg) and the board grid (.pz).
+ */
 #menu {
   position: fixed;
   inset: 0;

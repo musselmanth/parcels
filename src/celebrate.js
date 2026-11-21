@@ -7,6 +7,9 @@ import { sfx } from './sound.js';
 import { G } from './state.js';
 import { COLORS, TH, TINTS } from './themes.js';
 
+// The win animation. Runs in four timed steps (all via later(), so switching boards cancels it),
+// then opens the results card.
+
 // The big finish: a wave around the ring, a spinning dance, everything turns gold, star in the middle.
 export function celebrate() {
   G.celebrating = true;

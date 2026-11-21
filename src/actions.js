@@ -8,11 +8,15 @@ import { sfx } from './sound.js';
 import { G, groupOf, pairOf } from './state.js';
 import { TINTS } from './themes.js';
 
-// ================= actions =================
+// What the player's moves do: making parcels, pencilling pairs, popping and locking parcels.
+// input.js turns pointer events into these calls; each one updates G and calls render().
+
+// Start the clock on the first move.
 export function begin() {
   if (!G.startT) G.startT = Date.now();
 }
 
+// Pick a tint for a new parcel: one its neighbors aren't using, preferring the least-used.
 export function freeColor(cells) {
   const near = new Set();
   cells.forEach((i) =>
@@ -28,6 +32,7 @@ export function freeColor(cells) {
   return pool.sort((a, b) => use[a] - use[b] || a - b)[0];
 }
 
+// Pencil in two touching tiles as a pair (replacing any pair they were in).
 export function makePair(cells) {
   G.st.pairs++;
   G.pairs = G.pairs.filter((p) => !p.cells.some((c) => cells.includes(c)));
@@ -39,6 +44,9 @@ export function makePair(cells) {
   render();
 }
 
+// Try to make a parcel from 3 cells. Not touching -> message only. Breaks a rule -> counts a miss,
+// shakes the tiles and explains why. Valid -> becomes a parcel (it may still be wrong; the player finds
+// out when the board can't be finished). Calls win() when the last parcel is placed.
 export function submit(cells) {
   cells = cells.slice();
   let msg = null,
@@ -172,6 +180,7 @@ function erasePair(p) {
   );
   later(finish, 170);
 }
+// Lock a parcel so a tap no longer pops it.
 function togglePin(g) {
   g.pinned = true;
   g.badgeFresh = true;
@@ -193,7 +202,10 @@ function togglePin(g) {
 
 // Parcels: a quick tap pops an unlocked parcel (on release). Press and hold locks it;
 // press and hold a locked parcel pops it. A quick tap on a locked parcel just wiggles.
+// How long (ms) a press must last to count as press-and-hold.
 const HOLD = 450;
+// Pointer went down on a parcel: show the hold ring and start the timer. Returns a hold handle
+// that releaseHold() / clearHold() take. After HOLD ms, a loose parcel locks and a locked one pops.
 export function startHold(g) {
   const wrap = board.querySelector(`.pwrap[data-g="${g.id}"]`),
     inner = wrap && wrap.querySelector('.parcel');
@@ -218,11 +230,13 @@ export function startHold(g) {
   }, HOLD);
   return h;
 }
+// Cancel a hold: stop the timer and remove the ring.
 export function clearHold(h) {
   clearTimeout(h.timer);
   if (h.ring) h.ring.remove();
   if (h.inner) h.inner.classList.remove('holding');
 }
+// Pointer came up before the hold finished: a quick tap. Pops a loose parcel; a locked one just wiggles.
 export function releaseHold(h) {
   if (h.done) return;
   clearHold(h);
@@ -243,6 +257,8 @@ export function releaseHold(h) {
   sfx.tap();
 }
 
+// A tap (not a swipe) on cell i, or i < 0 for empty space (clears the selection).
+// Taps build up G.sel; the third tile submits. Tapping a pair selects both of its tiles.
 export function tapCell(i) {
   if (i < 0) {
     if (G.sel.length) {

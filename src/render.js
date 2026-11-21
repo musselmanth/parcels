@@ -3,6 +3,11 @@ import { CELLS, GROUPS, N, S, W3, adj, blobPath, center, centroid, setCells } fr
 import { G, pairOf } from './state.js';
 import { POS, STAR, TINTS, glyph, tileLabel } from './themes.js';
 
+// Drawing. The board is one <svg> rebuilt from G by render() after every move. Layers, bottom to top:
+// pencilled pairs, parcels (outline + their tiles + lock badge), the swipe trail, loose tiles, and the
+// star shown when the board is solved. CSS classes drive the animations (see styles/board.css).
+// Also the tip message under the stats and the timer.
+
 // load a board's shape: cells come stored as a flat list q0,r0,q1,r1,...
 export function loadShape(raw) {
   const c = [];
@@ -12,10 +17,11 @@ export function loadShape(raw) {
   svgFrame();
 }
 
+// Pre-computed rounded-hexagon path for each cell (rebuilt per board).
 let CARD = [];
 const GK = S / 68; // glyph scale: keeps every symbol well inside its hexagon
 
-// ================= rendering =================
+// Fit the SVG viewBox around the board.
 function svgFrame() {
   const xs = CELLS.map((_, i) => center(i)[0]),
     ys = CELLS.map((_, i) => center(i)[1]);
@@ -25,6 +31,8 @@ function svgFrame() {
     y1 = Math.max(...ys) + S + 8;
   board.setAttribute('viewBox', `${x0} ${y0} ${x1 - x0} ${y1 - y0}`);
 }
+// One tile: rounded hex card plus its glyphs. k staggers the pop-in animation within a parcel.
+// Classes: sel (selected), paired (in a pencilled pair), release (just freed from a popped parcel).
 function tileSVG(i, k) {
   const [x, y] = center(i),
     t = G.P.tiles[i];
@@ -38,6 +46,7 @@ function tileSVG(i, k) {
     `<g transform="translate(${(x - 50 * GK).toFixed(2)},${(y - 50 * GK).toFixed(2)}) scale(${GK.toFixed(4)})"><g class="gl">${POS[t.n].map(([gx, gy]) => glyph(t.s, gx, gy, t.c)).join('')}</g></g></g></g>`
   );
 }
+// The padlock badge on a locked parcel.
 function badgeSVG(g) {
   // Triangle (all three touch): center of the parcel. Line or bend: center of the middle tile.
   const [a, b, c] = g.cells,
@@ -51,6 +60,7 @@ function badgeSVG(g) {
     `<rect x="-5" y="-1.5" width="10" height="8" rx="1.5" fill="#fffaf0"/><path d="M-3,-1.5 V-4 a3,3 0 0 1 6,0 V-1.5" fill="none" stroke="#fffaf0" stroke-width="2"/></g></g>`
   );
 }
+// Rebuild the whole board from G and update the Misses / Parcels counters and progress bar.
 export function render() {
   const inGroup = new Set();
   Object.values(G.groups).forEach((g) => g.cells.forEach((i) => inGroup.add(i)));
@@ -82,6 +92,7 @@ export function render() {
   $('#prog').textContent = Object.keys(G.groups).length;
   $('#progBar').style.width = (Object.keys(G.groups).length / GROUPS) * 100 + '%';
 }
+// The gold star and rays that appear in the middle when the board is solved.
 function holeSVG() {
   let rays = '';
   for (let k = 0; k < 12; k++) {
@@ -107,7 +118,10 @@ export function paintSel(path) {
       : '',
   );
 }
+// Timer that hides the tip message.
 let msgTimer = null;
+// Show a tip in the pill under the stats. cls: '' (info), 'ok' or 'bad'.
+// sticky keeps it up until the next message; otherwise it fades after a few seconds. setMsg('') hides it.
 export function setMsg(t, cls, sticky) {
   const m = $('#msg');
   clearTimeout(msgTimer);
@@ -127,6 +141,7 @@ export function setMsg(t, cls, sticky) {
       cls === 'bad' ? 3800 : t.length > 60 ? 4200 : 2800,
     );
 }
+// Update the on-screen timer (called twice a second from main.js).
 export function tick() {
   if (G.startT && !G.done) $('#timer').textContent = fmt(Date.now() - G.startT);
 }

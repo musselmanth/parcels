@@ -71,47 +71,97 @@
 
     <canvas id="fx"></canvas>
 
+    <!-- How to play. The examples are drawn and animated by src/help.js. -->
     <div class="modal" id="mHelp">
-      <div class="sheet">
+      <div class="sheet help">
         <h2>How to play</h2>
-        <ul>
-          <li>
-            Split the whole board into <b>parcels of 3 connected tiles</b>: a line, a bend, or a little
-            triangle.
-          </li>
-        </ul>
-        <div class="shapes" id="shapeDemo"></div>
-        <h3>Every parcel</h3>
-        <ul>
-          <li><b>Shape:</b> all the same or all different.</li>
-          <li><b>Color:</b> all the same or all different.</li>
-          <li id="countRule"><b>Count:</b> 1 to 3, all the same or all different.</li>
-          <li>
-            A parcel can follow the rules and still be wrong. Only one way of splitting the board works.
-          </li>
-        </ul>
+        <p class="hnote">
+          Tap any example to try it yourself. <b>Scroll down</b> for the rules, the controls and scoring.
+        </p>
+
+        <p>
+          Split the whole board into <b>parcels</b>: groups of <b>3 touching tiles</b>. Every tile ends up in
+          exactly one parcel.
+        </p>
+        <div class="hdemo"><svg id="hdGoal" class="hboard"></svg></div>
+        <p>A parcel can be a line, a bend or a triangle.</p>
+        <div class="hshapes" id="hdShapes">
+          <figure>
+            <svg></svg>
+            <figcaption>line</figcaption>
+          </figure>
+          <figure>
+            <svg></svg>
+            <figcaption>bend</figcaption>
+          </figure>
+          <figure>
+            <svg></svg>
+            <figcaption>triangle</figcaption>
+          </figure>
+        </div>
+
+        <h3>The rule</h3>
+        <p>
+          Every tile has a <b>shape</b>, a <b>color</b> and a <b>count</b> (1, 2 or 3 symbols). In a parcel,
+          each of the three has to be <b>all the same</b> or <b>all different</b>. If two tiles match and the
+          third doesn't, it's not a parcel.
+        </p>
+        <div class="hdemo">
+          <svg id="hdRule" class="hboard short"></svg>
+          <div class="hverdict" id="hdRuleVerdict"></div>
+          <div class="hchecks" id="hdRuleChecks"></div>
+        </div>
+
+        <h3>Only one answer</h3>
+        <p>
+          A parcel can follow the rule and still be wrong. Each board splits only one way, so if you get
+          stuck, pop a parcel and look again.
+        </p>
+        <div class="hdemo"><svg id="hdDecoy" class="hboard"></svg></div>
+
+        <h3>Controls</h3>
+        <div class="hgrid">
+          <div class="hdemo">
+            <svg id="hdSwipe" class="hboard"></svg>
+            <b>Make a parcel</b>
+            <span
+              >Swipe across 3 tiles, or tap them one at a time. Tap an empty spot to clear a selection.</span
+            >
+          </div>
+          <div class="hdemo">
+            <svg id="hdPair" class="hboard"></svg>
+            <b>Pencil in a pair</b>
+            <span
+              >Not sure of the third tile? Swipe across 2, or tap 2 and then tap one again. Add the third
+              later. Tap a pair twice to erase it.</span
+            >
+          </div>
+          <div class="hdemo">
+            <svg id="hdPop" class="hboard"></svg>
+            <b>Pop a parcel</b>
+            <span>Tap a parcel to break it back into loose tiles.</span>
+          </div>
+          <div class="hdemo">
+            <svg id="hdLock" class="hboard"></svg>
+            <b>Lock it in</b>
+            <span>Press and hold a parcel when you're sure. Taps won't pop it; hold again to pop it.</span>
+          </div>
+        </div>
+
         <h3>Score</h3>
         <ul>
           <li>
-            Up to <b>1000 points</b>: beat the board's par time, make fewer mistakes, and pop fewer parcels.
-            Harder levels forgive more slips.
+            Up to <b>1000 points</b> and 5 stars: beat the board's par time, make fewer mistakes, and pop
+            fewer parcels. Harder levels forgive more slips.
           </li>
+          <li><b>Misses</b> counts the parcels you tried that broke the rule.</li>
+          <li>Stuck? <b>Solution</b> shows the answer, but that board scores 0 and can't be replayed.</li>
         </ul>
-        <h3>Controls</h3>
-        <ul>
-          <li><b>Swipe across 3 tiles</b> (or tap them) to make a parcel.</li>
-          <li>
-            <b>Swipe across 2</b>, or tap 2 tiles and then tap either one again, to pencil in a pair when
-            you're not sure of the third. Tap an empty spot to clear a selection. Later, swipe from the pair
-            onto a third tile, or tap the pair and then the third tile. Tap a pair twice to erase it.
-          </li>
-          <li><b>Tap a parcel</b> to pop it.</li>
-          <li>
-            <b>Press and hold a parcel</b> to lock it when you're sure. Taps won't pop a locked parcel; press
-            and hold it again to pop it.
-          </li>
-        </ul>
-        <div class="row sticky"><button class="primary" id="bHelpClose">Let's play</button></div>
+
+        <div class="row sticky">
+          <button class="hmore" id="bHelpMore" aria-label="Scroll down for more">More below ↓</button>
+          <button class="primary" id="bHelpClose">Let's play</button>
+        </div>
       </div>
     </div>
 

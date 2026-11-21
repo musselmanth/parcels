@@ -11,6 +11,8 @@ import { newStats } from './scoring.js';
 import { G } from './state.js';
 import { CAT, PUZZLES, save, store } from './storage.js';
 
+// Board lifecycle: opening a board, finishing it (win or reveal), and the Start over / Solution buttons.
+
 // Opening a board you've already finished shows its solution. Finished boards can't be replayed.
 export function openPuzzle(n, fresh = false) {
   clearFx();
@@ -55,6 +57,7 @@ export function setReset(finished) {
   r.classList.toggle('primary', finished);
   r.disabled = G.celebrating;
 }
+// Show a finished board as solved (its saved best result), or as revealed.
 function showFinished(rec) {
   G.done = true;
   G.revealed = !!rec.revealed;
@@ -79,6 +82,7 @@ function showFinished(rec) {
   );
 }
 
+// The last parcel was placed: show results, save if it beats the best, then celebrate().
 export function win() {
   G.done = true;
   G.endT = Date.now();
@@ -107,6 +111,7 @@ export function win() {
   later(celebrate, 450);
 }
 
+// Give up: show the solution, save a 0-point 'peeked' record. Final for this board.
 export function reveal() {
   if (G.done) return;
   G.revealed = true;

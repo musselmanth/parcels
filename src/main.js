@@ -3,9 +3,11 @@ import './styles/base.css';
 import './styles/board.css';
 import './styles/overlays.css';
 import './styles/menu.css';
+import './styles/help.css';
 import { $ } from './core/dom.js';
 import { CATS } from './data/puzzles.js';
 import { openPuzzle, reveal } from './game.js';
+import { initHelp } from './help.js';
 import { nextUnsolved, showMenu } from './menu.js';
 import { setMsg, tick } from './render.js';
 import { openResults } from './results.js';
@@ -15,6 +17,10 @@ import { loadStore, prefs, savePrefs, setCat } from './storage.js';
 import './input.js'; // attaches the board's pointer handlers
 import { setTheme } from './themes.js';
 
+// Entry point (loaded by index.html). Loads the CSS, wires every button and dialog to its action,
+// then starts the game on the first unsolved board with the puzzle menu open.
+
+// ---- top bar, help and settings dialogs ----
 $('#bMenu').onclick = showMenu;
 $('#bMenuClose').onclick = () => $('#menu').classList.remove('open');
 $('#bHelp').onclick = () => $('#mHelp').classList.add('open');
@@ -41,6 +47,7 @@ $('#mSettings').addEventListener('click', (e) => {
   if (e.target.id === 'mSettings') $('#mSettings').classList.remove('open');
 });
 
+// ---- board controls and the results / reveal dialogs ----
 $('#bPrev').onclick = () => openPuzzle(G.cur - 1);
 $('#bNext').onclick = () => openPuzzle(G.cur + 1);
 $('#bReset').onclick = () => {
@@ -69,6 +76,7 @@ $('#mWin').addEventListener('click', (e) => {
     btn = under && under.closest('.top button');
   if (btn) btn.click();
 });
+// ---- puzzle menu and clearing history ----
 $('#bNextUnsolved').onclick = () => {
   const n = nextUnsolved(0);
   if (n) openPuzzle(n);
@@ -92,7 +100,9 @@ $('#bClearYes').onclick = () => {
   setMsg('History cleared.', 'ok');
 };
 
+// ---- start up ----
 setTheme('neon');
+initHelp(); // runs the help sheet's examples while it's open
 paintSound();
 setInterval(tick, 500);
 document.querySelectorAll('#catSeg button').forEach(

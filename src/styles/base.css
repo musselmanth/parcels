@@ -1,3 +1,6 @@
+/*
+ * Page layout: the app column, top bar, stat chips, progress bar, tip message, buttons.
+ */
 * {
   box-sizing: border-box;
 }
@@ -15,6 +18,7 @@ body {
   user-select: none;
   -webkit-touch-callout: none;
 }
+/* ---- layout ---- */
 #app {
   height: 100vh;
   height: 100dvh;
@@ -80,6 +84,7 @@ h1 small {
   width: 18px;
   height: 18px;
 }
+/* ---- stat chips and progress bar ---- */
 .stats {
   display: flex;
   gap: 8px;
@@ -220,6 +225,7 @@ h1 small {
   background: rgba(255, 90, 122, 0.18);
   color: #ff6b86;
 }
+/* ---- bottom buttons ---- */
 .controls {
   display: flex;
   gap: 8px;

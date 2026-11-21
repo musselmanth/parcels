@@ -13,6 +13,9 @@ import {
 import { G } from './state.js';
 import { CAT, store } from './storage.js';
 
+// The results card (#mWin): shown after a win, or via the Results button on a finished board.
+
+// Animate a number from 0 up to `to`, formatting each step with fmtFn.
 function countUp(el, to, fmtFn, delay) {
   const t0 = performance.now() + delay,
     D = 700;
@@ -24,6 +27,8 @@ function countUp(el, to, fmtFn, delay) {
   };
   rafs.push(requestAnimationFrame(f));
 }
+// Fill in the results card for a run {time, misses, pops, best, trail}. note is extra text for the
+// breakdown line. Returns {score, stars}.
 export function showResults(r, note) {
   const par = parFor(G.P),
     sc = scoreFor(r.time, par, r.misses, r.pops),
@@ -78,6 +83,7 @@ export function showResults(r, note) {
   return { score: sc.total, stars };
 }
 // "Results" on a solved board: the best run saved for it
+// Results card for a board whose solution was viewed.
 function showLoser() {
   $('#winTitle').textContent = 'Peeked!';
   $('#stars').innerHTML = [0, 1, 2, 3, 4]
@@ -111,6 +117,7 @@ function showLoser() {
     setTimeout(() => ($('#bShare').textContent = 'Share result'), 2400);
   };
 }
+// Show the saved result for the current board.
 export function openResults() {
   const rec = store[G.cur];
   if (!rec) return;

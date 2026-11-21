@@ -5,6 +5,10 @@ import { setMsg } from './render.js';
 import { G } from './state.js';
 import { loadStore } from './storage.js';
 
+// Settings > Play history: export all saved results to a JSON file, and import one (merging).
+// The export file: {app, version, exported, progress: {easy: {...}, medium: {...}, ...}}.
+
+// Saved results for every level, read fresh from localStorage.
 function allHistory() {
   const progress = {};
   for (const k of Object.keys(CATS)) {
@@ -47,6 +51,7 @@ async function saveFile(filename, text, btn) {
     setMsg('Couldn’t save the file here.', 'bad');
   }
 }
+// Today's date as YYYY-MM-DD, for file names.
 const stamp = () => new Date().toISOString().slice(0, 10);
 $('#bExportJson').onclick = () =>
   saveFile(

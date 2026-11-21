@@ -6,7 +6,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "generate": "node generator/generate.js",
+    "check-puzzles": "node generator/generate.js check"
   },
   "repository": {
     "type": "git",

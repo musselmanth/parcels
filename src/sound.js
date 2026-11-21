@@ -2,12 +2,17 @@ import { $ } from './core/dom.js';
 import { GROUPS } from './core/hex.js';
 import { prefs } from './storage.js';
 
-// ================= sound: soft 80s synth palette (Web Audio, made on the fly) =================
+// Sound effects, synthesized with the Web Audio API (there are no audio files). Notes are MIDI
+// numbers (60 = middle C). Call sites use sfx.<name>(); everything else here builds those sounds.
+
 // Warm and gentle: FM electric-piano and bell tones (think DX7), a soft triangle pad,
 // a mellow echo. Parcels walk an Am–F–C–G progression as you place them.
+// Audio graph, created on first use: voices -> OUT -> compressor -> speakers, plus an echo send.
 let AC = null,
   OUT = null,
   ECHO = null;
+// The AudioContext, or null when sound is off. Browsers only allow audio after a user gesture,
+// so input.js calls this on the first touch.
 export function audio() {
   if (!prefs.sound) return null;
   try {
@@ -41,7 +46,9 @@ export function audio() {
   }
   return AC;
 }
+// MIDI note number -> frequency in Hz.
 const nf = (m) => 440 * Math.pow(2, (m - 69) / 12);
+// Route a voice to the echo, at level `echo`.
 function send(g, echo) {
   if (echo) {
     const e = AC.createGain();
@@ -121,6 +128,7 @@ function soft(
   g.connect(OUT);
   send(g, echo);
 }
+// Chords (MIDI notes) of the Am-F-C-G loop parcels walk through.
 const PROG = [
   [57, 60, 64],
   [53, 57, 60],
@@ -135,10 +143,12 @@ for (let o = 0; o < 4; o++)
     const m = 57 + 12 * o + off;
     if (m <= 98) MELODY.push(m);
   }
+// Shortcuts: electric piano and bell notes.
 const ep = (m, at = 0, vol = 0.045, dur = 0.8) =>
   fm(nf(m), { at, dur, vol, ratio: 1, index: 1.1, idecay: 0.3, echo: 0.22 });
 const bell = (m, at = 0, vol = 0.035, dur = 1.1) =>
   fm(nf(m), { at, dur, vol, ratio: 3.5, index: 1.6, idecay: 0.45, echo: 0.3 });
+// The sound effects. Each plays immediately; `at` offsets inside are seconds from now.
 export const sfx = {
   tap: () => fm(nf(84), { dur: 0.16, vol: 0.028, ratio: 2, index: 0.5, idecay: 0.05, echo: 0.08 }),
   step: (n) =>
@@ -219,6 +229,7 @@ export const sfx = {
   },
 };
 
+// Show the sound setting on its button.
 export function paintSound() {
   const b = $('#bSound');
   b.textContent = prefs.sound ? 'On' : 'Off';

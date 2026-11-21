@@ -1,13 +1,21 @@
-// ===== RUNTIME START (shared by the game page and the generator) =====
+// Board model, shared by the game and the puzzle generator (generator/engine.js).
 // Board = any set of hex cells in axial coordinates [q, r]. Parcels = 3 connected cells.
 // Rules: shape, color and count (1-3) are each all the same or all different.
+// The current board. setCells() fills these in; everything else only reads them.
+//   CELLS       [q, r] axial coordinates of each cell; a cell's index in this list is its id everywhere else
+//   N           number of cells
+//   GROUPS      number of parcels in a full solution (N / 3)
+//   NEIGH       NEIGH[i] = ids of the cells touching cell i
+//   PLACEMENTS  every set of 3 connected cells, as sorted id triples (all possible parcels, ignoring tiles)
+//   PKEYS       the same triples as "a,b,c" strings, for fast "is this connected?" checks
 export let CELLS = [],
   N = 0,
   GROUPS = 0,
   NEIGH = [],
   PLACEMENTS = [],
   PKEYS = new Set();
-const DIRS = [
+// The six neighbor offsets in axial coordinates.
+export const DIRS = [
   [1, 0],
   [1, -1],
   [0, -1],
@@ -15,6 +23,7 @@ const DIRS = [
   [-1, 1],
   [0, 1],
 ];
+// Make `cells` the current board and precompute its neighbors and possible parcels.
 export function setCells(cells) {
   CELLS = cells;
   N = cells.length;
@@ -39,36 +48,43 @@ export function setCells(cells) {
 }
 
 // ---- hex geometry (pointy-top hexes, radius S) ----
+// Drawing units: S is the hex radius in SVG units, W3 = sqrt(3).
 export const S = 50,
   W3 = Math.sqrt(3),
   PAD = 4;
+// SVG position of the center of cell i.
 export function center(i) {
-  const [q, r] = CELLS[i];
+  return axialCenter(...CELLS[i]);
+}
+// SVG position of the center of the hex at axial coordinates [q, r].
+export function axialCenter(q, r) {
   return [W3 * S * (q + r / 2), 1.5 * S * r];
 }
-function hexVerts(i) {
-  const [x, y] = center(i);
-  return [0, 1, 2, 3, 4, 5].map((k) => {
-    const a = (Math.PI / 180) * (30 + 60 * k);
-    return [x + S * Math.cos(a), y + S * Math.sin(a)];
-  });
-}
+// Rounds a point to a string key so corners shared by neighboring hexes compare equal.
 const vkey = ([x, y]) => (Math.round(x * 10) || 0) + ',' + (Math.round(y * 10) || 0); // ||0 folds -0 into 0
 
-// Trace the outside edge of a group of hexes (clockwise), pull it in by `inset`, round every corner.
+// Trace the outside edge of a group of hexes (clockwise), pull it in by `inset`, round every corner
+// with radius R. Returns an SVG path. Used for tile cards, parcel outlines, pairs and the hold ring.
 export function blobPath(cells, inset, R) {
-  const set = new Set(cells),
-    next = new Map(),
+  return outlinePath(cells.map(center), inset, R);
+}
+
+// Same as blobPath, but for hexes given by their center points rather than cell ids of the current
+// board. The help screen uses this to draw its own small example boards.
+export function outlinePath(centers, inset, R) {
+  const next = new Map(),
     at = new Map();
-  for (const i of cells) {
-    const v = hexVerts(i),
-      [cx, cy] = center(i);
+  for (const [cx, cy] of centers) {
+    const v = [0, 1, 2, 3, 4, 5].map((k) => {
+      const a = (Math.PI / 180) * (30 + 60 * k);
+      return [cx + S * Math.cos(a), cy + S * Math.sin(a)];
+    });
     for (let k = 0; k < 6; k++) {
+      // skip edges shared with another hex in the group
       const a = (Math.PI / 180) * (60 + 60 * k),
         nx = cx + W3 * S * Math.cos(a),
         ny = cy + W3 * S * Math.sin(a);
-      const shared = cells.some((j) => j !== i && Math.hypot(center(j)[0] - nx, center(j)[1] - ny) < 1);
-      if (shared) continue;
+      if (centers.some(([x, y]) => Math.hypot(x - nx, y - ny) < 1)) continue;
       const p1 = v[k],
         p2 = v[(k + 1) % 6];
       next.set(vkey(p1), vkey(p2));
@@ -115,7 +131,9 @@ export function blobPath(cells, inset, R) {
   return d + 'Z';
 }
 
+// True if cells a and b touch.
 export const adj = (a, b) => NEIGH[a].includes(b);
+// True if the given 3 cells form a connected parcel shape (line, bend or triangle).
 export const connected = (cells) =>
   PKEYS.has(
     cells
@@ -123,6 +141,7 @@ export const connected = (cells) =>
       .sort((a, b) => a - b)
       .join(','),
   );
+// Average center point of a set of cells.
 export const centroid = (cells) => {
   const c = cells.map(center);
   return [c.reduce((s, p) => s + p[0], 0) / c.length, c.reduce((s, p) => s + p[1], 0) / c.length];

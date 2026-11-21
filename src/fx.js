@@ -2,11 +2,15 @@ import { $, board } from './core/dom.js';
 import { G } from './state.js';
 import { COLORS, TINTS } from './themes.js';
 
-// ================= particles =================
+// Confetti. A full-screen <canvas> over the page; burst() adds particles, and an animation loop
+// runs only while any are alive.
+
+// The canvas and its live particles. fxOn is true while the animation loop is running.
 const fx = $('#fx'),
   ctx = fx.getContext('2d');
 let parts = [],
   fxOn = false;
+// Match the canvas to the window, at device pixel resolution.
 function sizeFx() {
   const d = window.devicePixelRatio || 1;
   fx.width = innerWidth * d;
@@ -15,6 +19,8 @@ function sizeFx() {
 }
 sizeFx();
 addEventListener('resize', sizeFx);
+// Throw n particles from screen point (x, y) in the given colors. power = speed.
+// dir (radians) and spread aim the burst; dir null means all directions.
 export function burst(x, y, colors, n = 16, power = 5, dir = null, spread = Math.PI * 2) {
   for (let k = 0; k < n; k++) {
     const a = dir === null ? Math.random() * Math.PI * 2 : dir + (Math.random() - 0.5) * spread,
@@ -38,6 +44,7 @@ export function burst(x, y, colors, n = 16, power = 5, dir = null, spread = Math
     requestAnimationFrame(fxLoop);
   }
 }
+// One animation frame: gravity, drag, spin, fade; stops when every particle is gone.
 function fxLoop() {
   ctx.clearRect(0, 0, innerWidth, innerHeight);
   parts = parts.filter((p) => p.life > 0 && p.y < innerHeight + 40);
@@ -67,12 +74,14 @@ function fxLoop() {
     ctx.clearRect(0, 0, innerWidth, innerHeight);
   }
 }
+// Board (SVG) coordinates -> screen pixels, for aiming bursts at parcels.
 export function toScreen(x, y) {
   const m = board.getScreenCTM();
   if (!m) return [innerWidth / 2, innerHeight / 2];
   const p = new DOMPoint(x, y).matrixTransform(m);
   return [p.x, p.y];
 }
+// A parcel's palette for confetti: its tint, outline and tile colors.
 export function groupColors(g) {
   const [tint, dark] = TINTS[g.color];
   const cs = new Set([tint, dark]);
@@ -80,6 +89,7 @@ export function groupColors(g) {
   return [...cs];
 }
 
+// Remove all particles (used when switching boards).
 export function clearParticles() {
   parts = [];
 }

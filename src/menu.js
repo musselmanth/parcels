@@ -3,11 +3,14 @@ import { openPuzzle } from './game.js';
 import { G } from './state.js';
 import { PUZZLES, store } from './storage.js';
 
-// ================= menu, modals =================
+// The puzzle picker (#menu): level tabs and a grid of boards with their status.
+
+// Close every modal and the menu.
 export function closeAll() {
   document.querySelectorAll('.modal.open').forEach((m) => m.classList.remove('open'));
   $('#menu').classList.remove('open');
 }
+// Build the board grid for the current level and open the menu.
 export function showMenu() {
   const g = $('#grid');
   g.innerHTML = '';
@@ -26,6 +29,7 @@ export function showMenu() {
   $('#nTotal').textContent = PUZZLES.length;
   $('#menu').classList.add('open');
 }
+// The first board after `from` (wrapping around) with no saved result, or null.
 export function nextUnsolved(from) {
   const L = PUZZLES.length;
   for (let k = 1; k <= L; k++) {

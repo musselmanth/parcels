@@ -1,3 +1,9 @@
+/*
+ * Color tokens and the Neon theme.
+ * :root holds the original light palette (the fallback). body.theme-neon (set by setTheme() in
+ * themes.js) overrides the tokens and restyles parts of the page. Other files use the tokens
+ * (var(--ink), var(--card), ...) so a new theme mostly means a new block of tokens.
+ */
 :root {
   --bg: #f6f1e7;
   --ink: #2b2a27;
@@ -18,6 +24,7 @@
   --pairLine: #6f6a60;
   --paired: #8d846f;
 }
+/* ---- Neon theme: tokens, background, then per-component overrides ---- */
 body.theme-neon {
   --bg: #0d0b1f;
   --ink: #efedff;

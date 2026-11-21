@@ -5,12 +5,20 @@ import { paintSel } from './render.js';
 import { audio, sfx } from './sound.js';
 import { G, groupOf, pairOf } from './state.js';
 
-// ================= pointer handling =================
+// Pointer input on the board (mouse, touch and pen all arrive as pointer events).
+//   - Down on a parcel: press-and-hold (see startHold in actions.js).
+//   - Down and up without moving: a tap -> tapCell().
+//   - Down and drag: a swipe. Each tile (or whole pencilled pair) crossed is added, up to 3 tiles;
+//     sliding back drops the last ones. Releasing on 3 tiles submits a parcel, on 2 pencils a pair.
+// Imported by main.js only for these side effects.
+
+// Screen pixels -> board (SVG) coordinates.
 function svgXY(x, y) {
   const m = board.getScreenCTM();
   if (!m) return null;
   return new DOMPoint(x, y).matrixTransform(m.inverse());
 }
+// The cell under a screen point, or -1. Slightly generous so near-misses on edges still count.
 function cellAt(x, y) {
   const p = svgXY(x, y);
   if (!p) return -1;
@@ -26,7 +34,10 @@ function cellAt(x, y) {
   }
   return best;
 }
+// The gesture in progress, or null. For a parcel press: {id, consumed: true, hold}. Otherwise
+// {id, start: cell pressed, x0, y0, moved, dead (swipe began somewhere invalid), units: cells added, in order}.
 let gest = null; // {id,start,x0,y0,moved,units:[[cells]]}
+// The cells of a swipe, in order.
 const flat = (units) => units.flat();
 board.addEventListener('pointerdown', (e) => {
   if (G.done || G.celebrating || gest) return;
@@ -90,6 +101,7 @@ board.addEventListener('pointermove', (e) => {
   sfx.step(G.sel.length);
   paintSel(G.sel);
 });
+// Pointer up (cancel = false) or cancelled by the browser (cancel = true).
 function endGesture(e, cancel) {
   if (!gest || e.pointerId !== gest.id) return;
   const g = gest;

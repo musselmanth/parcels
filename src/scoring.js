@@ -4,10 +4,19 @@ import { CATS } from './data/puzzles.js';
 import { G } from './state.js';
 import { CAT } from './storage.js';
 
+// Scoring and everything on the results card that's calculated rather than drawn: par time, the
+// 1000-point score, stars, compliments, awards and the share text. Tune the game's scoring here.
+
+// Words for a board's logic level (the `l` field).
 const LEVELS = ['', 'gentle', 'tricky', 'chain reasoning', 'needs a guess'];
+// The small print on the results card describing the board.
 export const statText = (p) =>
   `${p.d} decoy parcels · ${p.f} tile${p.f === 1 ? '' : 's'} with only one possible parcel · logic: ${LEVELS[p.l]}`;
 
+// Fresh stats for an attempt (G.st):
+//   trail: one emoji per event for the share text   pops / pairs / locks: how often each was used
+//   built / swipes: parcels made, and how many by swiping   streak / best: parcels in a row without a miss
+//   lastT / fast: time of the last parcel and the shortest gap between two
 export const newStats = () => ({
   trail: [],
   pops: 0,
@@ -20,8 +29,6 @@ export const newStats = () => ({
   lastT: null,
   fast: null,
 });
-// A fun title for how the board was solved: first match wins.
-// ---------- scoring ----------
 // Par time: what a focused first-time solver might need. Roughly a fixed amount per parcel
 // (more per parcel on harder levels, where each tile has more plausible options) plus a little per false parcel.
 const PAR_PER_PARCEL = { easy: 12, medium: 18, hard: 24, extreme: 30 },
@@ -61,6 +68,7 @@ export const starsFor = (total) => {
   const t = TIERS[CAT];
   return total >= t[0] ? 5 : total >= t[1] ? 4 : total >= t[2] ? 3 : total >= t[3] ? 2 : 1;
 };
+// One line under the score, by level and stars. Picked by board number.
 export const COMPLIMENTS = {
   easy: {
     5: ['Perfect warm-up. You make it look effortless.', 'Not a single wasted move. Beautiful.'],
@@ -94,7 +102,9 @@ export const COMPLIMENTS = {
     1: ['Extreme board: defeated. Seriously.', 'That took real determination. Solved!'],
   },
 };
+// Used in the share text.
 export const LEVEL_EMOJI = { easy: '🟢', medium: '🟡', hard: '🟠', extreme: '🔴' };
+// n stars as emoji, e.g. "⭐⭐⭐☆☆".
 const starRow = (n) => (n === 5 ? '🌟🌟🌟🌟🌟' : '⭐'.repeat(n) + '☆'.repeat(5 - n));
 
 // A fun title for how the board was solved: first match wins.
@@ -116,6 +126,7 @@ export function awardFor(r, par) {
   const a = A.find((a) => a[0]);
   return a ? a.slice(1) : null;
 }
+// The text copied by "Share result".
 export function shareText(r, sc, stars) {
   // the move-by-move trail, 10 per line: 🟩 parcel made, 🟥 mistake, 🫧 pop
   const tr = r.trail || [],
