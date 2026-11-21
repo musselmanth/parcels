@@ -49,6 +49,7 @@ npm run check-puzzles               # verify every puzzle has exactly one soluti
 | `src/menu.js`       | Fills in the puzzle menu (the grid of boards for a level)                                                                                              |
 | `src/history.js`    | Export / import of play history                                                                                                                        |
 | `src/styles/`       | CSS: color tokens and theme, page layout, board and animations, dialogs, menu, help; `responsive.css` adapts it all for tablets, desktop and landscape |
+| `public/`           | Copied as-is to the site root: icons, `og-image.png` (link previews), `site.webmanifest`, `robots.txt`, `sitemap.xml`                                  |
 | `generator/`        | Puzzle generator ([generator/README.md](generator/README.md))                                                                                          |
 
 Every module starts with a comment saying what it's for, and functions have a line or two above them.
