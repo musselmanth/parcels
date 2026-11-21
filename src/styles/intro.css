@@ -1,0 +1,189 @@
+/*
+ * The start screen (#intro, filled in by src/intro.js): the name over a small animated board,
+ * How to play, and a button per level. Side by side in landscape.
+ */
+#intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 0 20px calc(16px + env(safe-area-inset-bottom));
+  overflow: auto;
+}
+.intro-hero {
+  text-align: center;
+}
+/* square: the board spins inside it (help.js frames it to fit the spin) */
+#introArt {
+  display: block;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 6px;
+  overflow: visible;
+}
+.intro-name {
+  font-family: Georgia, serif;
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+body.theme-neon .intro-name {
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  background: linear-gradient(90deg, #9a8cff, #ff4fa8 60%, #ffb347);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 16px rgba(255, 79, 168, 0.45));
+}
+.intro-tag {
+  margin-top: 4px;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.intro-hero .subtitle {
+  margin-top: 6px;
+}
+.intro-actions {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.intro-help {
+  padding: 11px 14px;
+  font-size: 15px;
+}
+/* How to play and Settings side by side, together as wide as the level buttons */
+.intro-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+}
+.intro-settings {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+.intro-settings svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
+}
+.intro-pick {
+  margin-top: 6px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--muted);
+}
+.intro-levels {
+  display: grid;
+  gap: 10px;
+}
+
+/* a level button: name and details on one line, progress bar under them, tinted in its color */
+#introLevels .level {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 6px 10px;
+  padding: 12px 16px 11px;
+  border-radius: 16px;
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--lv) 45%, transparent);
+  background: color-mix(in srgb, var(--lv) 8%, transparent);
+  transition:
+    transform 0.12s,
+    box-shadow 0.2s;
+}
+#introLevels .level:hover {
+  box-shadow: 0 0 18px color-mix(in srgb, var(--lv) 30%, transparent);
+}
+#introLevels .level:active {
+  transform: scale(0.98);
+}
+.lv-name {
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--lv);
+}
+body.theme-neon .lv-name {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.06em;
+  font-size: 15px;
+}
+.lv-best {
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.02em;
+}
+.lv-meta {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.lv-bar {
+  grid-column: 1 / -1;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.lv-bar i {
+  display: block;
+  height: 100%;
+  background: var(--lv);
+  box-shadow: 0 0 8px var(--lv);
+}
+
+/* bigger screens */
+@media (min-width: 700px) and (min-height: 600px) {
+  #introArt {
+    width: 240px;
+    height: 240px;
+  }
+  .intro-name {
+    font-size: 58px;
+  }
+  .intro-actions {
+    max-width: 440px;
+  }
+}
+/* landscape: name and board on the left, buttons on the right */
+@media (orientation: landscape) and (min-width: 600px) {
+  #intro {
+    flex-direction: row;
+    gap: clamp(24px, 7vw, 100px);
+  }
+}
+/* landscape phones: not much height */
+@media (orientation: landscape) and (max-height: 500px) {
+  #introArt {
+    width: 130px;
+    height: 130px;
+  }
+  .intro-name {
+    font-size: 34px;
+  }
+  .intro-actions,
+  .intro-levels,
+  .intro-row {
+    gap: 6px;
+  }
+  .intro-help,
+  #introLevels .level {
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+}

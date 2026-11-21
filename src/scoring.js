@@ -16,7 +16,7 @@ export const statText = (p) =>
 // Fresh stats for an attempt (G.st):
 //   trail: one emoji per event for the share text   pops / pairs / locks: how often each was used
 //   built / swipes: parcels made, and how many by swiping   streak / best: parcels in a row without a miss
-//   lastT / fast: time of the last parcel and the shortest gap between two
+//   lastT / fast: time of the last parcel and the shortest gap between two   hints: hints asked for
 export const newStats = () => ({
   trail: [],
   pops: 0,
@@ -28,12 +28,8 @@ export const newStats = () => ({
   best: 0,
   lastT: null,
   fast: null,
+  hints: 0,
 });
-// Par time: what a focused first-time solver might need. Roughly a fixed amount per parcel
-// (more per parcel on harder levels, where each tile has more plausible options) plus a little per false parcel.
-const PAR_PER_PARCEL = { easy: 12, medium: 18, hard: 24, extreme: 30 },
-  PAR_PER_DECOY = 2;
-export const parFor = (p) => 1000 * ((PAR_PER_PARCEL[CAT] * p.c.length) / 6 + PAR_PER_DECOY * p.d);
 // Mistakes and pops cost less on bigger boards, where some are expected.
 const ALLOW = {
   easy: { miss: 4, pop: 4 },
@@ -41,21 +37,17 @@ const ALLOW = {
   hard: { miss: 8, pop: 8 },
   extreme: { miss: 10, pop: 12 },
 };
-// Score out of 1000: speed (500) + accuracy (300) + tidiness (200).
-export function scoreFor(time, par, mistakes, pops) {
-  const x = time / par;
-  const speed =
-    x <= 0.5
-      ? 500
-      : x <= 1
-        ? 500 - (300 * (x - 0.5)) / 0.5
-        : x <= 2
-          ? 350 - 250 * (x - 1)
-          : Math.max(0, 100 - 100 * (x - 2));
+// Hints that use up the whole hints part of the score: half the board's parcels (at least 3).
+// So a hint costs about 167 points on a 6-parcel board and about 56 on an 18-parcel one.
+const hintAllowance = () => Math.max(3, Math.ceil(GROUPS / 2));
+// Score out of 1000: hints (500) + accuracy (300) + tidiness (200). Time isn't scored; it's
+// shown on the results card and kept as each level's best time instead.
+export function scoreFor(hints, mistakes, pops) {
+  const hint = Math.max(0, 500 - (500 * hints) / hintAllowance());
   const acc = Math.max(0, 300 - (300 * mistakes) / ALLOW[CAT].miss);
   const tidy = Math.max(0, 200 - (200 * pops) / ALLOW[CAT].pop);
   const r = (v) => Math.round(v);
-  return { speed: r(speed), acc: r(acc), tidy: r(tidy), total: r(speed) + r(acc) + r(tidy) };
+  return { hint: r(hint), acc: r(acc), tidy: r(tidy), total: r(hint) + r(acc) + r(tidy) };
 }
 // Star thresholds ease off a little as the levels get harder.
 const TIERS = {
@@ -108,12 +100,13 @@ export const LEVEL_EMOJI = { easy: '🟢', medium: '🟡', hard: '🟠', extreme
 const starRow = (n) => (n === 5 ? '🌟🌟🌟🌟🌟' : '⭐'.repeat(n) + '☆'.repeat(5 - n));
 
 // A fun title for how the board was solved: first match wins.
-// r = one run: {time, misses, pops, best, trail}
-export function awardFor(r, par) {
+// r = one run: {time, misses, pops, hints, best, trail}
+export function awardFor(r) {
+  const hints = r.hints || 0;
   const A = [
-    [r.misses === 0 && r.pops === 0, '💎', 'Flawless', 'No mistakes, nothing popped'],
-    [r.time <= par * 0.5, '⚡', 'Speed Run', `Under ${fmt(par * 0.5)}, half of par`],
+    [r.misses === 0 && r.pops === 0 && !hints, '💎', 'Flawless', 'No hints, no mistakes, nothing popped'],
     [r.pops >= Math.max(8, GROUPS), '🫧', 'Bubble Wrap Enthusiast', `${r.pops} parcels popped`],
+    [hints >= hintAllowance(), '🧭', 'Guided Tour', `${hints} hints along the way`],
     [
       r.best >= Math.max(6, Math.round(GROUPS * 0.75)),
       '🔥',
@@ -128,14 +121,14 @@ export function awardFor(r, par) {
 }
 // The text copied by "Share result".
 export function shareText(r, sc, stars) {
-  // the move-by-move trail, 10 per line: 🟩 parcel made, 🟥 mistake, 🫧 pop
+  // the move-by-move trail, 10 per line: 🟩 parcel made, 🟥 mistake, 🫧 pop, 💡 hint
   const tr = r.trail || [],
     t = tr.slice(0, 40),
     rows = [];
   for (let i = 0; i < t.length; i += 10) rows.push(t.slice(i, i + 10).join(''));
   if (tr.length > 40) rows[rows.length - 1] += '…';
   return (
-    `Parcels ${LEVEL_EMOJI[CAT]} ${CATS[CAT].name} #${G.cur}\n${starRow(stars)}  ${sc.total}\n⏱ ${fmt(r.time)}  ❌ ${r.misses}  🫧 ${r.pops}` +
+    `Parcels ${LEVEL_EMOJI[CAT]} ${CATS[CAT].name} #${G.cur}\n${starRow(stars)}  ${sc.total}\n⏱ ${fmt(r.time)}  💡 ${r.hints || 0}  ❌ ${r.misses}  🫧 ${r.pops}` +
     (rows.length ? `\n${rows.join('\n')}` : '')
   );
 }

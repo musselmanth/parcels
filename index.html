@@ -15,15 +15,29 @@
     />
   </head>
   <body>
-    <div id="app">
-      <div class="top">
-        <button class="icon" id="bMenu" aria-label="All puzzles">
-          <svg viewBox="0 0 20 20">
+    <div id="shell">
+      <header id="topbar" class="top">
+        <!-- left button: "All puzzles" on the game screen, "Back" on the puzzle menu, hidden on the intro -->
+        <button class="icon" id="bNav" aria-label="All puzzles">
+          <svg class="ic-menu" viewBox="0 0 20 20">
             <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          <svg class="ic-back" viewBox="0 0 20 20">
+            <path
+              d="M12 4l-6 6 6 6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </button>
         <div class="titles">
-          <h1>Parcels<small id="pzNum"></small></h1>
+          <h1>
+            <button class="brand" id="bHome" aria-label="Parcels: back to the start screen">Parcels</button
+            ><small id="pzNum"></small><small id="lvlName"></small>
+          </h1>
           <div class="subtitle">playtesting</div>
         </div>
         <button class="icon" id="bSettings" aria-label="Settings">
@@ -50,23 +64,82 @@
         >
           ?
         </button>
-      </div>
-      <div class="stats">
-        <div class="chip"><span class="lbl">Misses</span><b id="misses">0</b></div>
-        <div class="chip">
-          <span class="lbl">Parcels</span><b><span id="prog">0</span><span class="of" id="ofN">/12</span></b>
-        </div>
-        <div class="chip"><span class="lbl">Time</span><b id="timer">0:00</b></div>
-      </div>
-      <div class="progress"><i id="progBar"></i></div>
-      <div id="msgSlot"><div id="msg" role="status" aria-live="polite"></div></div>
-      <div id="stage"><svg id="board" role="group" aria-label="Puzzle board"></svg></div>
-      <div class="controls">
-        <button class="nav" id="bPrev" aria-label="Previous puzzle">‹</button>
-        <button id="bReset">Start over</button>
-        <button id="bReveal">Solution</button>
-        <button class="nav" id="bNext" aria-label="Next puzzle">›</button>
-      </div>
+      </header>
+      <!-- The three screens slide between each other (src/screens.js). -->
+      <main id="screens">
+        <!-- Start screen. The level buttons are filled in by src/intro.js. -->
+        <section class="screen" id="intro">
+          <div class="intro-hero">
+            <svg id="introArt" aria-hidden="true"></svg>
+            <div class="intro-name">Parcels</div>
+            <div class="intro-tag">A hex-tile logic puzzle</div>
+            <div class="subtitle">playtesting</div>
+          </div>
+          <div class="intro-actions">
+            <div class="intro-row">
+              <button id="bIntroHelp" class="intro-help">How to play</button>
+              <button id="bIntroSettings" class="intro-help intro-settings" aria-label="Settings">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3" />
+                  <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                  />
+                </svg>
+                Settings
+              </button>
+            </div>
+            <div class="intro-pick">Choose a level</div>
+            <div class="intro-levels" id="introLevels"></div>
+          </div>
+        </section>
+        <!-- Puzzle picker. -->
+        <section class="screen" id="menu">
+          <div class="seg" id="catSeg">
+            <button data-c="easy">Easy</button><button data-c="medium">Medium</button
+            ><button data-c="hard">Hard</button><button data-c="extreme">Extreme</button>
+          </div>
+          <div class="summary">
+            <span><b id="nSolved">0</b> of <span id="nTotal">50</span> solved<span id="lvlBest"></span></span
+            ><button id="bNextUnsolved">Next unsolved</button>
+          </div>
+          <div class="scroll">
+            <div class="grid" id="grid"></div>
+            <p class="legend">
+              Green = solved, with your star rating. Dashed = in progress, with parcels placed so far. 🫠 =
+              solution viewed (0 points). Solved boards are final. Export or clear your history in Settings on
+              the start screen.
+            </p>
+          </div>
+        </section>
+        <!-- The game. -->
+        <section class="screen" id="app">
+          <div class="stats">
+            <div class="chip"><span class="lbl">Misses</span><b id="misses">0</b></div>
+            <div class="chip">
+              <span class="lbl">Parcels</span
+              ><b><span id="prog">0</span><span class="of" id="ofN">/12</span></b>
+            </div>
+            <div class="chip chip-time"><span class="lbl">Time</span><b id="timer">0:00</b></div>
+          </div>
+          <div class="progress"><i id="progBar"></i></div>
+          <div id="msgSlot"><div id="msg" role="status" aria-live="polite"></div></div>
+          <div id="stage"><svg id="board" role="group" aria-label="Puzzle board"></svg></div>
+          <div class="controls">
+            <button class="nav" id="bPrev" aria-label="Previous puzzle">‹</button>
+            <button id="bReset">Start over</button>
+            <button id="bHint">Hint</button>
+            <button id="bReveal">Solution</button>
+            <button class="nav" id="bNext" aria-label="Next puzzle">›</button>
+          </div>
+        </section>
+      </main>
     </div>
 
     <canvas id="fx"></canvas>
@@ -74,9 +147,14 @@
     <!-- How to play. The examples are drawn and animated by src/help.js. -->
     <div class="modal" id="mHelp">
       <div class="sheet help">
-        <h2>How to play</h2>
+        <!-- header stays pinned at the top while the sheet scrolls, so the close button is always there -->
+        <div class="hhead">
+          <h2>How to play</h2>
+          <button class="xclose" id="bHelpClose" aria-label="Close">✕</button>
+        </div>
         <p class="hnote">
-          Tap any example to try it yourself. <b>Scroll down</b> for the rules, the controls and scoring.
+          Examples marked <b>Try it</b> can be played right here. <b>Scroll down</b> for the rules, the
+          controls and scoring.
         </p>
 
         <p>
@@ -151,16 +229,24 @@
         <h3>Score</h3>
         <ul>
           <li>
-            Up to <b>1000 points</b> and 5 stars: beat the board's par time, make fewer mistakes, and pop
-            fewer parcels. Harder levels forgive more slips.
+            Up to <b>1000 points</b> and 5 stars: use fewer hints, make fewer mistakes, and pop fewer parcels.
+            Harder levels forgive more slips.
           </li>
           <li><b>Misses</b> counts the parcels you tried that broke the rule.</li>
-          <li>Stuck? <b>Solution</b> shows the answer, but that board scores 0 and can't be replayed.</li>
+          <li>
+            Stuck? <b>Hint</b> circles a real parcel with a dotted line until you make it. Each hint costs
+            some points.
+          </li>
+          <li>
+            Time isn't scored, but your fastest solve on each level (without hints) is kept as your
+            <b>best time</b>.
+          </li>
+          <li><b>Solution</b> shows the answer, but that board scores 0 and can't be replayed.</li>
         </ul>
 
-        <div class="row sticky">
+        <!-- holds the "More below" hint, pinned to the bottom edge -->
+        <div class="row sticky hbottom">
           <button class="hmore" id="bHelpMore" aria-label="Scroll down for more">More below ↓</button>
-          <button class="primary" id="bHelpClose">Let's play</button>
         </div>
       </div>
     </div>
@@ -173,6 +259,7 @@
         <div class="score"><b id="score">0</b><span>points</span></div>
         <div class="compliment" id="compliment"></div>
         <div class="breakdown" id="breakdown"></div>
+        <div class="besttime" id="bestTime"></div>
         <div class="award" id="award"></div>
         <div class="statgrid" id="statgrid"></div>
         <div class="diag" id="diag"></div>
@@ -189,7 +276,15 @@
         <button class="xclose" id="bSettingsClose" aria-label="Close">✕</button>
         <h2>Settings</h2>
         <h3>Sound</h3>
-        <div class="setrow"><span>Sound effects</span><button id="bSound"></button></div>
+        <div class="setrow">
+          <span>Sound effects</span
+          ><button class="switch" id="bSound" role="switch" aria-label="Sound effects"></button>
+        </div>
+        <h3>Display</h3>
+        <div class="setrow">
+          <span>Show timer</span
+          ><button class="switch" id="bTimer" role="switch" aria-label="Show timer"></button>
+        </div>
         <h3>Play history</h3>
         <p class="setnote">
           Your scores are saved in this browser only. Export them to a file to move to another device, then
@@ -220,39 +315,6 @@
         <div class="row">
           <button class="primary" id="bRevealYes">Show it</button><button id="bRevealNo">Keep trying</button>
         </div>
-      </div>
-    </div>
-
-    <div id="menu">
-      <div class="top">
-        <button class="icon" id="bMenuClose" aria-label="Back to puzzle">
-          <svg viewBox="0 0 20 20">
-            <path
-              d="M12 4l-6 6 6 6"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-        <h1>All puzzles</h1>
-      </div>
-      <div class="seg" id="catSeg">
-        <button data-c="easy">Easy</button><button data-c="medium">Medium</button
-        ><button data-c="hard">Hard</button><button data-c="extreme">Extreme</button>
-      </div>
-      <div class="summary">
-        <span><b id="nSolved">0</b> of <span id="nTotal">50</span> solved</span
-        ><button id="bNextUnsolved">Next unsolved</button>
-      </div>
-      <div class="scroll">
-        <div class="grid" id="grid"></div>
-        <p class="legend">
-          Green = solved, with your star rating. 🫠 = solution viewed (0 points). Solved boards are final.
-          Export or clear your history in ⚙ Settings.
-        </p>
       </div>
     </div>
 

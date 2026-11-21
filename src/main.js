@@ -4,25 +4,80 @@ import './styles/board.css';
 import './styles/overlays.css';
 import './styles/menu.css';
 import './styles/help.css';
+import './styles/intro.css';
+import './styles/responsive.css'; // keep last: adapts the layout for tablets, desktop and landscape
 import { $ } from './core/dom.js';
 import { CATS } from './data/puzzles.js';
 import { openPuzzle, reveal } from './game.js';
+import { giveHint } from './actions.js';
 import { initHelp } from './help.js';
-import { nextUnsolved, showMenu } from './menu.js';
+import { nextUnsolved, renderMenu } from './menu.js';
+import { initIntro, renderIntro } from './intro.js';
+import { currentScreen, onScreen, previousScreen, showScreen } from './screens.js';
 import { setMsg, tick } from './render.js';
 import { openResults } from './results.js';
 import { paintSound, sfx } from './sound.js';
 import { G } from './state.js';
-import { loadStore, prefs, savePrefs, setCat } from './storage.js';
+import { clearAllProgress, saveProgress } from './progress.js';
+import { CAT, clearBests, loadStore, prefs, savePrefs, setCat } from './storage.js';
 import './input.js'; // attaches the board's pointer handlers
 import { setTheme } from './themes.js';
 
 // Entry point (loaded by index.html). Loads the CSS, wires every button and dialog to its action,
 // then starts the game on the first unsolved board with the puzzle menu open.
 
+// ---- moving between screens ----
+// The level the board on the game screen belongs to (the menu can switch to another level).
+let gameLevel = null;
+// Open board n of the current level and show the game screen.
+function playBoard(n) {
+  openPuzzle(n);
+  gameLevel = CAT;
+  showScreen('game');
+}
+// Fill in the puzzle menu for the current level and show it.
+function toMenu() {
+  renderMenu(playBoard, gameLevel === CAT ? G.cur : null);
+  showScreen('menu');
+}
+// Choose a level (intro buttons and the menu's tabs).
+function pickLevel(k) {
+  prefs.cat = k;
+  savePrefs();
+  setCat(k);
+  toMenu();
+}
+// Left top-bar button: "All puzzles" on the game screen, "Back" on the menu.
+$('#bNav').onclick = () => {
+  if (currentScreen() === 'game') return toMenu();
+  // back to the puzzle you came from, unless the menu has since switched level
+  showScreen(previousScreen() === 'game' && gameLevel === CAT ? 'game' : 'intro');
+};
+// Saved results were imported or cleared: redraw whatever shows them.
+document.addEventListener('historychange', () => {
+  if (gameLevel === CAT && G.cur) openPuzzle(G.cur);
+  if (currentScreen() === 'menu') renderMenu(playBoard, gameLevel === CAT ? G.cur : null);
+  if (currentScreen() === 'intro') renderIntro(pickLevel);
+});
+// The title goes back to the start screen from anywhere.
+$('#bHome').onclick = () => showScreen('intro');
+$('#bIntroHelp').onclick = () => $('#mHelp').classList.add('open');
+onScreen((name) => {
+  $('#bNav').setAttribute('aria-label', name === 'menu' ? 'Back' : 'All puzzles');
+  // the timer pauses while you're off the game screen, and the board is saved as you leave
+  if (name === 'game') {
+    if (G.pauseT && G.startT) G.startT += Date.now() - G.pauseT;
+    G.pauseT = null;
+  } else if (G.P && !G.pauseT) {
+    G.pauseT = Date.now();
+    saveProgress();
+  }
+});
+// save the board in progress if the tab is hidden or closed
+document.addEventListener('visibilitychange', () => document.hidden && saveProgress());
+addEventListener('pagehide', saveProgress);
+
 // ---- top bar, help and settings dialogs ----
-$('#bMenu').onclick = showMenu;
-$('#bMenuClose').onclick = () => $('#menu').classList.remove('open');
 $('#bHelp').onclick = () => $('#mHelp').classList.add('open');
 $('#bHelpClose').onclick = () => {
   $('#mHelp').classList.remove('open');
@@ -38,7 +93,20 @@ $('#bSound').onclick = () => {
   paintSound();
   if (prefs.sound) sfx.pin();
 };
-$('#bSettings').onclick = () => {
+// Show or hide the Time box above the board (the timer keeps running either way).
+function paintTimer() {
+  const b = $('#bTimer');
+  b.classList.toggle('on', prefs.showTimer);
+  b.setAttribute('aria-checked', String(prefs.showTimer));
+  document.body.dataset.timer = prefs.showTimer ? 'on' : 'off';
+}
+$('#bTimer').onclick = () => {
+  prefs.showTimer = !prefs.showTimer;
+  savePrefs();
+  paintTimer();
+};
+// Settings opens from the top bar (game screen) or the start screen's button.
+$('#bSettings').onclick = $('#bIntroSettings').onclick = () => {
   $('#confirmClear').style.display = 'none';
   $('#mSettings').classList.add('open');
 };
@@ -53,6 +121,7 @@ $('#bNext').onclick = () => openPuzzle(G.cur + 1);
 $('#bReset').onclick = () => {
   if (!G.done) openPuzzle(G.cur, true);
 };
+$('#bHint').onclick = giveHint;
 $('#bReveal').onclick = () => {
   if (G.done) openResults();
   else $('#mReveal').classList.add('open');
@@ -64,7 +133,7 @@ $('#bRevealYes').onclick = () => {
 };
 $('#bWinNext').onclick = () => {
   const n = nextUnsolved(G.cur);
-  n ? openPuzzle(n) : showMenu();
+  n ? playBoard(n) : toMenu();
 };
 $('#bWinClose').onclick = () => $('#mWin').classList.remove('open');
 // tapping outside the results card closes it; if the tap landed on a top button (menu, sound, help), that button works too
@@ -79,7 +148,7 @@ $('#mWin').addEventListener('click', (e) => {
 // ---- puzzle menu and clearing history ----
 $('#bNextUnsolved').onclick = () => {
   const n = nextUnsolved(0);
-  if (n) openPuzzle(n);
+  if (n) playBoard(n);
 };
 $('#bClear').onclick = () => {
   $('#confirmClear').style.display = 'block';
@@ -93,10 +162,16 @@ $('#bClearYes').onclick = () => {
       localStorage.removeItem(CATS[k].key);
     } catch (e) {}
   }
+  clearAllProgress();
+  clearBests();
+  G.groups = {}; // so the board on screen isn't saved straight back
+  G.pairs = [];
+  G.misses = 0;
+  G.startT = null;
   loadStore();
   $('#confirmClear').style.display = 'none';
   $('#mSettings').classList.remove('open');
-  openPuzzle(1);
+  document.dispatchEvent(new Event('historychange'));
   setMsg('History cleared.', 'ok');
 };
 
@@ -104,18 +179,10 @@ $('#bClearYes').onclick = () => {
 setTheme('neon');
 initHelp(); // runs the help sheet's examples while it's open
 paintSound();
+paintTimer();
 setInterval(tick, 500);
-document.querySelectorAll('#catSeg button').forEach(
-  (b) =>
-    (b.onclick = () => {
-      prefs.cat = b.dataset.c;
-      savePrefs();
-      setCat(prefs.cat);
-      G.cur = 0;
-      showMenu();
-    }),
-);
+document.querySelectorAll('#catSeg button').forEach((b) => (b.onclick = () => pickLevel(b.dataset.c)));
+initIntro(pickLevel);
 setCat(prefs.cat || 'easy');
-openPuzzle(nextUnsolved(0) || 1);
-showMenu(); // the site opens on the level and puzzle picker
+showScreen('intro', { animate: false }); // the site opens on the start screen
 if (!prefs.seenHelp) $('#mHelp').classList.add('open');

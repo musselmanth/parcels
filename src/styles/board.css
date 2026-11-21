@@ -91,7 +91,7 @@
   fill: var(--pairFill);
   stroke: var(--pairLine);
   stroke-width: 2.5;
-  stroke-dasharray: 8 6;
+  stroke-dasharray: 8 6; /* keep in step with DASH_PERIOD in render.js */
   animation: march 1.2s linear infinite;
 }
 .pair.enter {
@@ -228,6 +228,27 @@
 .parcel.holding {
   transition: transform 0.45s ease;
   transform: scale(0.95);
+}
+/* hint: gold dots circling a parcel from the solution until the player makes it */
+.hint {
+  fill: none;
+  stroke: #ffd43b;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-dasharray: 0.1 13; /* keep in step with DASH_PERIOD / HINT_SPIN_MS in render.js */
+  pointer-events: none;
+  filter: drop-shadow(0 0 4px rgba(255, 212, 59, 0.75));
+  animation: hintSpin 1.1s linear infinite;
+}
+@keyframes hintSpin {
+  to {
+    stroke-dashoffset: -13.1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hint {
+    animation: none;
+  }
 }
 #trail {
   fill: none;

@@ -22,35 +22,40 @@ npm run check-puzzles               # verify every puzzle has exactly one soluti
 
 ## Files
 
-| File                | What's in it                                                                      |
-| ------------------- | --------------------------------------------------------------------------------- |
-| `index.html`        | Page markup: top bar, board, buttons, dialogs, puzzle menu                        |
-| `src/main.js`       | Entry point: loads the CSS, wires every button to its action, starts the game     |
-| `src/state.js`      | `G`, the state of the board being played (selection, parcels, pairs, timer, ...)  |
-| `src/core/rules.js` | The rule: same-or-different for shape, color and count                            |
-| `src/core/hex.js`   | The board model (cells, neighbors, possible parcels) and hex geometry for drawing |
-| `src/core/dom.js`   | Small helpers: `$`, cancellable timers (`later`), time formatting, vibration      |
-| `src/data/`         | The puzzles (`easy.json` ... `extreme.json`) and `puzzles.js`, which lists levels |
-| `src/storage.js`    | Current level, saved results and preferences (localStorage)                       |
-| `src/themes.js`     | Tile shapes and colors (the Neon theme)                                           |
-| `src/render.js`     | Draws the board SVG, the selection trail, the tip message and the timer           |
-| `src/input.js`      | Pointer handling: taps, swipes, press-and-hold                                    |
-| `src/actions.js`    | What moves do: make / pop / lock parcels, pencil pairs                            |
-| `src/game.js`       | Opening a board, winning, revealing the solution                                  |
-| `src/scoring.js`    | Par time, score, stars, compliments, awards, share text                           |
-| `src/results.js`    | The results card                                                                  |
-| `src/celebrate.js`  | The win animation                                                                 |
-| `src/fx.js`         | Confetti                                                                          |
-| `src/sound.js`      | Sound effects, synthesized with Web Audio (no audio files)                        |
-| `src/help.js`       | The How to play sheet: animated examples the player can also try                  |
-| `src/menu.js`       | The puzzle picker                                                                 |
-| `src/history.js`    | Export / import of play history                                                   |
-| `src/styles/`       | CSS: color tokens and theme, page layout, board and animations, dialogs, menu     |
-| `generator/`        | Puzzle generator ([generator/README.md](generator/README.md))                     |
+| File                | What's in it                                                                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `index.html`        | Page markup: the top bar, the three screens (start, puzzle menu, game), dialogs                                                                        |
+| `src/main.js`       | Entry point: loads the CSS, wires every button to its action, starts the game                                                                          |
+| `src/screens.js`    | Moving between the three screens, with the slide animation                                                                                             |
+| `src/intro.js`      | The start screen: level buttons with progress, the animated board                                                                                      |
+| `src/state.js`      | `G`, the state of the board being played (selection, parcels, pairs, timer, ...)                                                                       |
+| `src/core/rules.js` | The rule: same-or-different for shape, color and count                                                                                                 |
+| `src/core/hex.js`   | The board model (cells, neighbors, possible parcels) and hex geometry for drawing                                                                      |
+| `src/core/dom.js`   | Small helpers: `$`, cancellable timers (`later`), time formatting, vibration                                                                           |
+| `src/data/`         | The puzzles (`easy.json` ... `extreme.json`) and `puzzles.js`, which lists levels                                                                      |
+| `src/storage.js`    | Current level, saved results and preferences (localStorage)                                                                                            |
+| `src/progress.js`   | Boards in progress: saved after every move, restored when you come back                                                                                |
+| `src/themes.js`     | Tile shapes and colors (the Neon theme)                                                                                                                |
+| `src/render.js`     | Draws the board SVG, the selection trail, the tip message and the timer                                                                                |
+| `src/input.js`      | Pointer handling: taps, swipes, press-and-hold                                                                                                         |
+| `src/actions.js`    | What moves do: make / pop / lock parcels, pencil pairs                                                                                                 |
+| `src/game.js`       | Opening a board, winning, revealing the solution                                                                                                       |
+| `src/scoring.js`    | Score (hints, accuracy, tidiness), stars, compliments, awards, share text                                                                              |
+| `src/results.js`    | The results card                                                                                                                                       |
+| `src/celebrate.js`  | The win animation                                                                                                                                      |
+| `src/fx.js`         | Confetti                                                                                                                                               |
+| `src/sound.js`      | Sound effects, synthesized with Web Audio (no audio files)                                                                                             |
+| `src/help.js`       | The How to play sheet: animated examples the player can also try                                                                                       |
+| `src/menu.js`       | Fills in the puzzle menu (the grid of boards for a level)                                                                                              |
+| `src/history.js`    | Export / import of play history                                                                                                                        |
+| `src/styles/`       | CSS: color tokens and theme, page layout, board and animations, dialogs, menu, help; `responsive.css` adapts it all for tablets, desktop and landscape |
+| `generator/`        | Puzzle generator ([generator/README.md](generator/README.md))                                                                                          |
 
 Every module starts with a comment saying what it's for, and functions have a line or two above them.
 
 ## How it works
+
+**Screens.** The page is a top bar (the title, which always leads back to the start screen, plus Settings and Help) above three screens: the start screen, the puzzle menu and the game. `showScreen(name)` in `src/screens.js` slides between them: going deeper (start → menu → game) slides in from the right, going back from the left. It also sets `<body data-screen="...">`, which the CSS uses to change the top bar per screen. `main.js` decides where each button goes (`playBoard`, `toMenu`, `pickLevel`).
 
 **The board.** A board is a list of hex cells in axial coordinates. A cell's position in that list is its id everywhere: in tiles, parcels, the solution and the DOM (`data-i`). `setCells()` in `core/hex.js` makes a board current and precomputes each cell's neighbors and every possible parcel shape (`PLACEMENTS`).
 
@@ -72,7 +77,8 @@ Every module starts with a comment saying what it's for, and functions have a li
 
 - **The rules text and help:** the help sheet's text is in `index.html` (`#mHelp`). Its animated, playable examples (boards, tiles and what the pretend finger does) are `DEMOS` in `src/help.js`, styled by `src/styles/help.css`. Rule-break messages are `whyInvalid()` in `src/core/rules.js`.
 - **Scoring:** everything is at the top of `src/scoring.js`:
-  - par time per parcel (`PAR_PER_PARCEL`)
+  - the score is out of 1000: hints 500, accuracy 300, tidiness 200 (`scoreFor`); time isn't scored
+  - how many hints use up the hints part (`hintAllowance`: half the board's parcels)
   - how many mistakes and pops each level forgives (`ALLOW`)
   - star thresholds (`TIERS`)
   - awards (`awardFor`)
@@ -83,12 +89,15 @@ Every module starts with a comment saying what it's for, and functions have a li
   2. Add a `body.theme-<name>` block of tokens in the CSS.
   3. Call `setTheme('<name>')` in `src/main.js`.
 - **Sounds:** `sfx` in `src/sound.js`. Notes are MIDI numbers (60 = middle C).
+- **Layout on other screens:** phones held upright are the base styles. `src/styles/responsive.css` (loaded last) enlarges things on tablets and desktop and, in landscape, moves the top bar, stats, tip and buttons into a left sidebar so the board gets the rest of the screen (a CSS grid on `#app`).
 - **Feel and animation timing:** `styles/board.css` (tile and parcel animations), `HOLD` in `src/actions.js` (press-and-hold time), `celebrate()` in `src/celebrate.js`.
+- **Hints:** `giveHint()` in `src/actions.js` picks the parcel; the dotted outline is `.hint` in `src/styles/board.css`.
+- **Best times:** one per level, fastest solve without hints, saved by `loadBest`/`saveBest` in `src/storage.js` and checked in `win()` in `src/game.js`.
 - **Puzzles:** `npm run generate`; see [generator/README.md](generator/README.md).
 
 ## Things to know
 
-- **Saved results are keyed by board number** within each level, under the localStorage keys in `src/data/puzzles.js`.
+- **Saved results and boards in progress are keyed by board number** within each level, under the localStorage keys in `src/data/puzzles.js`.
   - Adding boards to the end of a level is safe.
   - Reordering or removing boards makes old results point at the wrong boards.
   - If you replace a level's boards wholesale, change its key.

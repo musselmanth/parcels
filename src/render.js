@@ -1,6 +1,7 @@
 import { $, board, fmt } from './core/dom.js';
 import { CELLS, GROUPS, N, S, W3, adj, blobPath, center, centroid, setCells } from './core/hex.js';
 import { G, pairOf } from './state.js';
+import { saveProgress } from './progress.js';
 import { POS, STAR, TINTS, glyph, tileLabel } from './themes.js';
 
 // Drawing. The board is one <svg> rebuilt from G by render() after every move. Layers, bottom to top:
@@ -60,6 +61,21 @@ function badgeSVG(g) {
     `<rect x="-5" y="-1.5" width="10" height="8" rx="1.5" fill="#fffaf0"/><path d="M-3,-1.5 V-4 a3,3 0 0 1 6,0 V-1.5" fill="none" stroke="#fffaf0" stroke-width="2"/></g></g>`
   );
 }
+// Dotted and dashed outlines (hints, pencilled pairs): an outline's length is rarely a whole number
+// of dash repeats, which leaves a bunched-up or gappy spot where the path starts and ends. Stretching
+// each path's length (pathLength) to the nearest whole number of repeats makes the pattern seamless.
+// Values must match stroke-dasharray in styles/board.css. Also keeps the hint dots marching smoothly
+// across redraws instead of restarting.
+const DASH_PERIOD = { hint: 13.1, pair: 14 }; // dash + gap
+const HINT_SPIN_MS = 1100; // the .hint animation's duration
+export function fitDashes(root) {
+  for (const [cls, period] of Object.entries(DASH_PERIOD))
+    root.querySelectorAll(`path.${cls}`).forEach((p) => {
+      const len = p.getTotalLength();
+      if (len > 0) p.setAttribute('pathLength', (Math.max(1, Math.round(len / period)) * period).toFixed(2));
+      if (cls === 'hint') p.style.animationDelay = `-${(performance.now() % HINT_SPIN_MS) / 1000}s`;
+    });
+}
 // Rebuild the whole board from G and update the Misses / Parcels counters and progress bar.
 export function render() {
   const inGroup = new Set();
@@ -68,6 +84,7 @@ export function render() {
     .map((p) => `<path class="pair${p.fresh ? ' enter' : ''}" d="${blobPath(p.cells, 2, 13)}"/>`)
     .join('');
   const parcelSVG = Object.values(G.groups)
+    .sort((a, b) => (a.id === G.top) - (b.id === G.top)) // G.top is drawn last, i.e. on top
     .map((g) => {
       const [tint, dark] = TINTS[g.color];
       return (
@@ -82,7 +99,10 @@ export function render() {
   let free = '';
   for (let i = 0; i < N; i++) if (!inGroup.has(i)) free += tileSVG(i, 0);
   const [bx, by] = centroid(CELLS.map((_, i) => i));
-  board.innerHTML = `<g id="world"><g>${pairSVG}</g><g>${parcelSVG}</g><path id="trail" d=""/><g>${free}</g><g transform="translate(${bx.toFixed(1)},${by.toFixed(1)})"><g id="hole">${holeSVG()}</g></g></g>`;
+  // hints: a dotted outline that circles a parcel from the solution, drawn on top of everything
+  const hintSVG = G.hints.map((h) => `<path class="hint" d="${blobPath(h, -3, 15)}"/>`).join('');
+  board.innerHTML = `<g id="world"><g>${pairSVG}</g><g>${parcelSVG}</g><path id="trail" d=""/><g>${free}</g><g>${hintSVG}</g><g transform="translate(${bx.toFixed(1)},${by.toFixed(1)})"><g id="hole">${holeSVG()}</g></g></g>`;
+  fitDashes(board);
   Object.values(G.groups).forEach((g) => {
     g.fresh = false;
     g.badgeFresh = false;
@@ -91,6 +111,7 @@ export function render() {
   $('#misses').textContent = G.misses;
   $('#prog').textContent = Object.keys(G.groups).length;
   $('#progBar').style.width = (Object.keys(G.groups).length / GROUPS) * 100 + '%';
+  saveProgress(); // every change to the board goes through here, so this keeps the save current
 }
 // The gold star and rays that appear in the middle when the board is solved.
 function holeSVG() {

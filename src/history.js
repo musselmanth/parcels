@@ -1,11 +1,9 @@
 import { $ } from './core/dom.js';
 import { CATS } from './data/puzzles.js';
-import { openPuzzle } from './game.js';
 import { setMsg } from './render.js';
-import { G } from './state.js';
-import { loadStore } from './storage.js';
+import { loadBest, loadStore, saveBest } from './storage.js';
 
-// Settings > Play history: export all saved results to a JSON file, and import one (merging).
+// Settings > Play history: export all saved results (and best times) to a JSON file, and import one (merging).
 // The export file: {app, version, exported, progress: {easy: {...}, medium: {...}, ...}}.
 
 // Saved results for every level, read fresh from localStorage.
@@ -57,7 +55,13 @@ $('#bExportJson').onclick = () =>
   saveFile(
     `parcels-history-${stamp()}.json`,
     JSON.stringify(
-      { app: 'parcels-playtest', version: 2, exported: new Date().toISOString(), progress: allHistory() },
+      {
+        app: 'parcels-playtest',
+        version: 3,
+        exported: new Date().toISOString(),
+        progress: allHistory(),
+        bests: Object.fromEntries(Object.keys(CATS).map((k) => [k, loadBest(k)])),
+      },
       null,
       1,
     ),
@@ -86,6 +90,12 @@ function importHistory(text) {
     return;
   }
   let added = 0;
+  // best times: keep the faster of the two
+  for (const k of Object.keys(CATS)) {
+    const theirs = data.bests && data.bests[k],
+      mine = loadBest(k);
+    if (theirs && theirs.time > 0 && (!mine || theirs.time < mine.time)) saveBest(k, theirs);
+  }
   for (const k of Object.keys(CATS)) {
     const mine = allHistory()[k],
       theirs = incoming[k] || {};
@@ -103,6 +113,6 @@ function importHistory(text) {
   }
   loadStore();
   $('#mSettings').classList.remove('open');
-  openPuzzle(G.cur);
+  document.dispatchEvent(new Event('historychange')); // main.js refreshes what's on screen
   setMsg(`Imported ${added} result${added === 1 ? '' : 's'}.`, 'ok');
 }

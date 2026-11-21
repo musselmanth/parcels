@@ -2,18 +2,11 @@
  * The puzzle picker (#menu): level tabs (.seg) and the board grid (.pz).
  */
 #menu {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  z-index: 20;
-  display: none;
+  display: flex;
   flex-direction: column;
-  padding: calc(8px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));
+  padding: 0 12px calc(10px + env(safe-area-inset-bottom));
   max-width: 520px;
   margin: 0 auto;
-}
-#menu.open {
-  display: flex;
 }
 #menu .scroll {
   flex: 1;
@@ -100,6 +93,15 @@ body.theme-neon .seg button.on {
 .pz.revealed {
   background: #ece6da;
   border-color: #b9ad97;
+}
+/* in progress: dashed border, parcels placed shown under the number */
+.pz.wip,
+body.theme-neon .pz.wip {
+  border-style: dashed;
+  border-color: rgba(154, 140, 255, 0.7);
+}
+.pz.wip .st {
+  color: #c8c0ff;
 }
 .pz.current {
   box-shadow: 0 0 0 2px var(--ink);

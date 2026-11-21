@@ -11,6 +11,46 @@ import { TINTS } from './themes.js';
 // What the player's moves do: making parcels, pencilling pairs, popping and locking parcels.
 // input.js turns pointer events into these calls; each one updates G and calls render().
 
+// A set of cells as a key that ignores order.
+const cellKey = (cells) =>
+  cells
+    .slice()
+    .sort((a, b) => a - b)
+    .join(',');
+
+// Hint: outline one parcel from the solution that the player hasn't made (or already been shown).
+// Prefers parcels whose tiles are all still loose; only when none is left does it pick one that
+// overlaps the player's parcels (fewest overlapping tiles), which tells them those parcels are wrong.
+// The outline stays until that parcel is made (see submit), which then locks it automatically.
+// Each hint counts against the score.
+export function giveHint() {
+  if (G.done || G.celebrating || G.busy) return;
+  const made = new Set(Object.values(G.groups).map((g) => cellKey(g.cells)));
+  const shown = new Set(G.hints.map(cellKey));
+  const taken = new Set(Object.values(G.groups).flatMap((g) => g.cells));
+  const open = G.P.solution.filter((c) => !made.has(cellKey(c)) && !shown.has(cellKey(c)));
+  if (!open.length) {
+    setMsg('Every parcel left is already outlined.');
+    return;
+  }
+  const overlap = (c) => c.filter((i) => taken.has(i)).length;
+  const least = Math.min(...open.map(overlap));
+  const pool = open.filter((c) => overlap(c) === least);
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  begin();
+  G.hints.push(pick.slice());
+  G.st.hints = (G.st.hints || 0) + 1;
+  G.st.trail.push('💡');
+  sfx.hint();
+  buzz(8);
+  setMsg(
+    least
+      ? 'That outline belongs in the answer, so a parcel you made over it is wrong.'
+      : 'The dotted outline is a real parcel. Make it to clear the hint.',
+  );
+  render();
+}
+
 // Start the clock on the first move.
 export function begin() {
   if (!G.startT) G.startT = Date.now();
@@ -78,6 +118,9 @@ export function submit(cells) {
     return;
   }
   G.pairs = G.pairs.filter((p) => !p.cells.some((c) => cells.includes(c)));
+  // a hinted parcel, now made: its outline goes, and it locks itself (it's known to be right)
+  const hinted = G.hints.some((h) => cellKey(h) === cellKey(cells));
+  G.hints = G.hints.filter((h) => cellKey(h) !== cellKey(cells));
   const now = Date.now();
   G.st.trail.push('🟩');
   G.st.built++;
@@ -90,13 +133,21 @@ export function submit(cells) {
   }
   G.st.lastT = now;
   const id = G.nextId++;
-  const g = { id, cells, color: freeColor(cells), pinned: false, fresh: true };
+  const g = { id, cells, color: freeColor(cells), pinned: hinted, badgeFresh: hinted, fresh: true };
+  G.top = id; // a new parcel is drawn on top
   G.groups[id] = g;
   G.sel = [];
   const n = Object.keys(G.groups).length;
   sfx.group(n - 1);
   buzz(14);
-  setMsg(n === 1 ? 'Nice! Tap to pop a parcel, hold to lock it.' : '', 'ok');
+  setMsg(
+    hinted
+      ? 'Hinted parcel made and locked in.'
+      : n === 1
+        ? 'Nice! Tap to pop a parcel, hold to lock it.'
+        : '',
+    'ok',
+  );
   render();
   const [cx, cy] = centroid(cells),
     [sx, sy] = toScreen(cx, cy);
@@ -209,6 +260,9 @@ const HOLD = 450;
 export function startHold(g) {
   const wrap = board.querySelector(`.pwrap[data-g="${g.id}"]`),
     inner = wrap && wrap.querySelector('.parcel');
+  // the pressed parcel comes to the top, so its ring and animations show over its neighbors
+  G.top = g.id;
+  if (wrap) wrap.parentNode.appendChild(wrap);
   const h = { g, done: false, ring: null };
   if (wrap) {
     const ns = 'http://www.w3.org/2000/svg',

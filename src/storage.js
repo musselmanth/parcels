@@ -4,7 +4,8 @@ import { CATS } from './data/puzzles.js';
 //   - Results per level, under that level's key in CATS (src/data/puzzles.js): {[boardNumber]: record}.
 //     A solve record: {time, misses, pops, best, trail, pairs, locks, score, stars, at}.
 //     A peek record: {revealed: true, score: 0, stars: 0, at}.
-//   - Preferences under 'parcels-playtest-v1-prefs': {sound, seenHelp, cat}.
+//   - Best time per level under '<level key>-best' (see loadBest below).
+//   - Preferences under 'parcels-playtest-v1-prefs': {sound, seenHelp, cat, showTimer}.
 // Every localStorage call is wrapped in try/catch: storage can be blocked (private mode), and the game should still run.
 
 // The level being played and its list of boards.
@@ -14,12 +15,17 @@ export let CAT = 'easy',
 const KEY = 'parcels-playtest-v1';
 // Saved results for the current level, keyed by board number.
 export let store = {};
+// Saved results for any level ({} if none or storage is unavailable).
+export function loadResults(level) {
+  try {
+    return JSON.parse(localStorage.getItem(CATS[level].key) || '{}') || {};
+  } catch (e) {
+    return {};
+  }
+}
 // Load the current level's saved results.
 export function loadStore() {
-  store = {};
-  try {
-    store = JSON.parse(localStorage.getItem(CATS[CAT].key) || '{}') || {};
-  } catch (e) {}
+  store = loadResults(CAT);
 }
 // Write the current level's results back.
 export function save() {
@@ -35,7 +41,7 @@ export function setCat(k) {
   document.querySelectorAll('#catSeg button').forEach((b) => b.classList.toggle('on', b.dataset.c === CAT));
 }
 // Player preferences, loaded once at startup.
-export let prefs = { sound: true, seenHelp: false };
+export let prefs = { sound: true, seenHelp: false, showTimer: true };
 try {
   Object.assign(prefs, JSON.parse(localStorage.getItem(KEY + '-prefs') || '{}'));
 } catch (e) {}
@@ -43,4 +49,26 @@ export function savePrefs() {
   try {
     localStorage.setItem(KEY + '-prefs', JSON.stringify(prefs));
   } catch (e) {}
+}
+
+// Each level's best time: the fastest solve without hints, any board. Saved under
+// '<level key>-best' as {time, board, at}, or nothing yet.
+const bestKey = (level) => CATS[level].key + '-best';
+export function loadBest(level) {
+  try {
+    return JSON.parse(localStorage.getItem(bestKey(level)) || 'null');
+  } catch (e) {
+    return null;
+  }
+}
+export function saveBest(level, rec) {
+  try {
+    localStorage.setItem(bestKey(level), JSON.stringify(rec));
+  } catch (e) {}
+}
+export function clearBests() {
+  for (const k of Object.keys(CATS))
+    try {
+      localStorage.removeItem(bestKey(k));
+    } catch (e) {}
 }

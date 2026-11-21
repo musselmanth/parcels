@@ -1,11 +1,12 @@
 import { S, W3, axialCenter, outlinePath } from './core/hex.js';
 import { whyInvalid } from './core/rules.js';
+import { fitDashes } from './render.js';
 import { POS, TH, TINTS, glyph } from './themes.js';
 
 // The "How to play" sheet (#mHelp) and its animated examples. Each example is a small board drawn
 // with the same markup and CSS classes as the real board (so it looks and animates the same), plus
 // a pretend finger. A script per example plays on a loop while the sheet is open.
-// Tapping an example switches it to "play" mode: the loop stops and the player can make, pencil, pop
+// Tapping an example (except the watch-only ones) switches it to "play" mode: the loop stops and the player can make, pencil, pop
 // and lock parcels on it themselves, with the same gestures as the real board. "Watch" goes back.
 //
 // To change an example, edit its cells / tiles / script in DEMOS below. Tiles are T(shape, color, count):
@@ -38,8 +39,7 @@ class Mini {
     this.gen = 0; // bumped by stop(); a running script notices and ends
     this.mode = 'auto'; // 'auto' = playing its script, 'play' = the player is trying it
     this.msgEl = null; // where say() writes (set by the controller below)
-    this.onTry = null; // called when the player taps the example while it's in 'auto' mode
-    this.onTapCell = null; // optional: replaces the normal tap handling in 'play' mode
+    this.onTry = null; // called when the player taps the example while it's in 'auto' mode (null: watch-only)
     this.g = null; // the gesture in progress (see down())
     for (const [ev, fn] of [
       ['pointerdown', (e) => this.down(e)],
@@ -55,11 +55,13 @@ class Mini {
   // Back to loose tiles, nothing selected, finger hidden.
   reset() {
     this.parcels = []; // [{cells, color, pinned, fresh, badgeFresh}]
+    this.top = null; // the parcel drawn on top (last pressed or made)
     this.pair = null; // {cells, fresh}
     this.sel = [];
     this.shake = [];
     this.released = null;
     this.trail = [];
+    this.tip = null; // fingertip position while gliding (extends the trail)
     this.busy = false; // an animation is running; ignore input
     this.solved = false;
     this.render();
@@ -102,7 +104,9 @@ class Mini {
       ? `<path class="pair${this.pair.fresh ? ' enter' : ''}" d="${outlinePath(pts(this.pair.cells), 2, 13)}"/>`
       : '';
     const parcels = this.parcels
-      .map((p, n) => {
+      .map((p, n) => [p, n])
+      .sort(([a], [b]) => (a === this.top) - (b === this.top)) // this.top drawn last, i.e. on top
+      .map(([p, n]) => {
         const [tint, dark] = TINTS[p.color];
         return (
           `<g class="pwrap" data-n="${n}"><g class="parcel${p.pinned ? ' pinned' : ''}${p.fresh ? ' enter' : ''}" style="--pc:${dark}">` +
@@ -113,13 +117,13 @@ class Mini {
         );
       })
       .join('');
-    const trail =
-      this.trail.length > 1 ? this.trail.map((i, k) => (k ? 'L' : 'M') + this.c[i].join(',')).join('') : '';
+    const trail = this.trailPath();
     let loose = '';
     this.tiles.forEach((_, i) => {
       if (!inParcel.has(i)) loose += tile(i, 0);
     });
     this.world.innerHTML = `<g>${pair}</g><g>${parcels}</g><path class="htrail" d="${trail}"/><g>${loose}</g>`;
+    fitDashes(this.world);
     this.parcels.forEach((p) => (p.fresh = p.badgeFresh = false));
     if (this.pair) this.pair.fresh = false;
   }
@@ -177,30 +181,97 @@ class Mini {
   }
 
   // ---- moves
+  // Tap tiles one at a time, selecting each (tapping a pencilled pair selects both of its tiles).
+  async tapSelect(cells) {
+    for (const i of cells) {
+      await this.tap(i);
+      if (this.pairHas(i)) this.sel = [...new Set([...this.sel, ...this.pair.cells])];
+      else this.sel.push(i);
+      this.render();
+    }
+  }
   // Drag across cells (starting on a pencilled pair takes the whole pair), highlighting as it goes.
   async swipe(cells) {
     await this.point(cells[0]);
     this.press(true);
-    const first = this.pair && this.pair.cells.includes(cells[0]) ? this.pair.cells.slice() : [cells[0]];
+    const first = this.pairHas(cells[0]) ? this.pair.cells.slice() : [cells[0]];
     this.sel = first.slice();
     this.trail = first.slice();
     this.render();
-    await this.wait(160);
-    for (const i of cells.slice(1)) {
-      if (this.sel.includes(i)) continue;
-      await this.point(i, 260);
+    await this.wait(40); // just a touch down, then straight into the glide
+    await this.glide(cells);
+    this.press(false); // lift as soon as the last tile is reached
+    this.trail = [];
+    this.render();
+  }
+  // Slide the finger through the centers of `cells` in one smooth motion (no stops on the way),
+  // at a nearly even speed (only a slight ease at the ends, so it doesn't linger on them). Each tile is selected as the finger enters it, and the
+  // trail follows the fingertip. msPerTile sets the speed.
+  glide(cells, msPerTile = 180) {
+    const pts = cells.map((i) => this.c[i]);
+    const cum = [0]; // distance along the path to each tile's center
+    for (let k = 1; k < pts.length; k++)
+      cum.push(cum[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));
+    const total = cum[cum.length - 1];
+    const select = (i) => {
+      if (this.sel.includes(i)) return;
       this.sel.push(i);
       this.trail.push(i);
       this.render();
-      await this.wait(90);
+    };
+    if (this.fast || total === 0) {
+      cells.forEach(select);
+      return Promise.resolve();
     }
-    this.press(false);
-    this.trail = [];
+    const f = this.finger,
+      g = this.gen,
+      dur = msPerTile * (cells.length - 1),
+      t0 = performance.now();
+    // mostly linear, a quarter ease-in-out: the ends run at 3/4 of the average speed, never stopping
+    const ease = (p) => 0.75 * p + 0.25 * (p < 0.5 ? 2 * p * p : 1 - (-2 * p + 2) ** 2 / 2);
+    f.style.transition = 'opacity .2s'; // the finger's position is driven frame by frame below
+    let next = 1; // index in cells of the next tile to select
+    return new Promise((res, rej) => {
+      const frame = (now) => {
+        if (g !== this.gen) {
+          f.style.transition = '';
+          return rej(STOP);
+        }
+        const p = Math.min(1, (now - t0) / dur),
+          d = ease(p) * total;
+        let k = 0;
+        while (k < cum.length - 2 && cum[k + 1] < d) k++;
+        const u = Math.min(1, (d - cum[k]) / (cum[k + 1] - cum[k] || 1));
+        const x = pts[k][0] + (pts[k + 1][0] - pts[k][0]) * u,
+          y = pts[k][1] + (pts[k + 1][1] - pts[k][1]) * u;
+        f.style.transform = `translate(${x}px,${y}px)`;
+        this.tip = [x, y];
+        // a tile counts once the finger is inside its hexagon (a little before its center)
+        while (next < cells.length && d >= cum[next] - S * 0.45) select(cells[next++]);
+        const tr = this.world.querySelector('.htrail');
+        if (tr) tr.setAttribute('d', this.trailPath());
+        if (p < 1) requestAnimationFrame(frame);
+        else {
+          this.tip = null;
+          f.style.transition = '';
+          res();
+        }
+      };
+      requestAnimationFrame(frame);
+    });
+  }
+  // The swipe trail: through the selected tiles' centers, then on to the fingertip while gliding.
+  trailPath() {
+    const pts = this.trail.map((i) => this.c[i]);
+    if (this.tip && pts.length) pts.push(this.tip);
+    return pts.length > 1
+      ? pts.map((p, k) => (k ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('')
+      : '';
   }
   makeParcel(cells, color) {
     this.sel = [];
     if (this.pair && this.pair.cells.some((i) => cells.includes(i))) this.pair = null;
-    this.parcels.push({ cells, color, fresh: true });
+    this.parcels.push((this.top = { cells, color, fresh: true }));
     this.render();
   }
   makePair(cells) {
@@ -254,6 +325,8 @@ class Mini {
   addRing(n) {
     const p = this.parcels[n];
     const wrap = this.world.querySelector(`.pwrap[data-n="${n}"]`);
+    this.top = p; // the pressed parcel comes to the top, ring and animations included
+    wrap.parentNode.appendChild(wrap);
     const ring = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     ring.setAttribute('class', 'holdring' + (p.pinned ? ' popping' : ''));
     ring.setAttribute('pathLength', '1');
@@ -342,7 +415,7 @@ class Mini {
       this.svg.setPointerCapture(e.pointerId);
     } catch (_) {}
     const i = this.cellAt(e),
-      n = i >= 0 && !this.onTapCell ? this.parcelOf(i) : -1;
+      n = i >= 0 ? this.parcelOf(i) : -1;
     if (n >= 0) this.g = { ...base, n, hold: this.startHold(n) };
     else this.g = { ...base, start: i, moved: false, units: [] };
   }
@@ -354,7 +427,6 @@ class Mini {
       if (!g.hold.done && dist > 18) this.cancelHold(g.hold);
       return;
     }
-    if (this.onTapCell) return;
     if (!g.moved) {
       if (dist < 10) return;
       g.moved = true;
@@ -392,14 +464,10 @@ class Mini {
     this.g = null;
     const still = Math.hypot(e.clientX - g.x0, e.clientY - g.y0) < 10;
     if (g.auto) {
-      if (!cancel && still) this.onTry();
+      if (!cancel && still && this.onTry) this.onTry();
       return;
     }
     if (g.hold) return cancel ? this.cancelHold(g.hold) : this.releaseHold(g.hold);
-    if (this.onTapCell) {
-      if (!cancel && still && g.start >= 0) this.onTapCell(g.start);
-      return;
-    }
     this.trail = [];
     if (cancel || g.dead) {
       this.sel = [];
@@ -619,9 +687,10 @@ function ruleVerdict(m, ok) {
 // id of the <svg> -> what it shows:
 //   cells, tiles  the board
 //   script(m)     what the finger does each loop while watching
-//   intro         message when the player taps it to try it themselves
+//   intro         message when the player taps it to try it themselves (no intro: watch-only)
 //   setup(m)      optional: the starting position for trying it (default: all tiles loose)
-//   onTapCell     optional: custom tap handling while trying it (the rule example)
+//   ways          optional: gesture choices shown as a switch under the example, e.g. ['Swipe', 'Tap'];
+//                 the script reads the chosen one from m.way
 //   still(m)      optional: the frame to show instead of the animation when reduced motion is on
 //                 (default: the script's last frame)
 const DEMOS = {
@@ -673,7 +742,6 @@ const DEMOS = {
       [2, 0],
     ],
     tiles: RULE_EXAMPLES[0],
-    intro: 'Your turn: tap a tile to swap it for another, and watch the checks.',
     script: async (m) => {
       for (const ex of RULE_EXAMPLES) {
         const ok = ruleSetup(m, ex);
@@ -686,30 +754,12 @@ const DEMOS = {
         await m.wait(1900);
       }
     },
-    setup: (m) => ruleShowAll(m, RULE_EXAMPLES[0].slice()),
-    // swap the tapped tile for a random different one (never a copy of another tile in the row)
-    onTapCell: (m, i) => {
-      const key = (t) => `${t.s}${t.c}${t.n}`,
-        taken = new Set(m.tiles.map(key));
-      let t;
-      do
-        t = T(
-          Math.floor(Math.random() * 4),
-          Math.floor(Math.random() * 4),
-          1 + Math.floor(Math.random() * 3),
-        );
-      while (taken.has(key(t)));
-      const tiles = m.tiles.slice();
-      tiles[i] = t;
-      ruleShowAll(m, tiles);
-    },
   },
 
   // A rule-following parcel that is still wrong.
   hdDecoy: {
     cells: SIX,
     tiles: SIX_TILES,
-    intro: 'Your turn: find the one split where every tile fits.',
     script: async (m) => {
       m.say('These three follow the rule, so they make a parcel…');
       await m.wait(700);
@@ -735,40 +785,45 @@ const DEMOS = {
     },
   },
 
-  // Swipe across 3; on alternate loops, tap them one by one instead.
+  // Make a parcel by swiping across 3 tiles, or by tapping them one at a time.
   hdSwipe: {
     cells: SIX,
     tiles: SIX_TILES,
     intro: 'Swipe across 3 tiles, or tap them one at a time.',
+    ways: ['Swipe', 'Tap'],
     script: async (m) => {
-      m.round = (m.round || 0) + 1;
       await m.wait(400);
-      if (m.round % 2) await m.swipe([0, 1, 2]);
-      else
-        for (const i of [0, 1, 2]) {
-          await m.tap(i);
-          m.sel.push(i);
-          m.render();
-        }
+      if (m.way === 'Swipe') await m.swipe([0, 1, 2]);
+      else await m.tapSelect([0, 1, 2]);
       m.makeParcel([0, 1, 2], 0);
       await m.lift();
       await m.wait(900);
     },
   },
 
-  // Swipe 2 to pencil a pair, later swipe from the pair onto the third tile.
+  // Pencil in a pair, then add the third tile later.
+  // Swipe: across 2, then from the pair onto the third. Tap: 2 tiles, one of them again, then the
+  // pair and the third.
   hdPair: {
     cells: SIX,
     tiles: SIX_TILES,
-    intro: 'Swipe across 2 tiles to pencil in a pair.',
+    intro: 'Swipe across 2 tiles, or tap 2 and then tap one again, to pencil in a pair.',
+    ways: ['Swipe', 'Tap'],
     script: async (m) => {
       await m.wait(400);
-      await m.swipe([3, 4]);
+      if (m.way === 'Swipe') await m.swipe([3, 4]);
+      else {
+        await m.tapSelect([3, 4]);
+        await m.tap(4);
+      }
       m.makePair([3, 4]);
+      m.say('Pair pencilled in…');
       await m.lift();
       await m.wait(1000);
-      await m.swipe([4, 5]);
+      if (m.way === 'Swipe') await m.swipe([4, 5]);
+      else await m.tapSelect([3, 5]);
       m.makeParcel([3, 4, 5], 2);
+      m.say('…and the third tile added.', 'ok');
       await m.lift();
       await m.wait(900);
     },
@@ -817,13 +872,6 @@ const DEMOS = {
   },
 };
 
-// Rule example in play mode: everything shown at once.
-function ruleShowAll(m, tiles) {
-  const ok = ruleSetup(m, tiles);
-  for (const row of $h('hdRuleChecks').children) row.classList.add('show');
-  ruleVerdict(m, ok)?.catch(() => {});
-}
-
 // The three parcel shapes, drawn still.
 function drawShapes() {
   const shapes = [
@@ -851,8 +899,8 @@ function drawShapes() {
 }
 
 // ---------------------------------------------------------------- watching vs. trying, per example
-// Each example's box (.hdemo) gets a message line and a corner button: "Try it" while watching,
-// "Watch" while trying.
+// Each example's box (.hdemo) gets a message line. Examples with an intro also get a corner
+// button ("Try it" while watching, "Watch" while trying); examples with ways get a Swipe | Tap switch.
 let demos = null;
 function build() {
   drawShapes();
@@ -864,14 +912,30 @@ function build() {
     msg.className = 'hmsg';
     svg.after(msg);
     m.msgEl = msg;
-    const chip = document.createElement('button');
-    chip.className = 'hchip';
-    box.prepend(chip);
-    const demo = { m, d, box, chip };
-    m.onTry = () => tryIt(demo);
-    m.onReplay = () => tryIt(demo);
-    if (d.onTapCell) m.onTapCell = (i) => d.onTapCell(m, i);
-    chip.onclick = () => (m.mode === 'auto' ? tryIt(demo) : watch(demo));
+    const demo = { m, d, box, chip: null };
+    if (d.intro) {
+      demo.chip = document.createElement('button');
+      demo.chip.className = 'hchip';
+      box.prepend(demo.chip);
+      demo.chip.onclick = () => (m.mode === 'auto' ? tryIt(demo) : watch(demo));
+      m.onTry = m.onReplay = () => tryIt(demo);
+    } else box.classList.add('watchonly');
+    if (d.ways) {
+      m.way = d.ways[0];
+      const sw = document.createElement('div');
+      sw.className = 'hways';
+      sw.setAttribute('role', 'group');
+      sw.setAttribute('aria-label', 'Show it with');
+      sw.innerHTML = d.ways.map((w) => `<button data-w="${w}">${w}</button>`).join('');
+      sw.onclick = (e) => {
+        const w = e.target.dataset && e.target.dataset.w;
+        if (!w) return;
+        m.way = w;
+        watch(demo); // replay the animation the chosen way
+      };
+      svg.after(sw); // under the board, above the message line
+      demo.ways = sw;
+    }
     return demo;
   });
 }
@@ -888,11 +952,14 @@ function tryIt({ m, d, box, chip }) {
   m.say(d.intro);
 }
 // Go back to playing the example's animation.
-function watch({ m, d, box, chip }) {
+function watch({ m, d, box, chip, ways }) {
   m.mode = 'auto';
   box.classList.remove('playing');
-  chip.textContent = 'Try it';
-  chip.setAttribute('aria-label', 'Try this example yourself');
+  if (chip) {
+    chip.textContent = 'Try it';
+    chip.setAttribute('aria-label', 'Try this example yourself');
+  }
+  if (ways) for (const b of ways.children) b.classList.toggle('on', b.dataset.w === m.way);
   m.say('');
   m.tiles = d.tiles.slice();
   if (d.still && reducedMotion()) {
@@ -941,4 +1008,124 @@ export function initHelp() {
   };
   new MutationObserver(sync).observe(modal, { attributes: true, attributeFilter: ['class'] });
   sync();
+}
+
+// The start screen's decoration: the 9-tile example board, already solved. Once per page load it
+// plays a short sequence, then stays as it ends:
+//   1. a small version of the win celebration: parcels hop in turn, the board spins while the
+//      symbols twirl
+//   2. as the spin slows to a stop, the board drops down to sit just above the title and the
+//      outlines fade to gold
+// Returns {start, stop}; call start() only after setTheme() (it uses the theme's colors).
+const INTRO_PARCELS = [
+  { cells: [0, 1, 2], color: 0 },
+  { cells: [3, 6, 4], color: 2 },
+  { cells: [5, 8, 7], color: 1 },
+];
+export function introArt(svg) {
+  const d = DEMOS.hdGoal;
+  let m = null,
+    played = false,
+    running = false,
+    dropY = 0, // how far the board drops at the end (board units)
+    drop = null; // <g> wrapped around the board that does the drop
+  const gold = () => (TH.merge || { stroke: '#c99a1c' }).stroke;
+
+  function build() {
+    m = new Mini(svg, d.cells, d.tiles.slice());
+    m.parcels = INTRO_PARCELS.map((p) => ({ ...p }));
+    m.render();
+    // the drop moves a wrapper around the board, so it can overlap the spin (which moves the board)
+    drop = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    svg.insertBefore(drop, m.world);
+    drop.appendChild(m.world);
+    // spin around the board's own middle
+    m.world.style.transformBox = 'fill-box';
+    m.world.style.transformOrigin = 'center';
+    // Frame the board in a square big enough for the whole circle its corners sweep while it
+    // spins (plus room for the hop), so the spin never spills over the title underneath.
+    const [cx, cy] = [0, 1].map((k) => m.c.reduce((t, p) => t + p[k], 0) / m.c.length);
+    const r = Math.max(...m.c.map(([x, y]) => Math.hypot(x - cx, y - cy))) + S + 20;
+    svg.setAttribute(
+      'viewBox',
+      `${(cx - r).toFixed(1)} ${(cy - r).toFixed(1)} ${(2 * r).toFixed(1)} ${(2 * r).toFixed(1)}`,
+    );
+    // after the spin the board drops to the bottom of that square, just above the title
+    dropY = cy + r - (Math.max(...m.c.map((p) => p[1])) + S) - 6;
+  }
+
+  // The end state: parcels made, gold outlines, dropped down, nothing animating.
+  function finalState() {
+    m.stop(); // ends the sequence if it's still running
+    running = false;
+    svg.classList.remove('dancing');
+    svg.getAnimations({ subtree: true }).forEach((a) => a.cancel());
+    m.sel = [];
+    m.trail = [];
+    m.tip = null;
+    m.parcels = INTRO_PARCELS.map((p) => ({ ...p }));
+    m.render();
+    m.world.querySelectorAll('.outline').forEach((o) => o.setAttribute('stroke', gold()));
+    drop.style.transform = `translateY(${dropY}px)`;
+  }
+
+  async function play() {
+    running = true;
+    try {
+      await m.wait(700);
+      // 1a. wave: each parcel hops in turn
+      [...m.world.querySelectorAll('.parcel')].forEach((el, k) =>
+        el.animate(
+          [
+            { transform: 'translateY(0) scale(1)' },
+            { transform: 'translateY(-16px) scale(1.1)' },
+            { transform: 'translateY(0) scale(1)' },
+          ],
+          { duration: 440, delay: k * 150, easing: 'cubic-bezier(.3,.7,.4,1)' },
+        ),
+      );
+      await m.wait(650);
+      // 1b. one spin of the whole board, symbols twirling
+      svg.classList.add('dancing');
+      m.world.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], {
+        duration: 1600,
+        easing: 'cubic-bezier(.6,0,.3,1)',
+      });
+      // 2. as the spin slows to a stop, the board drops toward the title and the outlines turn gold
+      await m.wait(1200);
+      drop.animate([{ transform: 'translateY(0)' }, { transform: `translateY(${dropY}px)` }], {
+        duration: 800,
+        easing: 'cubic-bezier(.3,.7,.3,1)',
+        fill: 'forwards',
+      });
+      m.world.querySelectorAll('.outline').forEach((o, k) =>
+        o.animate([{ stroke: o.getAttribute('stroke') }, { stroke: gold() }], {
+          duration: 900,
+          delay: k * 120,
+          easing: 'ease-in-out',
+          fill: 'forwards',
+        }),
+      );
+      await m.wait(400); // the spin ends
+      svg.classList.remove('dancing');
+      await m.wait(560);
+      finalState();
+    } catch (e) {
+      if (e !== STOP) throw e;
+    }
+  }
+
+  return {
+    start() {
+      if (!m) build();
+      if (played) return; // once per page load; afterwards it just shows the finished board
+      played = true;
+      if (reducedMotion()) finalState();
+      else play();
+    },
+    // Leaving the start screen mid-sequence jumps to the end state.
+    stop() {
+      if (m && running) finalState();
+    },
+  };
 }

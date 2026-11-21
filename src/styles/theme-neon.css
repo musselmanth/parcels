@@ -69,7 +69,7 @@ body.theme-neon::before {
   transform: perspective(320px) rotateX(55deg);
   transform-origin: bottom;
 }
-body.theme-neon #app {
+body.theme-neon #shell {
   position: relative;
   z-index: 1;
 }
@@ -173,9 +173,6 @@ body.theme-neon .sheet h3 {
 }
 body.theme-neon .sheet .row.sticky {
   background: #17132f;
-}
-body.theme-neon #menu {
-  background: radial-gradient(120% 70% at 50% 0%, #2a1a5c 0%, #140f33 45%, #0b0a1a 100%);
 }
 body.theme-neon .pz {
   background: rgba(255, 255, 255, 0.035);

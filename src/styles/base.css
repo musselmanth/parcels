@@ -19,14 +19,80 @@ body {
   -webkit-touch-callout: none;
 }
 /* ---- layout ---- */
-#app {
+/* The page: the top bar, then the screen area. Screens (intro, menu, game) are stacked in the
+   screen area; only the .active one shows (screens.js slides between them). */
+#shell {
   height: 100vh;
   height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+#topbar {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: calc(8px + env(safe-area-inset-top)) 12px 0;
+}
+#screens {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.screen {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}
+.screen.active {
+  visibility: visible;
+}
+#app {
   max-width: 520px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  padding: calc(8px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));
+  padding: 0 12px calc(10px + env(safe-area-inset-bottom));
+}
+
+/* ---- top bar: what changes per screen (body[data-screen] is set by screens.js) ---- */
+/* the title is a button back to the start screen */
+.top h1 .brand {
+  all: unset;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.top h1 .brand:focus-visible {
+  outline: 2px solid var(--muted);
+  outline-offset: 3px;
+}
+/* on the start screen the big name is the title, so the bar's title and left button hide */
+[data-screen='intro'] #topbar .titles,
+[data-screen='intro'] #bNav {
+  visibility: hidden;
+}
+/* Help and Settings icons only on the game screen (the start screen has its own buttons) */
+[data-screen='intro'] #bHelp,
+[data-screen='intro'] #bSettings,
+[data-screen='menu'] #bHelp,
+[data-screen='menu'] #bSettings {
+  display: none;
+}
+/* left button: menu icon on the game screen, back arrow on the menu */
+#bNav .ic-back,
+[data-screen='menu'] #bNav .ic-menu {
+  display: none;
+}
+[data-screen='menu'] #bNav .ic-back {
+  display: block;
+}
+/* label after the title: the board on the game screen, the level on the menu */
+[data-screen='menu'] #pzNum,
+[data-screen='game'] #lvlName,
+[data-screen='intro'] #lvlName {
+  display: none;
 }
 .top {
   display: flex;
@@ -85,6 +151,10 @@ h1 small {
   height: 18px;
 }
 /* ---- stat chips and progress bar ---- */
+/* Settings > Show timer off (main.js sets body[data-timer]) */
+[data-timer='off'] .chip-time {
+  display: none;
+}
 .stats {
   display: flex;
   gap: 8px;
@@ -233,6 +303,20 @@ h1 small {
 .controls button {
   flex: 1;
   padding: 10px 6px;
+}
+.controls button {
+  white-space: nowrap; /* four labels share the row; keep each on one line */
+}
+/* narrow phones: slightly smaller labels so Start over / Hint / Solution fit */
+@media (max-width: 430px) {
+  .controls {
+    gap: 6px;
+  }
+  .controls button {
+    font-size: 13.5px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
 }
 .controls .nav {
   flex: 0 0 48px;

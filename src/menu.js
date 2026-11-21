@@ -1,33 +1,50 @@
 import { $, fmt } from './core/dom.js';
-import { openPuzzle } from './game.js';
-import { G } from './state.js';
-import { PUZZLES, store } from './storage.js';
+import { CATS } from './data/puzzles.js';
+import { CAT, PUZZLES, loadBest, store } from './storage.js';
+import { loadAllProgress } from './progress.js';
 
-// The puzzle picker (#menu): level tabs and a grid of boards with their status.
+// The puzzle picker (#menu screen): level tabs and a grid of boards with their status.
+// Switching to it is done by showScreen('menu') in screens.js; this module only fills it in.
 
-// Close every modal and the menu.
+// Close every dialog.
 export function closeAll() {
   document.querySelectorAll('.modal.open').forEach((m) => m.classList.remove('open'));
-  $('#menu').classList.remove('open');
 }
-// Build the board grid for the current level and open the menu.
-export function showMenu() {
+// Build the board grid for the current level. onPick(n) is called when a board is chosen;
+// board number `current` (if any) is outlined as the one in play.
+// Boards in progress show how many parcels are placed, e.g. "3/6".
+export function renderMenu(onPick, current) {
+  const wip = loadAllProgress(CAT);
   const g = $('#grid');
   g.innerHTML = '';
   let solved = 0;
   PUZZLES.forEach((p, i) => {
     const r = store[i + 1],
       b = document.createElement('button');
+    const w = !r && wip[i + 1];
     b.className =
-      'pz' + (r ? (r.revealed ? ' revealed' : ' solved') : '') + (i + 1 === G.cur ? ' current' : '');
+      'pz' +
+      (r ? (r.revealed ? ' revealed' : ' solved') : w ? ' wip' : '') +
+      (i + 1 === current ? ' current' : '');
     if (r && !r.revealed) solved++;
-    b.innerHTML = `<div class="n">${i + 1}</div><div class="st">${r ? (r.revealed ? '🫠 0' : r.stars ? '★'.repeat(r.stars) + '<span style="opacity:.3">' + '★'.repeat(5 - r.stars) + '</span>' : fmt(r.time)) : ''}</div>`;
-    b.onclick = () => openPuzzle(i + 1);
+    const status = r
+      ? r.revealed
+        ? '🫠 0'
+        : r.stars
+          ? '★'.repeat(r.stars) + '<span style="opacity:.3">' + '★'.repeat(5 - r.stars) + '</span>'
+          : fmt(r.time)
+      : w
+        ? `${(w.groups || []).length}/${p.c.length / 6}`
+        : '';
+    b.innerHTML = `<div class="n">${i + 1}</div><div class="st">${status}</div>`;
+    b.onclick = () => onPick(i + 1);
     g.appendChild(b);
   });
   $('#nSolved').textContent = solved;
   $('#nTotal').textContent = PUZZLES.length;
-  $('#menu').classList.add('open');
+  const best = loadBest(CAT);
+  $('#lvlBest').innerHTML = best ? ` · best time <b>${fmt(best.time)}</b>` : '';
+  $('#lvlName').textContent = ` ${CATS[CAT].name}`; // shown next to the title while the menu is open
 }
 // The first board after `from` (wrapping around) with no saved result, or null.
 export function nextUnsolved(from) {

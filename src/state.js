@@ -6,8 +6,13 @@ export const G = {
   cur: 0,
   // Parcels the player has made, by id: {id, cells, color (index into TINTS), pinned (locked), fresh/badgeFresh (play the entry animation on next render)}.
   groups: {},
+  // Id of the parcel drawn on top of the others: the one last pressed or made, so its outline,
+  // hold ring and animations are never covered by a neighbor's.
+  top: null,
   // Pencilled-in pairs: [{cells: [a, b], fresh}].
   pairs: [],
+  // Hinted parcels: cell triples from the solution, outlined until the player makes them.
+  hints: [],
   // Next parcel id.
   nextId: 0,
   // Cells currently selected by taps or a swipe in progress.
@@ -31,6 +36,10 @@ export const G = {
   st: null,
   // True while submitting a parcel made by swiping (for the swipe count).
   viaSwipe: false,
+  // The level this board belongs to (the menu can switch CAT to another level while it's loaded).
+  level: null,
+  // When the player left the game screen (ms), so the timer can pause until they're back.
+  pauseT: null,
 };
 
 // The parcel containing cell i, or null.

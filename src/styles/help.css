@@ -2,6 +2,45 @@
  * The "How to play" sheet (#mHelp) and its examples (src/help.js). The example boards reuse the
  * board classes from board.css (.tile, .parcel, .pair, ...), so they look and animate like the game.
  */
+/* no scrollbar: the sheet still scrolls (wheel, trackpad, touch, keys), and the "More below" hint
+   shows there's more */
+.sheet.help {
+  scrollbar-width: none;
+}
+.sheet.help::-webkit-scrollbar {
+  display: none;
+}
+
+/* pinned header with the title and close button (the negative margins reach the sheet's edges;
+   responsive.css matches them to the sheet's padding on other screen sizes) */
+.help .hhead {
+  position: sticky;
+  top: -18px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: -18px -18px 0;
+  padding: 14px 12px 8px 18px;
+  background: var(--sheet);
+}
+body.theme-neon .help .hhead {
+  background: #17132f;
+}
+.help .hhead h2 {
+  margin: 0;
+}
+.help .hhead .xclose {
+  position: static;
+  flex: none;
+}
+/* the bottom strip is just an anchor for the hint and the fade, it takes no room */
+.help .row.sticky.hbottom {
+  height: 0;
+  padding: 0;
+  margin: 0;
+}
 .help p {
   font-size: 14px;
   line-height: 1.45;
@@ -96,6 +135,34 @@
   border: 1px solid rgba(154, 140, 255, 0.45);
   background: rgba(154, 140, 255, 0.14);
   color: var(--ink);
+}
+
+/* examples you can only watch (the rule, only one answer) */
+.watchonly .hboard {
+  cursor: default;
+}
+
+/* Swipe | Tap switch under the board: which way the animation shows it */
+.hways {
+  display: inline-flex;
+  margin: 6px auto 0;
+  padding: 2px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--chip);
+}
+.help .hways button {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 2px 9px;
+  font-size: 11.5px;
+  border-radius: 999px;
+}
+.help .hways button.on {
+  background: rgba(154, 140, 255, 0.28);
+  color: var(--ink);
+  font-weight: 600;
 }
 
 /* message under an example */
@@ -236,8 +303,8 @@
   position: absolute;
   left: -18px;
   right: -18px;
-  top: -48px;
-  height: 48px;
+  top: -64px;
+  height: 64px;
   background: linear-gradient(transparent, var(--sheet));
   pointer-events: none;
   transition: opacity 0.2s;
@@ -247,7 +314,7 @@
 }
 .help .hmore {
   position: absolute;
-  top: -42px;
+  top: -52px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;

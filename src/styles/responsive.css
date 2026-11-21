@@ -1,0 +1,285 @@
+/*
+ * Bigger screens and landscape. Everything else is written for a phone held upright: one column,
+ * at most 520px wide. This file (loaded last) adapts that:
+ *   1. Large screens (tablets, desktop): bigger controls and text, wider dialogs and puzzle menu.
+ *   2. Landscape: on the game screen the stats, tip and buttons move to a sidebar on the left, and
+ *      the board
+ *      gets the rest of the screen.
+ * Both can apply at once (a tablet held sideways).
+ */
+
+/* ---- 1. large screens ---- */
+@media (min-width: 700px) and (min-height: 600px) {
+  #app,
+  #topbar {
+    max-width: 760px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  /* results card in the middle of the screen */
+  #mWin {
+    align-items: center;
+  }
+  .icon {
+    width: 46px;
+    height: 46px;
+  }
+  .icon svg {
+    width: 21px;
+    height: 21px;
+  }
+  h1,
+  body.theme-neon h1 {
+    font-size: 27px;
+  }
+  h1 small,
+  body.theme-neon h1 small {
+    font-size: 16px;
+  }
+  .subtitle {
+    font-size: 11px;
+  }
+  .stats {
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .chip {
+    padding: 9px 6px 8px;
+    border-radius: 14px;
+  }
+  .chip .lbl {
+    font-size: 11px;
+  }
+  .chip b,
+  body.theme-neon .chip b {
+    font-size: 21px;
+  }
+  #msgSlot {
+    height: 62px;
+  }
+  #msg {
+    font-size: 14.5px;
+  }
+  .controls {
+    gap: 12px;
+  }
+  .controls button {
+    padding: 13px 8px;
+    font-size: 16px;
+  }
+  .controls .nav {
+    flex-basis: 60px;
+    font-size: 24px;
+  }
+
+  /* dialogs */
+  .sheet {
+    max-width: 480px;
+    padding: 22px 24px 18px;
+  }
+  .sheet.help {
+    max-width: 580px;
+  }
+  .help .hhead {
+    top: -22px;
+    margin: -22px -24px 0;
+    padding: 16px 16px 8px 24px;
+  }
+  .help p {
+    font-size: 15px;
+  }
+  .hboard {
+    height: 190px;
+  }
+  .hboard.short {
+    height: 110px;
+  }
+  .hgrid .hboard {
+    height: 120px;
+  }
+
+  /* puzzle menu: full width, content centered, bigger buttons */
+  #menu {
+    max-width: none;
+    padding-left: max(20px, calc((100vw - 900px) / 2));
+    padding-right: max(20px, calc((100vw - 900px) / 2));
+  }
+  .seg button {
+    font-size: 15px;
+    padding: 10px 6px;
+  }
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+    gap: 10px;
+  }
+  .pz {
+    padding: 12px 4px 9px;
+    border-radius: 12px;
+  }
+  .pz .n,
+  body.theme-neon .pz .n {
+    font-size: 18px;
+  }
+  .pz .st {
+    font-size: 12.5px;
+  }
+}
+
+/* ---- 2. landscape: sidebar on the left, board on the right ---- */
+@media (orientation: landscape) and (min-width: 600px) {
+  #app {
+    max-width: 1400px;
+    display: grid;
+    grid-template-columns: clamp(270px, 30vw, 380px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto 1fr auto;
+    grid-template-areas:
+      'stats    stage'
+      'progress stage'
+      'msg      stage'
+      '.        stage'
+      'controls stage';
+    column-gap: clamp(16px, 3vw, 44px);
+    padding: 4px calc(16px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom))
+      calc(16px + env(safe-area-inset-left));
+  }
+  #topbar {
+    max-width: 1400px;
+    padding: calc(8px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 0
+      calc(16px + env(safe-area-inset-left));
+  }
+  .stats {
+    grid-area: stats;
+  }
+  .progress {
+    grid-area: progress;
+  }
+  #msgSlot {
+    grid-area: msg;
+    /* the sidebar is narrow, so tips can wrap onto a few lines */
+    height: auto;
+    min-height: 84px;
+  }
+  #msg {
+    border-radius: 16px;
+  }
+  #stage {
+    grid-area: stage;
+    min-height: 0;
+    margin: 0;
+  }
+  .controls {
+    grid-area: controls;
+    gap: 8px;
+  }
+  .controls button {
+    padding: 11px 4px;
+    font-size: 15px;
+  }
+  .controls .nav {
+    flex-basis: 48px;
+  }
+  /* puzzle menu: full width, content centered */
+  #menu {
+    max-width: none;
+    padding-left: max(16px, calc((100vw - 900px) / 2));
+    padding-right: max(16px, calc((100vw - 900px) / 2));
+  }
+}
+
+/* ---- 3. board buttons (arrows, Start over, Solution) centered on bigger screens ---- */
+@media (min-width: 700px) and (min-height: 600px) {
+  .controls {
+    width: 100%;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+/* bigger landscape screens: the buttons leave the sidebar for their own row along the bottom,
+   centered on the page */
+@media (orientation: landscape) and (min-width: 700px) and (min-height: 600px) {
+  #app {
+    grid-template-rows: auto auto auto 1fr auto;
+    grid-template-areas:
+      'stats    stage'
+      'progress stage'
+      'msg      stage'
+      '.        stage'
+      'controls controls';
+  }
+  .controls {
+    justify-self: center;
+    margin-top: 10px;
+    gap: 12px;
+  }
+  .controls button {
+    padding: 13px 8px;
+    font-size: 16px;
+  }
+  .controls .nav {
+    flex-basis: 60px;
+  }
+}
+
+/* landscape phones: the board is limited by the short screen height, so the sidebar can take a bit
+   more width; the top bar and sidebar are made compact */
+@media (orientation: landscape) and (min-width: 600px) and (max-height: 500px) {
+  #app {
+    grid-template-columns: clamp(270px, 36vw, 340px) minmax(0, 1fr);
+  }
+  #topbar {
+    padding-top: calc(4px + env(safe-area-inset-top));
+  }
+  h1,
+  body.theme-neon h1 {
+    font-size: 18px;
+    letter-spacing: 0.08em;
+  }
+  .icon {
+    width: 36px;
+    height: 36px;
+  }
+  .controls button {
+    font-size: 13.5px;
+    white-space: nowrap;
+  }
+  .controls .nav {
+    flex-basis: 40px;
+  }
+  .stats {
+    margin-top: 8px;
+  }
+  .chip {
+    padding: 4px 4px 3px;
+  }
+  #msgSlot {
+    min-height: 64px;
+  }
+  #msg {
+    font-size: 12.5px;
+  }
+
+  /* help sheet: wider and shorter, the four control examples side by side */
+  .sheet.help {
+    max-width: 640px;
+    max-height: 94dvh;
+    padding: 14px 18px 10px;
+  }
+  .hboard {
+    height: 110px;
+  }
+  .hboard.short {
+    height: 72px;
+  }
+  .hgrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .hgrid .hboard {
+    height: 70px;
+  }
+  .help .hhead {
+    top: -14px;
+    margin: -14px -18px 0;
+    padding: 10px 12px 6px 18px;
+  }
+}

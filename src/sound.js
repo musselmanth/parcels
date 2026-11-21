@@ -184,6 +184,10 @@ export const sfx = {
     bell(93, 0.07, 0.025, 1);
   },
   unpin: () => bell(84, 0, 0.03, 0.8),
+  hint: () => {
+    bell(81, 0, 0.03, 0.9);
+    bell(88, 0.09, 0.025, 1);
+  },
   brk: () => sfx.pop(),
   pop: (quiet) => {
     soft(nf(67), {
@@ -229,9 +233,9 @@ export const sfx = {
   },
 };
 
-// Show the sound setting on its button.
+// Show the sound setting on its switch.
 export function paintSound() {
   const b = $('#bSound');
-  b.textContent = prefs.sound ? 'On' : 'Off';
-  b.classList.toggle('primary', prefs.sound);
+  b.classList.toggle('on', prefs.sound);
+  b.setAttribute('aria-checked', String(prefs.sound));
 }
