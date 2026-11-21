@@ -124,6 +124,9 @@
 }
 .outline {
   stroke-width: 3.5;
+  /* round ends: while the outline is drawn as one dash (.enter), its two ends meet where the path
+     starts; flat ends left a hairline gap there */
+  stroke-linecap: round;
   transition: stroke-width 0.2s;
 }
 .parcel.pinned .outline {
