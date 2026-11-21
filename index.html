@@ -35,7 +35,7 @@ body.theme-neon .card{fill:#1a1634;stroke:rgba(255,255,255,.07)}
 body.theme-neon .tile.sel .card{stroke:#fff;stroke-width:3.5}
 body.theme-neon .sheet{border:1px solid rgba(154,140,255,.25);box-shadow:0 0 40px rgba(122,108,255,.18),0 24px 60px rgba(0,0,0,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 body.theme-neon .sheet h2,body.theme-neon #mWin .big{font-family:'Orbitron',sans-serif;letter-spacing:.06em;font-weight:800;text-transform:uppercase;font-size:20px}
-body.theme-neon #mWin .big{font-size:30px;background:linear-gradient(90deg,#ffd43b,#ff3b8f,#7a6cff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(255,59,143,.5))}
+body.theme-neon #mWin .big{font-size:26px;background:linear-gradient(90deg,#ffd43b,#ff3b8f,#7a6cff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(255,59,143,.5))}
 body.theme-neon .sheet h3{color:#9a8cff}
 body.theme-neon .sheet .row.sticky{background:#17132f}
 body.theme-neon #menu{background:radial-gradient(120% 70% at 50% 0%,#2a1a5c 0%,#140f33 45%,#0b0a1a 100%)}
@@ -154,7 +154,8 @@ button:disabled{opacity:.35;cursor:default}
 .shapes{display:flex;gap:10px;justify-content:center;margin:6px 0 2px}
 .shapes svg{width:34px;height:34px}
 #mWin{align-items:flex-end;background:rgba(35,28,15,.16)}
-#mWin .sheet{text-align:center}
+#mWin .sheet{text-align:center;position:relative}
+.xclose{position:absolute;z-index:3;top:10px;right:10px;width:34px;height:34px;padding:0;border-radius:50%;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;border-color:rgba(255,255,255,.18)!important;background:rgba(255,255,255,.04)}
 .sheet .row.sticky{position:sticky;bottom:-16px;background:var(--sheet);padding:10px 0 6px;margin-top:8px}
 #mWin .big{font-family:Georgia,serif;font-size:34px;margin:2px 0 4px}
 #winline{font-size:15px;color:var(--muted);margin-top:2px}
@@ -165,6 +166,25 @@ button:disabled{opacity:.35;cursor:default}
 .award .em{font-size:18px}
 .award small{display:block;font-weight:400;font-size:11.5px;color:var(--muted);letter-spacing:.01em;text-align:left}
 @keyframes awardIn{from{transform:scale(.6);opacity:0}}
+.stars{font-size:26px;letter-spacing:4px;margin:2px 0 0;min-height:34px}
+.stars i{font-style:normal;display:inline-block;animation:starIn .5s cubic-bezier(.3,1.8,.5,1) both}
+.stars i.off{opacity:.22;filter:grayscale(1)}
+@keyframes starIn{from{transform:scale(0) rotate(-90deg);opacity:0}}
+.score{display:flex;align-items:baseline;justify-content:center;gap:6px;margin-top:2px}
+.score b{font-family:var(--numFont);font-size:40px;letter-spacing:.04em;background:linear-gradient(90deg,#ffd43b,#ff3b8f,#9d8cff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(255,59,143,.45))}
+.score span{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.compliment{font-size:16px;font-weight:600;margin:4px 6px 2px;line-height:1.3;animation:statIn .5s ease .5s both}
+.breakdown{font-size:12px;color:var(--muted);margin:4px 0 8px;letter-spacing:.02em}
+.breakdown b{color:var(--ink);font-family:var(--numFont);font-weight:600}
+.setrow{display:flex;align-items:center;justify-content:space-between;font-size:14.5px;margin:4px 0}
+.setnote{font-size:13px;color:var(--muted);line-height:1.45;margin:4px 0 8px}
+.setbtns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.setbtns button,.filebtn{flex:1 1 auto}
+.filebtn{display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:9px 14px;font-size:14px;cursor:pointer}
+.filebtn input{display:none}
+button.danger{border-color:rgba(255,90,122,.6)!important;color:#ff8aa0!important}
+#mSettings .sheet{position:relative}
+.sharebox{display:none;white-space:pre;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.45;text-align:left;margin:12px auto 0;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);width:max-content;max-width:100%;overflow-x:auto;user-select:text;-webkit-user-select:text}
 .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 4px}
 .stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:9px 4px 7px;animation:statIn .45s cubic-bezier(.3,1.6,.5,1) both}
 .stat b{display:block;font-family:var(--numFont);font-size:20px;letter-spacing:.03em;color:var(--ink)}
@@ -200,12 +220,12 @@ body.theme-neon .seg button.on{background:linear-gradient(90deg,#7a6cff,#ff3b8f)
   <div class="top">
     <button class="icon" id="bMenu" aria-label="All puzzles"><svg viewBox="0 0 20 20"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     <h1>Parcels<small id="pzNum"></small></h1>
-    <button class="icon" id="bSound" aria-label="Sound"></button>
+    <button class="icon" id="bSettings" aria-label="Settings"><svg viewBox="0 0 24 24" style="width:20px;height:20px" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     <button class="icon" id="bHelp" aria-label="How to play" style="font-weight:700;font-family:Georgia,serif">?</button>
   </div>
   <div class="stats">
     <div class="chip"><span class="lbl">Misses</span><b id="misses">0</b></div>
-    <div class="chip"><span class="lbl">Parcels</span><b><span id="prog">0</span><span class="of">/12</span></b></div>
+    <div class="chip"><span class="lbl">Parcels</span><b><span id="prog">0</span><span class="of" id="ofN">/12</span></b></div>
     <div class="chip"><span class="lbl">Time</span><b id="timer">0:00</b></div>
   </div>
   <div class="progress"><i id="progBar"></i></div>
@@ -223,7 +243,7 @@ body.theme-neon .seg button.on{background:linear-gradient(90deg,#7a6cff,#ff3b8f)
 
 <div class="modal" id="mHelp"><div class="sheet">
   <h2>How to play</h2>
-  <ul><li>Split the board into <b>12 parcels of 3 connected tiles</b>: a line, a bend, or a little triangle.</li></ul>
+  <ul><li>Split the whole board into <b>parcels of 3 connected tiles</b>: a line, a bend, or a little triangle.</li></ul>
   <div class="shapes" id="shapeDemo"></div>
   <h3>Every parcel</h3>
   <ul>
@@ -231,6 +251,10 @@ body.theme-neon .seg button.on{background:linear-gradient(90deg,#7a6cff,#ff3b8f)
     <li><b>Color:</b> all the same or all different.</li>
     <li id="countRule"><b>Count:</b> 1 to 3, all the same or all different.</li>
     <li>A parcel can follow the rules and still be wrong. Only one way of splitting the board works.</li>
+  </ul>
+  <h3>Score</h3>
+  <ul>
+    <li>Up to <b>1000 points</b>: beat the board's par time, make fewer mistakes, and pop fewer parcels. Harder levels forgive more slips.</li>
   </ul>
   <h3>Controls</h3>
   <ul>
@@ -243,17 +267,34 @@ body.theme-neon .seg button.on{background:linear-gradient(90deg,#7a6cff,#ff3b8f)
 </div></div>
 
 <div class="modal" id="mWin"><div class="sheet">
-  <div class="big">Solved!</div>
+  <button class="xclose" id="bWinClose" aria-label="Close">✕</button>
+  <div class="big" id="winTitle">Solved!</div>
+  <div class="stars" id="stars"></div>
+  <div class="score"><b id="score">0</b><span>points</span></div>
+  <div class="compliment" id="compliment"></div>
+  <div class="breakdown" id="breakdown"></div>
   <div class="award" id="award"></div>
-  <div id="winline"></div>
   <div class="statgrid" id="statgrid"></div>
   <div class="diag" id="diag"></div>
-  <div class="row"><button class="primary" id="bWinNext">Next unsolved</button><button id="bReplay">Replay ✨</button><button id="bWinMenu">All puzzles</button></div>
+  <div class="row"><button class="primary" id="bShare">Share result</button><button id="bWinNext">Next unsolved</button></div>
+  <div class="sharebox" id="shareBox"></div>
+</div></div>
+
+<div class="modal" id="mSettings"><div class="sheet">
+  <button class="xclose" id="bSettingsClose" aria-label="Close">✕</button>
+  <h2>Settings</h2>
+  <h3>Sound</h3>
+  <div class="setrow"><span>Sound effects</span><button id="bSound"></button></div>
+  <h3>Play history</h3>
+  <p class="setnote">Your scores are saved in this browser only. Export them to a file to move to another device, then import that file there.</p>
+  <div class="setbtns"><button id="bExportJson">Export history</button><label class="filebtn" id="bImportLbl">Import history<input type="file" id="importFile" accept=".json,application/json"></label></div>
+  <div class="setbtns"><button id="bClear" class="danger">Clear all history</button></div>
+  <div id="confirmClear" class="setnote" style="display:none;text-align:center">Delete every saved score on this device? <div class="setbtns"><button id="bClearYes" class="danger">Yes, clear it</button><button id="bClearNo">Cancel</button></div></div>
 </div></div>
 
 <div class="modal" id="mReveal"><div class="sheet" style="text-align:center">
   <h2>Show the solution?</h2>
-  <div style="font-size:14.5px;color:var(--muted)">This puzzle will be marked as shown, not solved.</div>
+  <div style="font-size:14.5px;color:var(--muted)">You’ll get <b>0 points</b> and the 🫠 <b>Loser</b> badge for this board, and it’s final.</div>
   <div class="row"><button class="primary" id="bRevealYes">Show it</button><button id="bRevealNo">Keep trying</button></div>
 </div></div>
 
@@ -262,215 +303,50 @@ body.theme-neon .seg button.on{background:linear-gradient(90deg,#7a6cff,#ff3b8f)
     <button class="icon" id="bMenuClose" aria-label="Back to puzzle"><svg viewBox="0 0 20 20"><path d="M12 4l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <h1>All puzzles</h1>
   </div>
-  <div class="summary"><span><b id="nSolved">0</b> of 100 solved</span><button id="bNextUnsolved">Next unsolved</button></div>
+  <div class="seg" id="catSeg"><button data-c="easy">Easy</button><button data-c="medium">Medium</button><button data-c="hard">Hard</button><button data-c="extreme">Extreme</button></div>
+  <div class="summary"><span><b id="nSolved">0</b> of <span id="nTotal">50</span> solved</span><button id="bNextUnsolved">Next unsolved</button></div>
   <div class="scroll">
     <div class="grid" id="grid"></div>
-    <p class="legend">Green = solved, with your best time and misses. Gray = solution shown. A board's difficulty stats stay hidden until you finish it. Progress is saved in this browser only.</p>
-    <div class="row" style="display:flex;gap:8px;justify-content:center"><button id="bExport">Copy results</button><button id="bClear">Clear progress</button></div>
-    <div id="confirmClear" style="display:none;text-align:center;font-size:14px;margin-top:10px">Clear all saved results? <button id="bClearYes">Clear</button> <button id="bClearNo">Cancel</button></div>
-    <div id="share"></div>
+    <p class="legend">Green = solved, with your star rating. 🫠 = solution viewed (0 points). Solved boards are final. Export or clear your history in ⚙ Settings.</p>
   </div>
 </div>
 
 <script>
-// ENGINE START
-let COLS = 3, ROWS = 5, N = 15, GROUPS = 5;
-let PLACEMENTS = [], PKEYS = new Set();
-
-function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-function shuffle(arr, r){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-
-// Hexagon-shaped board of hex tiles (axial coordinates), with the center tile removed.
-// Optionally the 6 corner tiles are removed too. Every tile touches at least 3 others.
-let NEIGH = [], CELLS = [];
+// ===== RUNTIME START (shared by the game page and the generator) =====
+// Board = any set of hex cells in axial coordinates [q, r]. Parcels = 3 connected cells.
+// Rules: shape, color and count (1-3) are each all the same or all different.
+let CELLS=[], N=0, GROUPS=0, NEIGH=[], PLACEMENTS=[], PKEYS=new Set();
 const DIRS=[[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
-function setBoard(R, noCorners){
-  CELLS=[];
-  for(let r=-R;r<=R;r++) for(let q=-R;q<=R;q++){
-    const s3=-q-r, a=[Math.abs(q),Math.abs(r),Math.abs(s3)];
-    if(Math.max(...a)>R || (q===0&&r===0)) continue;
-    if(noCorners && a.filter(v=>v===R).length===2) continue;
-    CELLS.push([q,r]);
-  }
-  N=CELLS.length; GROUPS=N/3; PLACEMENTS=[]; PKEYS=new Set();
-  const idx=new Map(CELLS.map(([q,r],i)=>[q+','+r,i]));
-  NEIGH=CELLS.map(([q,r])=>DIRS.map(([dq,dr])=>idx.get((q+dq)+','+(r+dr))).filter(x=>x!==undefined));
-  // every connected set of 3 tiles: a line, a bend, or a little triangle
+function setCells(cells){
+  CELLS=cells; N=cells.length; GROUPS=N/3; PLACEMENTS=[]; PKEYS=new Set();
+  const idx=new Map(cells.map(([q,r],i)=>[q+','+r,i]));
+  NEIGH=cells.map(([q,r])=>DIRS.map(([dq,dr])=>idx.get((q+dq)+','+(r+dr))).filter(x=>x!==undefined));
   for(let a=0;a<N;a++) for(const b of NEIGH[a]) for(const c of new Set([...NEIGH[a],...NEIGH[b]])){
     if(c===a||c===b) continue;
-    const cells=[a,b,c].sort((x,y)=>x-y), k=cells.join(',');
-    if(!PKEYS.has(k)){PKEYS.add(k); PLACEMENTS.push(cells);}
+    const t=[a,b,c].sort((x,y)=>x-y), k=t.join(',');
+    if(!PKEYS.has(k)){PKEYS.add(k); PLACEMENTS.push(t);}
   }
 }
-
-const sameOrDiff = (x,y,z) => (x===y&&y===z) || (x!==y&&y!==z&&x!==z);
-const sameOrRun = (x,y,z) => { if(x===y&&y===z) return true; const s=[x,y,z].sort((a,b)=>a-b); return s[1]===s[0]+1 && s[2]===s[1]+1; };
-function validTiles(A,B,C){return sameOrDiff(A.s,B.s,C.s)&&sameOrDiff(A.c,B.c,C.c)&&sameOrRun(A.n,B.n,C.n);}
-function isValid(t,p){return validTiles(t[p[0]],t[p[1]],t[p[2]]);}
+const sameOrDiff=(x,y,z)=>(x===y&&y===z)||(x!==y&&y!==z&&x!==z);
+function validTiles(A,B,C){ return sameOrDiff(A.s,B.s,C.s)&&sameOrDiff(A.c,B.c,C.c)&&sameOrDiff(A.n,B.n,C.n); }
 function whyInvalid(A,B,C){
-  const out=[];
-  if(!sameOrDiff(A.s,B.s,C.s)) out.push('Shapes: two match and one doesn’t.');
-  if(!sameOrDiff(A.c,B.c,C.c)) out.push('Colors: two match and one doesn’t.');
-  if(!sameOrRun(A.n,B.n,C.n)){
-    const ns=[A.n,B.n,C.n]; const distinct=new Set(ns).size===3;
-    out.push(distinct ? 'Counts must be a run (1·2·3 or 2·3·4), not '+ns.sort().join('·')+'.' : 'Counts: two match and one doesn’t.');
-  }
-  return out.join(' ');
-}
-function candidates(t){return PLACEMENTS.filter(p=>isValid(t,p));}
-
-function countSolutions(cands, limit){
-  const used=new Array(N).fill(false), byCell=Array.from({length:N},()=>[]);
-  cands.forEach(p=>p.forEach(i=>byCell[i].push(p)));
-  let count=0, sol=null; const stack=[];
-  (function rec(){
-    if(count>=limit) return;
-    let bestOpts=null;
-    for(let i=0;i<N;i++){
-      if(used[i]) continue;
-      const o=byCell[i].filter(p=>p.every(k=>!used[k]));
-      if(o.length===0) return;
-      if(!bestOpts||o.length<bestOpts.length){bestOpts=o; if(o.length===1) break;}
-    }
-    if(!bestOpts){count++; sol=stack.slice(); return;}
-    for(const p of bestOpts){
-      p.forEach(k=>used[k]=true); stack.push(p); rec(); stack.pop(); p.forEach(k=>used[k]=false);
-      if(count>=limit) return;
-    }
-  })();
-  return {count, sol};
-}
-
-// Place every forced parcel (a tile with only one possible parcel). Returns false on contradiction.
-function propagate(used, live){
-  for(;;){
-    let placed=false;
-    for(let i=0;i<N;i++){
-      if(used[i]) continue;
-      let only=null, n=0;
-      for(const p of live){ if(p.includes(i) && p.every(k=>!used[k])){ n++; only=p; if(n>1) break; } }
-      if(n===0) return false;
-      if(n===1){ only.forEach(k=>used[k]=true); placed=true; }
-    }
-    if(!placed) return true;
-  }
-}
-
-// Human-style difficulty.
-// 1 = only forced tiles; 2 = "this parcel would strand a neighbor";
-// 3 = "if I place this, the forced moves that follow break" (chain reasoning); 4 = needs guessing.
-function analyze(cands){
-  let level=1, hardSteps=0; const used=new Array(N).fill(false); let live=cands.slice();
-  for(;;){
-    if(!propagate(used, live)) return {level:4, hardSteps};
-    live=live.filter(p=>p.every(k=>!used[k]));
-    if(used.every(Boolean)) return {level, hardSteps};
-    const stranded=p=>{
-      const u=used.slice(); p.forEach(k=>u[k]=true);
-      for(let i=0;i<N;i++){ if(!u[i] && !live.some(q=>q.includes(i)&&q.every(k=>!u[k]))) return true; }
-      return false;
-    };
-    let kill=live.filter(stranded);
-    if(kill.length){ live=live.filter(p=>!kill.includes(p)); level=Math.max(level,2); hardSteps++; continue; }
-    kill=live.filter(p=>{ const u=used.slice(); p.forEach(k=>u[k]=true); return !propagate(u, live); });
-    if(kill.length){ live=live.filter(p=>!kill.includes(p)); level=Math.max(level,3); hardSteps+=2; continue; }
-    return {level:4, hardSteps};
-  }
-}
-
-function tilePartition(r){
-  const grid=new Array(N).fill(-1), groups=[];
-  (function rec(){
-    const i=grid.indexOf(-1); if(i<0) return true;
-    const opts=shuffle(PLACEMENTS.filter(p=>p.includes(i)&&p.every(k=>grid[k]<0)), r);
-    for(const p of opts){
-      p.forEach(k=>grid[k]=groups.length); groups.push(p);
-      if(rec()) return true;
-      groups.pop(); p.forEach(k=>grid[k]=-1);
-    }
-    return false;
-  })();
-  return groups;
-}
-
-function makeGroupTiles(r, pSame){
-  const pick=(ordered)=>{
-    if(r()<pSame){const v=ordered?1+Math.floor(r()*4):Math.floor(r()*4); return [v,v,v];}
-    if(ordered){const s=1+Math.floor(r()*2); return shuffle([s,s+1,s+2],r);}
-    return shuffle([0,1,2,3],r).slice(0,3);
-  };
-  const s=pick(false), c=pick(false), n=pick(true);
-  return [0,1,2].map(i=>({s:s[i],c:c[i],n:n[i]}));
-}
-const distinct=t=>new Set(t.map(x=>x.s*16+x.c*4+x.n)).size===t.length;
-
-function evaluate(t){
-  if(!distinct(t)) return null;
-  const cands=candidates(t); const {count,sol}=countSolutions(cands,2);
-  if(count!==1) return null;
-  const cover=new Array(N).fill(0); cands.forEach(p=>p.forEach(i=>cover[i]++));
-  return {decoys:cands.length-GROUPS, forced:cover.filter(x=>x===1).length, sol, cands};
-}
-
-// Each mode: board size, how often a group shares an attribute, search effort, and what "good" means.
-// forced = tiles that sit in only one rule-following parcel (an easy way in).
-// Hardness comes mostly from decoy density: many rule-following parcels overlapping, few forced tiles.
-const MODES={
-  easy:  {R:2, noCorners:false, pSame:.30, iters:600,  score:(e,a)=> -Math.abs(e.decoys-6) - 2*e.forced - (a.level>2?50:0)},
-  daily: {R:3, noCorners:true,  pSame:.40, iters:2000, score:(e,a)=> e.decoys - 3*e.forced + 4*a.hardSteps - (a.level>=4?60:0)},
-  hard:  {R:3, noCorners:false, pSame:.40, iters:2500, score:(e,a)=> e.decoys - 3*e.forced + 4*a.hardSteps + (a.level===3?12:0) - (a.level>=4?60:0)},
-};
-
-// Simulated annealing: re-roll one parcel's tiles at a time, keep the planted solution, and
-// keep changes that make the board harder while it still has exactly one solution.
-function generate(seed, kind){
-  const m=MODES[kind]; setBoard(m.R, m.noCorners);
-  const r=mulberry32(seed);
-  const full=t=>{ const e=evaluate(t); if(!e) return null; const a=analyze(e.cands); return {e,a,sc:m.score(e,a)}; };
-  let groups, t, cur=null, fill;
-  while(!cur){
-    groups=tilePartition(r); t=new Array(N);
-    // re-roll a parcel's tiles, avoiding copies of tiles already on the board
-    fill=g=>{
-      const own=new Set(groups[g]), taken=new Set();
-      t.forEach((x,i)=>{ if(x && !own.has(i)) taken.add(x.s*16+x.c*4+x.n); });
-      let tt;
-      for(let k=0;k<60;k++){ tt=makeGroupTiles(r,m.pSame); const ks=tt.map(x=>x.s*16+x.c*4+x.n); if(new Set(ks).size===3 && ks.every(x=>!taken.has(x))) break; }
-      groups[g].forEach((c,i)=>t[c]=tt[i]);
-    };
-    groups.forEach((_,g)=>fill(g)); cur=full(t);
-    for(let k=0; !cur && k<300; k++){ fill(Math.floor(r()*GROUPS)); cur=full(t); }
-  }
-  let best={...cur, t:t.slice()};
-  for(let it=0; it<m.iters; it++){
-    const T=3*(1-it/m.iters)+0.05;
-    const g=Math.floor(r()*GROUPS), saved=groups[g].map(i=>t[i]);
-    fill(g);
-    const nx=full(t);
-    if(nx && (nx.sc>=cur.sc || r()<Math.exp((nx.sc-cur.sc)/T))){ cur=nx; if(cur.sc>best.sc) best={...cur, t:t.slice()}; }
-    else groups[g].forEach((c,i)=>t[c]=saved[i]);
-  }
-  return {tiles:best.t, solution:best.e.sol, decoys:best.e.decoys, forced:best.e.forced, level:best.a.level, hardSteps:best.a.hardSteps};
-}
-// ENGINE END
-// 100 boards. Rules: shape, color and count (1–3) are each all the same or all different.
-const PACKS={
-  simple:{data:[{"t":"112323011331201232103101102131321302021213022001121233211332212311012113303122301002221222033313133111203123","sol":[[0,1,4],[2,5,6],[3,8,13],[7,12,18],[11,16,17],[9,10,15],[14,19,20],[25,26,30],[24,29,33],[31,34,35],[21,22,23],[27,28,32]],"d":34,"f":0,"l":3,"h":4},{"t":"123112222321302011332233023033223103002121101021102013012312133201311221132003122131212231202111032333203322","sol":[[0,4,5],[1,6,12],[2,3,8],[14,20,26],[7,13,19],[18,24,30],[25,31,35],[28,29,34],[27,32,33],[15,21,22],[9,10,11],[16,17,23]],"d":26,"f":0,"l":3,"h":3},{"t":"033101222112211131313002332212302232312122012031123023231202013303233323001321011113223111311301003203032121","sol":[[9,15,21],[4,10,16],[0,5,11],[1,2,6],[3,7,8],[12,13,19],[14,20,26],[25,30,31],[18,24,29],[33,34,35],[17,23,28],[22,27,32]],"d":41,"f":0,"l":2,"h":3},{"t":"031121332212011311123122022021302133002211333001233323312201111112003013203303222301023131012102202033322232","sol":[[0,4,9],[1,6,7],[2,3,8],[5,10,17],[11,12,13],[14,20,26],[15,16,21],[18,24,29],[19,25,31],[22,27,32],[23,28,33],[30,34,35]],"d":38,"f":0,"l":2,"h":1},{"t":"121101111133201211131222011311301221033302212332321103001032112331303012022122132333313231013102323123233003","sol":[[33,34,35],[3,8,13],[2,7,12],[0,1,6],[4,5,11],[14,19,25],[18,24,30],[20,26,31],[9,10,16],[15,21,27],[17,23,29],[22,28,32]],"d":30,"f":1,"l":3,"h":4},{"t":"003201321031013231102333111223023211331021301302131202011212133132312122233101033002222322001323022032112213","sol":[[0,4,10],[1,5,11],[2,3,8],[6,7,13],[12,18,25],[9,15,16],[14,19,20],[26,31,35],[17,21,22],[27,32,33],[23,28,29],[24,30,34]],"d":37,"f":0,"l":2,"h":2},{"t":"133123331223013203112301012302031323131202231113221213122103321021033212332233001121222101011211232023311111","sol":[[0,4,5],[1,6,12],[2,3,8],[7,13,19],[11,17,22],[9,10,15],[14,20,26],[16,21,27],[18,25,30],[24,29,33],[23,28,32],[31,34,35]],"d":33,"f":0,"l":2,"h":1},{"t":"221302033202023113111301022232122233003112332012101323223123322333313032211001021201303131212312331031231203","sol":[[19,20,26],[18,25,31],[30,34,35],[29,32,33],[3,7,12],[8,13,14],[1,2,6],[0,4,10],[5,11,17],[9,16,22],[15,21,27],[23,24,28]],"d":33,"f":1,"l":2,"h":2},{"t":"221112303213323002312301022122211222012302331033102132212123011311001013322032202203131333223133023113003313","sol":[[0,4,9],[2,7,13],[3,8,14],[10,15,16],[19,20,26],[21,22,28],[23,29,30],[18,24,25],[27,32,33],[31,34,35],[1,6,12],[5,11,17]],"d":32,"f":0,"l":3,"h":4},{"t":"321032313201002121203012022213021312212333001023133003112031111302303223033221331231113323332301013233103131","sol":[[0,4,9],[3,8,13],[1,2,5],[6,10,11],[7,12,18],[14,20,26],[19,25,31],[24,30,35],[15,16,22],[17,23,28],[21,27,32],[29,33,34]],"d":39,"f":0,"l":2,"h":2},{"t":"332122032102103202212201203023313021132323001133233123002113221302011222312232033331321013301112101211031022","sol":[[0,1,6],[2,7,13],[3,8,14],[5,10,11],[4,9,16],[12,18,24],[15,21,22],[17,23,28],[19,25,30],[20,26,31],[27,32,33],[29,34,35]],"d":34,"f":0,"l":2,"h":2},{"t":"213023113111123133303002112122203033223322232323013331212132102221231011202222012301131021031302121211321313","sol":[[2,3,8],[4,10,16],[9,15,21],[6,11,12],[0,1,5],[17,22,28],[23,29,30],[18,24,25],[27,32,33],[31,34,35],[7,13,19],[14,20,26]],"d":39,"f":0,"l":2,"h":1},{"t":"232322002112113133331211131033221032313001122223302233333213103011021201212203123121311101321003231023312132","sol":[[0,1,2],[3,7,12],[8,14,20],[13,18,24],[19,26,31],[25,30,35],[5,10,16],[4,9,15],[6,11,17],[21,27,32],[22,23,28],[29,33,34]],"d":30,"f":0,"l":3,"h":6},{"t":"002333022012033233121232102322211133302323222213321003011201032001223332331021101122103111221311313023031301","sol":[[0,1,6],[4,5,11],[2,7,12],[3,8,14],[13,19,20],[18,24,30],[25,26,31],[29,34,35],[28,32,33],[9,15,21],[10,17,23],[16,22,27]],"d":36,"f":0,"l":2,"h":1},{"t":"331321133113301332212123103101333022001221203112201033233213223003312322002202232231211302132122023102222012","sol":[[0,5,10],[1,2,6],[3,7,8],[4,9,16],[11,12,17],[15,21,27],[22,23,29],[24,30,34],[28,32,33],[14,19,20],[13,18,25],[26,31,35]],"d":32,"f":0,"l":2,"h":1},{"t":"003201302232223313323112022203133023213322332002113303103102333101331131211011222231321301021111031121221001","sol":[[0,1,2],[6,12,18],[3,7,13],[8,14,19],[4,5,10],[9,15,21],[11,16,17],[20,26,31],[25,30,35],[22,27,32],[28,33,34],[23,24,29]],"d":38,"f":0,"l":3,"h":4},{"t":"122021031001132232012211011102032332003111311112302022322233313131202121223033103023333013133213203113123303","sol":[[0,4,9],[5,10,11],[15,16,17],[21,22,27],[18,23,24],[1,6,12],[2,3,8],[7,13,14],[19,20,26],[25,31,35],[30,33,34],[28,29,32]],"d":39,"f":0,"l":3,"h":5},{"t":"011021322111023333123033302032112222221303012323001223022312122332132133311331232301013201131231321101211031","sol":[[0,4,9],[3,7,8],[1,2,6],[5,10,16],[11,12,17],[13,19,25],[14,20,26],[15,21,27],[18,23,24],[22,28,29],[30,31,35],[32,33,34]],"d":28,"f":0,"l":3,"h":6},{"t":"021331123303011131211233013203301121101323133111332221002321213003023032112212132033311103322012232102022312","sol":[[9,15,16],[21,22,27],[5,11,12],[0,1,6],[4,10,17],[23,28,29],[32,33,34],[25,31,35],[18,24,30],[19,20,26],[8,13,14],[2,3,7]],"d":35,"f":0,"l":2,"h":2},{"t":"323033322312222213331132302303103321002233011031032311121202021212023123013333102301001332211313101201221231","sol":[[0,5,10],[1,6,7],[2,3,8],[4,9,15],[11,12,13],[14,19,25],[16,17,23],[18,24,29],[20,26,31],[21,22,27],[28,32,33],[30,34,35]],"d":34,"f":0,"l":2,"h":2},{"t":"002112012132021232322303011111312103313323202331231133123333113001311101032223003221332122301233201013213203","sol":[[2,3,6],[0,1,5],[7,12,13],[8,14,19],[18,24,30],[31,34,35],[20,25,26],[10,11,16],[4,9,15],[17,23,29],[21,22,27],[28,32,33]],"d":36,"f":0,"l":2,"h":2},{"t":"223003231322133313103303233201021312311023113111333102032323033031211321101011203131213022112132002302232122","sol":[[9,15,21],[10,16,17],[5,11,12],[0,1,4],[2,3,6],[13,18,25],[7,8,14],[19,20,26],[30,31,35],[29,33,34],[22,23,24],[27,28,32]],"d":36,"f":0,"l":3,"h":5},{"t":"102223331132003313232031233021301133333103002211131022212303201321011122032121302231013322112033101012202221","sol":[[0,4,10],[1,5,11],[2,3,8],[6,7,12],[9,15,16],[13,14,20],[17,23,29],[22,28,33],[21,27,32],[24,30,34],[18,19,25],[26,31,35]],"d":32,"f":0,"l":2,"h":2},{"t":"323012303121213231112002232222102212122333312201301022321111001113103133023221233332011203313322021013032123","sol":[[4,9,15],[0,5,10],[1,6,11],[2,3,8],[7,13,19],[12,18,24],[14,20,26],[25,31,35],[23,29,30],[16,17,21],[22,27,28],[32,33,34]],"d":31,"f":0,"l":2,"h":1},{"t":"031032033233113301313333133202222123003103213302132101331023013312012131001211112322303121221311232021111011","sol":[[6,11,12],[17,23,29],[28,32,33],[0,1,2],[3,7,8],[4,5,10],[13,14,19],[9,16,22],[15,21,27],[18,24,30],[31,34,35],[20,25,26]],"d":35,"f":0,"l":2,"h":1},{"t":"321131111101301011221001012331102201303231233013323211103121112033302133002312021023311022132203232032332202","sol":[[3,8,14],[10,11,12],[15,21,27],[32,33,34],[0,4,9],[1,5,6],[2,7,13],[16,22,28],[17,23,24],[18,19,20],[25,26,31],[29,30,35]],"d":37,"f":0,"l":2,"h":2},{"t":"222032013321112302231021301202212122211221331232332132311111011101233102033323113312031313333203223103023133","sol":[[3,8,14],[1,2,7],[0,4,5],[6,12,13],[9,10,15],[11,17,23],[16,22,28],[18,19,20],[21,27,32],[25,26,31],[24,30,35],[29,33,34]],"d":37,"f":0,"l":2,"h":2},{"t":"011221311201223101021131203003332331313133322123213111321211031333033012302002323103301122212202013233232222","sol":[[12,18,24],[7,8,14],[2,3,6],[13,19,25],[20,26,31],[30,34,35],[1,5,11],[0,4,10],[16,17,23],[9,15,21],[22,28,29],[27,32,33]],"d":39,"f":0,"l":2,"h":2},{"t":"223001221311213203021111123032233312301232112033211131231022302031122321102332002222333013212012303011132322","sol":[[1,2,7],[3,8,13],[6,12,18],[5,11,17],[0,4,10],[9,15,21],[16,22,28],[14,19,20],[25,26,30],[23,24,29],[27,32,33],[31,34,35]],"d":30,"f":0,"l":2,"h":3},{"t":"001103133113221202302031123131021233211101023311201121321212323003011012203231223222331032112232333332002322","sol":[[15,21,27],[28,32,33],[9,16,22],[0,1,6],[2,3,8],[4,10,17],[5,11,12],[7,13,18],[14,20,26],[19,24,25],[23,29,34],[30,31,35]],"d":39,"f":0,"l":3,"h":6},{"t":"123212332132323022301032312131223321133202122002003113012201311333033011102121031213303313232322222231112023","sol":[[2,3,7],[8,13,14],[1,6,12],[18,24,30],[23,29,34],[25,31,35],[19,20,26],[27,32,33],[17,22,28],[10,16,21],[0,5,11],[4,9,15]],"d":30,"f":0,"l":2,"h":2},{"t":"013201111021333332221031301113223331011123302203023102001012303133213101212312112323103313022231003233032131","sol":[[8,14,20],[29,30,31],[17,23,28],[33,34,35],[3,7,12],[0,1,5],[2,6,11],[4,9,10],[13,18,24],[19,25,26],[15,16,21],[22,27,32]],"d":37,"f":0,"l":2,"h":2},{"t":"221231002123023322211331212013003133101132302113033213021022301311323332333112233012313321131201203121032011","sol":[[0,4,5],[1,2,3],[9,10,16],[11,17,22],[15,21,27],[23,28,29],[32,33,34],[30,31,35],[18,24,25],[6,7,12],[19,20,26],[8,13,14]],"d":30,"f":0,"l":2,"h":1},{"t":"303331003212111222112312122032103211202332232323221313031322012311233002113102013302213121231131203223301011","sol":[[0,4,5],[15,21,27],[1,2,3],[6,11,17],[9,10,16],[7,13,19],[8,14,20],[12,18,24],[25,26,30],[31,34,35],[22,23,29],[28,32,33]],"d":33,"f":0,"l":2,"h":2},{"t":"203202133012111033303321312322233113223212011101313333201131002103003123121221023102213331301031122001211021","sol":[[0,4,9],[1,2,7],[3,8,13],[15,21,27],[16,22,23],[5,10,17],[6,11,12],[18,24,29],[28,32,33],[30,34,35],[14,19,25],[20,26,31]],"d":36,"f":0,"l":3,"h":4},{"t":"321001322213101131211221303121111201103023133011012333233033013231301002331313003203223302123031132311323212","sol":[[2,7,13],[3,8,14],[12,18,25],[19,20,26],[11,16,17],[9,15,21],[4,5,10],[0,1,6],[22,23,27],[28,32,33],[24,29,34],[30,31,35]],"d":37,"f":0,"l":3,"h":5},{"t":"202311323213113002033203133321331233123313303201131021023333103001211032121322221301223013003312101232122231","sol":[[1,5,11],[0,4,10],[13,14,19],[6,7,12],[2,3,8],[20,26,31],[18,24,25],[30,34,35],[17,23,29],[22,28,33],[21,27,32],[9,15,16]],"d":35,"f":0,"l":2,"h":2},{"t":"312132122011022112102233012202201033333133013031113321221303203123111101001223103032021311313003301231121232","sol":[[21,27,32],[9,15,16],[0,1,4],[2,5,6],[3,8,14],[10,17,22],[18,24,29],[23,28,33],[7,11,12],[13,19,25],[20,26,31],[30,34,35]],"d":36,"f":1,"l":2,"h":2},{"t":"132201013332323112122202021102011232022113221233213312331002321223203103211123133003303032001212031012023301","sol":[[4,9,10],[0,5,6],[1,2,3],[11,12,17],[7,13,18],[8,14,20],[19,24,25],[29,30,34],[26,31,35],[27,32,33],[22,23,28],[15,16,21]],"d":40,"f":0,"l":2,"h":2},{"t":"102113333132103131223311232101021212003302332221301111011022032231201013233322202211312303203112023133213031","sol":[[0,4,9],[1,2,6],[3,7,12],[5,10,16],[11,17,23],[8,14,20],[13,18,24],[19,26,31],[25,30,35],[15,21,27],[22,28,32],[29,33,34]],"d":34,"f":0,"l":3,"h":6},{"t":"302112232113031013222201022021213002332223331132313221212102103311001202312322211121231003301032011101131333","sol":[[2,7,13],[3,8,14],[0,1,6],[4,5,11],[12,18,19],[9,15,16],[10,17,23],[28,32,33],[21,22,27],[24,29,34],[25,30,35],[20,26,31]],"d":30,"f":0,"l":2,"h":2},{"t":"011332233013223001303033003312031321113333023012101232112331213323311103032111022231211123322203002302202131","sol":[[0,5,10],[1,6,11],[2,7,13],[3,8,14],[4,9,16],[12,18,25],[15,21,27],[17,22,23],[19,20,26],[30,31,35],[24,28,29],[32,33,34]],"d":32,"f":0,"l":2,"h":1},{"t":"031311101001303022313212133112231203023123333322013332103233033002211121113321202132323003012122222201213232","sol":[[0,1,2],[3,7,13],[4,5,10],[6,12,18],[11,17,23],[9,16,22],[15,21,27],[32,33,34],[24,28,29],[30,31,35],[20,25,26],[8,14,19]],"d":28,"f":0,"l":3,"h":6},{"t":"002323033031111203112211001322233301321313011132101022122023133012013213232003032302131333121231222202212312","sol":[[1,2,5],[0,4,10],[6,7,13],[3,8,14],[11,17,23],[12,18,19],[9,16,22],[15,21,27],[20,26,31],[24,28,29],[32,33,34],[25,30,35]],"d":32,"f":0,"l":2,"h":1},{"t":"122103111213131203312101233033113031311022021302221323201232102112133132003313223333001211121331212301123002","sol":[[0,1,2],[3,7,13],[4,5,6],[8,14,20],[11,12,18],[19,25,30],[23,24,29],[9,10,17],[15,16,22],[21,27,28],[26,31,35],[32,33,34]],"d":32,"f":0,"l":2,"h":2},{"t":"031012333231121003101331122202311222131221013123033313001323301011022312023032232302133201332103223021322211","sol":[[0,1,5],[2,6,11],[4,9,16],[10,17,23],[15,21,27],[22,28,29],[32,33,34],[3,7,12],[8,13,19],[14,20,26],[18,24,25],[30,31,35]],"d":31,"f":0,"l":2,"h":1},{"t":"313213232221013113212102322031331222121023011302002323133111203223131012211303122312321101231022333301001201","sol":[[3,8,13],[2,6,11],[7,12,18],[14,20,26],[19,25,31],[9,15,21],[5,10,16],[0,1,4],[17,22,23],[24,30,35],[27,28,32],[29,33,34]],"d":31,"f":0,"l":2,"h":4},{"t":"332303032211311233123323101023031021312133232202002322213122013121003113111222301333231112022033012132302212","sol":[[0,1,4],[5,11,12],[2,3,6],[9,10,16],[15,21,27],[32,33,34],[19,25,30],[7,13,18],[8,14,20],[23,24,29],[17,22,28],[26,31,35]],"d":29,"f":0,"l":3,"h":4},{"t":"203033231002223313123302323003233131202102311333121332031212013312023322221111022301001103032211232113321303","sol":[[10,11,17],[14,19,20],[26,31,35],[18,24,25],[2,3,8],[7,12,13],[29,30,34],[15,21,27],[4,5,9],[0,1,6],[16,22,23],[28,32,33]],"d":32,"f":0,"l":2,"h":2},{"t":"301231111031221121201321113103011331032323202332012223131013303212112122311233133102322021123213022312101033","sol":[[20,26,31],[33,34,35],[18,24,29],[19,25,30],[6,12,13],[3,8,14],[1,2,7],[0,5,10],[4,9,16],[11,17,22],[15,21,27],[23,28,32]],"d":36,"f":0,"l":2,"h":2},{"t":"332122201331012032002021111123312132222211301231223202203212121321323313232221033101031113302112011001013022","sol":[[9,16,22],[15,21,27],[28,32,33],[23,29,34],[0,1,4],[5,10,17],[6,11,12],[19,20,26],[18,24,25],[30,31,35],[7,13,14],[2,3,8]],"d":33,"f":0,"l":2,"h":1},{"t":"102131123033233112303022313321132222212231332003012203113223032202211021011101232301001221122312031111331323","sol":[[2,3,8],[0,5,10],[4,9,16],[15,21,27],[11,17,22],[1,6,7],[12,13,19],[14,20,26],[18,25,30],[31,34,35],[23,24,28],[29,32,33]],"d":32,"f":0,"l":2,"h":2},{"t":"211101002303311203321001313011202231132003323023201033221111322131312133013301232032233121031112122302223022","sol":[[0,4,9],[5,10,16],[15,21,22],[17,23,28],[27,32,33],[1,6,11],[2,7,13],[3,8,14],[12,18,24],[19,25,30],[20,26,31],[29,34,35]],"d":30,"f":0,"l":2,"h":1},{"t":"003233203223113213123012321013313033001301131312102103221201011032122132031111311202112121331021332133231211","sol":[[1,2,3],[0,5,6],[4,9,10],[7,11,12],[17,23,29],[32,33,34],[30,31,35],[8,14,19],[20,25,26],[13,18,24],[16,22,28],[15,21,27]],"d":40,"f":0,"l":2,"h":2},{"t":"232323011332312331111002221303102213122023113333321302031322203033202032123021131133233201311001222211231101","sol":[[2,7,13],[3,8,14],[0,1,6],[4,9,16],[15,21,27],[10,17,22],[5,11,12],[18,25,31],[19,20,26],[30,34,35],[23,24,29],[28,32,33]],"d":32,"f":0,"l":2,"h":1},{"t":"031032232002033213122212332223203233302202222333113123012301011201133003322231103022313331303312021211101221","sol":[[0,1,4],[5,10,11],[9,15,16],[17,23,28],[21,22,27],[19,20,25],[26,31,35],[24,29,30],[32,33,34],[3,8,14],[2,7,13],[6,12,18]],"d":36,"f":0,"l":2,"h":2},{"t":"223123023002302113333003031221103033213001121133201313321311301012331011102101231203112122233021022202032312","sol":[[2,3,8],[0,5,11],[4,10,16],[9,15,21],[17,23,28],[22,27,32],[1,6,7],[12,18,24],[13,14,19],[20,26,31],[25,30,35],[29,33,34]],"d":38,"f":0,"l":3,"h":6},{"t":"221201031111131211033322112202001231032333113222313022311003203232101323103303332301233023013121012133223123","sol":[[2,6,12],[3,8,14],[7,13,18],[1,5,11],[0,4,10],[9,15,21],[16,17,22],[19,20,25],[26,30,31],[27,32,33],[29,34,35],[23,24,28]],"d":33,"f":0,"l":2,"h":2},{"t":"003311301103232121321101002111001331211102302303333313332012202323203122233222112133113131201212023011312213","sol":[[3,7,13],[8,14,20],[1,2,6],[0,4,9],[5,11,12],[10,17,23],[15,16,21],[22,27,32],[28,33,34],[18,24,29],[19,26,31],[25,30,35]],"d":34,"f":0,"l":2,"h":2},{"t":"203103122111003333033323031303223013213221321022212113322123211332102301331311021232032222313131132133011302","sol":[[1,2,3],[6,7,12],[8,14,20],[13,18,19],[25,26,31],[24,30,35],[29,33,34],[17,23,28],[21,27,32],[15,16,22],[0,4,9],[5,10,11]],"d":30,"f":0,"l":3,"h":5},{"t":"203003222303233322111112031213122011302221223331301022133312131123311001033012201103232231333021113332032132","sol":[[1,2,6],[0,4,9],[5,10,17],[11,12,18],[3,7,13],[8,14,19],[15,16,22],[20,26,31],[21,27,32],[23,24,25],[28,33,34],[29,30,35]],"d":33,"f":0,"l":2,"h":1},{"t":"223221222311113033102321003103233313023212122301123133101232002021111013323312302231031203121322331201011332","sol":[[3,8,14],[19,20,25],[26,31,35],[30,33,34],[27,28,32],[15,21,22],[0,1,2],[4,9,16],[5,6,7],[10,11,12],[13,18,24],[17,23,29]],"d":31,"f":0,"l":3,"h":7},{"t":"332112303031212002222121032302132313232033131022101221113202211311102103323301021203213233003122133023013231","sol":[[3,8,13],[2,7,12],[14,20,26],[19,25,30],[18,24,29],[31,34,35],[16,22,23],[15,21,27],[4,9,10],[5,11,17],[0,1,6],[28,32,33]],"d":33,"f":0,"l":2,"h":1},{"t":"002231123232013322012302113111031103303301001212022211131221101121333033233202311003213133313023223203021132","sol":[[0,4,10],[9,16,22],[15,21,27],[5,11,17],[23,24,29],[28,32,33],[1,2,6],[7,12,13],[3,8,14],[19,20,26],[18,25,31],[30,34,35]],"d":34,"f":0,"l":2,"h":1},{"t":"302233011221132023301231211022313002123201031222101333203111321032121133003013202112223033303331322332001113","sol":[[0,1,2],[4,5,6],[9,10,16],[15,21,27],[22,28,32],[7,11,12],[3,8,13],[14,19,20],[17,23,29],[18,24,30],[25,26,31],[33,34,35]],"d":26,"f":0,"l":3,"h":4},{"t":"011101102202112213022332222321313131333212232311331032002121023012301201322233303123221111203113231031302223","sol":[[0,4,10],[1,5,6],[11,12,17],[2,7,13],[3,8,14],[18,19,25],[20,26,31],[24,29,30],[23,28,32],[33,34,35],[9,15,16],[21,22,27]],"d":32,"f":0,"l":2,"h":1},{"t":"121011201033002101111321131312022203212001232122202322231103333112032222223013302102031313123221132233003133","sol":[[0,1,2],[4,5,11],[6,7,13],[3,8,14],[12,18,24],[19,20,25],[26,31,35],[28,32,33],[29,30,34],[9,16,22],[10,17,23],[15,21,27]],"d":35,"f":0,"l":2,"h":3},{"t":"002322232112123233111012302323023332003122231203313223211201221033101022102321132103331021333213222031011001","sol":[[0,5,6],[1,2,3],[7,8,13],[11,12,18],[14,19,20],[4,10,17],[9,15,21],[16,22,23],[27,28,32],[25,26,31],[24,29,30],[33,34,35]],"d":32,"f":0,"l":2,"h":2},{"t":"301021132213032302303313222223233121102201101332111131133023312221322003001212232013123323002122333203033113","sol":[[0,5,6],[11,12,18],[1,2,7],[3,8,13],[4,10,17],[9,15,16],[21,22,28],[23,24,30],[14,19,25],[20,26,31],[27,32,33],[29,34,35]],"d":30,"f":0,"l":3,"h":5},{"t":"131303222031322231331123202013332003112102132113201221101302212313133002211023022213223321111232203233011311","sol":[[1,2,3],[0,5,6],[4,9,16],[7,12,18],[8,13,19],[10,11,17],[14,20,26],[15,21,27],[28,32,33],[22,23,29],[24,30,34],[25,31,35]],"d":33,"f":0,"l":3,"h":8},{"t":"301123122202113032212332012222213231133002132111023013203021322003102201331312233232311001121101223211131321","sol":[[0,1,6],[4,10,17],[5,11,12],[9,15,21],[16,22,28],[23,24,30],[27,32,33],[29,34,35],[2,7,13],[3,8,14],[18,19,25],[20,26,31]],"d":34,"f":0,"l":3,"h":4},{"t":"321022103011132203311211222003131001111303031322123221112023212231102133113012201013021302333223213313202121","sol":[[0,4,5],[1,2,7],[3,8,13],[14,19,25],[12,18,24],[20,26,31],[30,34,35],[6,11,17],[10,16,22],[9,15,21],[23,28,29],[27,32,33]],"d":32,"f":0,"l":2,"h":2},{"t":"311313213322202011113001301123132111013203133231022303102321012302222131032031201112003212103121002332221211","sol":[[0,5,11],[4,10,16],[9,15,21],[1,6,12],[2,3,7],[8,13,18],[14,19,20],[25,26,31],[24,30,35],[28,33,34],[22,27,32],[17,23,29]],"d":31,"f":0,"l":2,"h":1},{"t":"001323332023033301112201103022012312212132302011233232121113101303122333003313203311031123013133322213102111","sol":[[1,2,5],[0,4,9],[3,6,7],[8,13,18],[10,11,12],[14,20,26],[17,23,28],[19,25,30],[24,29,33],[31,34,35],[21,27,32],[15,16,22]],"d":32,"f":0,"l":2,"h":2},{"t":"213121333212033023332211123103013221122032331323233321223112301231021131011202003311203302002102101012232322","sol":[[0,1,6],[2,7,12],[3,8,14],[4,5,10],[9,15,16],[11,17,22],[13,19,25],[18,24,29],[20,26,31],[21,27,32],[23,28,33],[30,34,35]],"d":26,"f":0,"l":3,"h":4},{"t":"211233112002111302131332222123023033013311022201132032133203313001101011202323031331212003213102221121321231","sol":[[0,5,11],[1,6,7],[2,3,8],[4,9,16],[10,17,23],[15,21,22],[27,28,29],[32,33,34],[12,18,25],[13,14,19],[20,26,31],[24,30,35]],"d":34,"f":0,"l":2,"h":1},{"t":"011323212233232131201333112013121202021321221111101002113301331312222102332022311123203211023133313033303213","sol":[[0,1,4],[2,3,6],[5,10,16],[9,15,21],[11,17,23],[22,28,29],[12,18,24],[7,8,14],[27,32,33],[13,19,20],[25,26,31],[30,34,35]],"d":34,"f":0,"l":2,"h":1},{"t":"132311023102223123111332211323303213003232321313033113331133101201013203333212031122302112021103032001233312","sol":[[2,3,8],[0,1,4],[6,7,12],[14,20,26],[13,18,19],[5,10,11],[9,16,17],[15,21,27],[22,23,24],[25,30,31],[28,29,32],[33,34,35]],"d":39,"f":0,"l":2,"h":2},{"t":"313121212113302033202021311321001211323332103333012102132122022232133303032322131031221112222231002101203331","sol":[[0,4,9],[15,21,27],[32,33,34],[16,22,28],[10,17,23],[11,12,18],[26,31,35],[1,5,6],[2,3,8],[7,13,14],[19,20,25],[24,29,30]],"d":26,"f":0,"l":3,"h":5},{"t":"012212022202123203131332021201312233023113333232223001002221032003122331031313103121011013102321301231222213","sol":[[0,5,6],[1,2,7],[3,8,14],[4,10,17],[9,15,16],[11,12,13],[21,22,23],[33,34,35],[27,28,32],[18,24,29],[19,25,30],[20,26,31]],"d":34,"f":0,"l":3,"h":4},{"t":"012203123023321103033323213331231113223333133101301131313303112221011233212032202311031332002322001122022222","sol":[[20,25,26],[17,23,29],[24,30,31],[33,34,35],[4,9,16],[0,5,10],[15,21,27],[22,28,32],[1,6,11],[2,7,12],[13,18,19],[3,8,14]],"d":39,"f":0,"l":2,"h":3},{"t":"303213023333223133022113312002212201131203222331221233121332132123313021101232012202231211032302311111001103","sol":[[9,16,22],[15,21,27],[10,11,17],[0,4,5],[1,6,12],[2,3,7],[8,13,18],[14,20,26],[19,25,30],[31,34,35],[23,24,28],[29,32,33]],"d":29,"f":0,"l":3,"h":4},{"t":"222332312322213233223302132321201131203311011032313022001323303113122133221112232013101021333102331202121012","sol":[[0,4,10],[9,15,21],[11,16,17],[5,6,12],[1,2,3],[7,13,19],[8,14,20],[18,25,30],[24,29,34],[22,23,28],[26,31,35],[27,32,33]],"d":35,"f":0,"l":2,"h":2},{"t":"301231002113121031313323233201011333232321003012331131322103032123221022033102222111001133101112013312021302","sol":[[1,2,6],[0,4,5],[11,12,17],[3,8,14],[7,13,18],[19,25,30],[20,26,31],[23,24,28],[27,32,33],[10,16,22],[9,15,21],[29,34,35]],"d":32,"f":0,"l":2,"h":3},{"t":"303013233232033223103323312031032313002122102111101121231332222131211301003133012321001311202132333302022212","sol":[[3,8,13],[23,24,30],[18,19,25],[11,12,17],[14,20,26],[15,16,21],[4,9,10],[22,27,28],[29,32,33],[31,34,35],[0,1,5],[2,6,7]],"d":40,"f":0,"l":3,"h":4},{"t":"331312103332101221231201002013011012123302122211111311132032212112003321022001323313232301023113223133303233","sol":[[3,7,12],[8,14,20],[13,18,24],[19,25,30],[26,31,35],[17,23,29],[16,22,28],[32,33,34],[15,21,27],[9,10,11],[0,4,5],[1,2,6]],"d":35,"f":0,"l":3,"h":5},{"t":"301021321011111331101221113002031211133003312332112322333212121303222103023233203311022122213001302012232102","sol":[[0,4,10],[15,21,27],[3,8,14],[13,19,20],[1,2,7],[5,6,11],[12,18,25],[23,24,30],[26,31,35],[9,16,17],[22,28,29],[32,33,34]],"d":33,"f":0,"l":2,"h":1},{"t":"212013003302333101023033032012322232301222112331303022011311021223312111133131321233203332231221213031211201","sol":[[0,4,5],[3,8,14],[9,10,11],[15,16,22],[17,23,28],[21,27,32],[24,29,33],[12,18,25],[7,13,19],[1,2,6],[20,26,31],[30,34,35]],"d":29,"f":0,"l":2,"h":2},{"t":"202133233203311222021312223322101212112031213333013201023302123103131301232231211323321001121032012313111303","sol":[[13,14,19],[2,3,8],[20,26,31],[24,30,35],[12,18,25],[1,6,7],[0,5,11],[4,9,15],[10,17,23],[16,21,27],[22,28,29],[32,33,34]],"d":33,"f":0,"l":2,"h":1},{"t":"022032332313122212232321201322222132302202011023221002103131331113203333001312323111112123031223021231311102","sol":[[3,7,12],[1,2,6],[5,11,17],[9,15,16],[0,4,10],[8,14,19],[13,18,24],[20,25,26],[22,23,29],[21,27,28],[30,31,35],[32,33,34]],"d":30,"f":0,"l":3,"h":5},{"t":"323022121111102211333231001311122033321021301233023302312011101303221212332103331133132322002223013202032112","sol":[[0,1,2],[8,14,20],[19,24,25],[3,7,13],[6,12,18],[26,30,31],[21,27,32],[4,9,15],[10,16,22],[5,11,17],[23,28,29],[33,34,35]],"d":36,"f":0,"l":3,"h":4},{"t":"032311331021303203321211101103221121301003102133001312132332232123212302122012222333013231322202213113313022","sol":[[0,4,10],[5,11,17],[9,15,21],[16,22,27],[1,6,12],[7,13,18],[2,3,8],[20,26,31],[14,19,25],[23,28,29],[24,30,35],[32,33,34]],"d":42,"f":0,"l":2,"h":2},{"t":"223133303123112121013213301222002212302122101032332333113033201132211003323021001023233231221331311232321111","sol":[[0,1,6],[2,3,7],[5,10,17],[11,12,13],[8,14,20],[18,19,24],[28,29,33],[21,27,32],[4,9,15],[16,22,23],[25,30,34],[26,31,35]],"d":30,"f":0,"l":2,"h":2},{"t":"232322112311302022002003222313122212331103211221032102023233101132303011333202021033113203012231123312201323","sol":[[3,8,13],[14,19,25],[20,26,31],[30,34,35],[22,27,32],[9,15,21],[23,28,33],[18,24,29],[2,7,12],[5,11,17],[0,1,6],[4,10,16]],"d":35,"f":0,"l":3,"h":4},{"t":"313023103321203022231233031312102131012232211222301003323101021002212033113032331121302221201111333311322303","sol":[[3,8,14],[6,7,13],[0,1,2],[4,5,11],[12,18,19],[20,26,31],[33,34,35],[24,25,30],[23,28,29],[10,16,17],[9,15,21],[22,27,32]],"d":35,"f":0,"l":3,"h":10},{"t":"122313303012002001221131203332232132003212231202323111321222023112302322301032213022233333033103101223312031","sol":[[0,4,9],[15,21,27],[17,22,28],[5,10,16],[1,6,11],[23,24,29],[32,33,34],[25,30,35],[20,26,31],[12,13,18],[2,3,7],[8,14,19]],"d":31,"f":0,"l":2,"h":1},{"t":"211113033323333303123213003122022221103133011331203223302001031013012222023231021131132312111321322002233121","sol":[[0,4,10],[11,17,23],[9,15,21],[16,22,27],[28,32,33],[29,34,35],[18,24,30],[19,25,31],[14,20,26],[1,2,5],[6,12,13],[3,7,8]],"d":39,"f":0,"l":3,"h":6},{"t":"001212232103333331013311021112222132003332121002312033032213302201012123231011223303133113101131221122023321","sol":[[1,6,7],[2,3,8],[5,11,17],[0,4,10],[9,16,22],[15,21,27],[23,28,29],[32,33,34],[12,18,25],[13,14,19],[20,26,31],[24,30,35]],"d":26,"f":0,"l":3,"h":4},{"t":"302202002333012102221233111322232122112301311123203323003021201332011121033231131001132222023133113101013303","sol":[[2,3,8],[0,4,10],[1,6,7],[5,11,12],[9,16,22],[15,21,27],[17,23,29],[18,24,30],[28,32,33],[31,34,35],[13,19,25],[14,20,26]],"d":32,"f":0,"l":2,"h":2},{"t":"203011233312132311122232102013212213301322012003113323112302222023033103022032111332223121331201231001211031","sol":[[3,7,8],[13,18,25],[14,19,20],[0,1,4],[2,6,12],[5,10,16],[9,15,21],[11,17,23],[22,27,32],[24,28,29],[30,33,34],[26,31,35]],"d":34,"f":0,"l":2,"h":1}], key:'parcels-playtest-simple-v1', tag:'',
-          rule:"<b>Count:</b> 1 to 3, all the same or all different."},
-};
-let PACK='simple', PUZZLES=PACKS.simple.data, RULESET='simple';
-// Rule checks follow the active set.
-const _validRuns=validTiles, _whyRuns=whyInvalid;
-validTiles=(A,B,C)=> RULESET==='simple' ? sameOrDiff(A.s,B.s,C.s)&&sameOrDiff(A.c,B.c,C.c)&&sameOrDiff(A.n,B.n,C.n) : _validRuns(A,B,C);
-whyInvalid=(A,B,C)=>{
-  if(RULESET!=='simple') return _whyRuns(A,B,C);
   const out=[];
   if(!sameOrDiff(A.s,B.s,C.s)) out.push('Shapes: two match and one doesn’t.');
   if(!sameOrDiff(A.c,B.c,C.c)) out.push('Colors: two match and one doesn’t.');
   if(!sameOrDiff(A.n,B.n,C.n)) out.push('Counts: two match and one doesn’t.');
   return out.join(' ');
+}
+
+// Four difficulty sets of 50 boards each; every board has its own shape and size.
+const CATS={
+  easy:   {name:'Easy',    data:[{"c":[2,-2,3,-2,1,-1,2,-1,3,-1,0,0,1,0,2,0,-1,1,0,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"231232002211233302201333202103123022323311121","sol":[[0,1,4],[2,3,7],[5,6,9],[8,10,13],[11,12,14]],"d":4,"f":6,"l":1,"h":0},{"c":[-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,1,-1,2,-1,-2,0,2,0,-2,1,-1,1,1,1,2,1,-2,2,-1,2,0,2,1,2],"t":"012232301312101233113302022332031132212322013323001002","sol":[[0,4,5],[1,2,6],[3,7,9],[8,10,14],[11,15,16],[12,13,17]],"d":4,"f":8,"l":1,"h":0},{"c":[-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,1,-1,2,-1,-2,0,2,0,-2,1,-1,1,1,1,2,1,-2,2,-1,2,0,2,1,2],"t":"033231213233211322222203111223201131303123021221301013","sol":[[1,2,6],[3,7,9],[0,4,5],[8,10,14],[11,15,16],[12,13,17]],"d":4,"f":6,"l":1,"h":0},{"c":[-1,-2,0,-2,-2,-1,-1,-1,0,-1,-2,0,-1,0,0,0,1,0,2,0,0,1,1,1,2,1,0,2,1,2],"t":"003201302222001101033303312002202321232032213","sol":[[0,1,2],[3,5,6],[4,7,10],[8,9,12],[11,13,14]],"d":4,"f":5,"l":1,"h":0},{"c":[-1,-2,0,-2,-2,-1,-1,-1,0,-1,-2,0,-1,0,0,0,1,0,2,0,0,1,1,1,2,1,0,2,1,2],"t":"303201102323112031203022332132311232322301313","sol":[[0,1,2],[3,4,5],[6,7,10],[8,9,11],[12,13,14]],"d":4,"f":7,"l":1,"h":0},{"c":[2,-2,3,-2,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,-3,2,-2,2],"t":"323131231002112023212031313103331223202221222","sol":[[1,4,9],[0,2,3],[5,6,10],[7,8,12],[11,13,14]],"d":4,"f":7,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,-1,0,1,0,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"321123001033022233112301032122333202003113131101021332","sol":[[0,1,4],[2,5,6],[3,7,9],[8,10,14],[11,12,15],[13,16,17]],"d":4,"f":11,"l":1,"h":0},{"c":[2,-2,3,-2,1,-1,2,-1,3,-1,1,0,2,0,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"312222303331113233001011313221022112202211333","sol":[[0,2,3],[1,4,6],[5,9,12],[7,8,11],[10,13,14]],"d":4,"f":5,"l":1,"h":0},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,1,-1,2,-1,-3,0,-2,0,1,0,-3,1,-2,1,-1,1,0,1,-2,2,-1,2],"t":"101201001113002103121321223021331013221233322132032202","sol":[[0,1,2],[3,4,7],[5,8,11],[6,9,12],[10,13,16],[14,15,17]],"d":4,"f":6,"l":1,"h":0},{"c":[0,-1,1,-1,2,-1,3,-1,-1,0,0,0,1,0,2,0,3,0,-1,1,0,1,1,1,2,1,-1,2,0,2,1,2,-1,3,0,3],"t":"012302313013113311221213331102133003323303032312001011","sol":[[0,4,5],[1,6,10],[2,3,7],[8,12,15],[9,13,16],[11,14,17]],"d":4,"f":12,"l":1,"h":0},{"c":[2,-3,3,-3,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,-1,0,1,0,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,-3,3,-2,3],"t":"121213233221232302203202312201323003131033321322222301","sol":[[0,2,5],[8,11,12],[6,7,9],[1,3,4],[10,14,15],[13,16,17]],"d":4,"f":9,"l":1,"h":0},{"c":[2,-2,3,-2,1,-1,2,-1,3,-1,0,0,1,0,2,0,-1,1,0,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"212213011211131021101111001113202322231301103","sol":[[0,1,3],[2,5,8],[4,6,7],[9,11,12],[10,13,14]],"d":4,"f":5,"l":1,"h":0},{"c":[-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,1,-1,2,-1,-2,0,1,0,-2,1,-1,1,0,1,-2,2,-1,2],"t":"202211322132113033003221321031232231331103311","sol":[[3,6,7],[1,2,5],[0,4,8],[9,11,12],[10,13,14]],"d":4,"f":6,"l":1,"h":0},{"c":[2,-2,3,-2,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,-3,2,-2,2],"t":"232333222131103001132321101102223213023021332","sol":[[0,1,3],[2,7,12],[4,8,9],[5,6,10],[11,13,14]],"d":4,"f":9,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,0,-1,1,-1,0,0,-1,1,0,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"211111213212011313311201002132303101031103312","sol":[[0,2,3],[1,4,6],[5,7,9],[8,10,11],[12,13,14]],"d":4,"f":7,"l":1,"h":0},{"c":[0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,2,-1,3,-1,-2,0,2,0,-3,1,-2,1,0,1,1,1,-3,2,-2,2,-1,2,0,2],"t":"213323003113022231232301103023221011021212331233302101","sol":[[0,1,2],[3,6,7],[4,5,8],[9,13,17],[10,11,14],[12,15,16]],"d":4,"f":8,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,0,-1,1,-1,-2,0,-1,0,0,0,-3,1,-2,1,-1,1,-3,2,-2,2],"t":"313132221331003202122231213123203212031131012","sol":[[0,1,2],[3,4,6],[5,7,8],[9,11,12],[10,13,14]],"d":4,"f":6,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,-2,0,-1,0,0,0,1,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2],"t":"022231012223111002202312013333021213121102313123302233","sol":[[0,2,5],[1,3,6],[4,7,11],[8,12,16],[9,10,13],[14,15,17]],"d":4,"f":10,"l":1,"h":0},{"c":[2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-1,0,0,0,1,0,2,0,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"033301012031121112003111122123001132103231002032312311","sol":[[0,1,5],[2,3,6],[4,8,9],[7,10,13],[11,14,16],[12,15,17]],"d":4,"f":8,"l":1,"h":0},{"c":[0,-1,1,-1,2,-1,3,-1,-1,0,0,0,1,0,2,0,3,0,-1,1,0,1,1,1,2,1,-1,2,0,2,1,2,-1,3,0,3],"t":"222323013113012021213101333332002203211202313102031122","sol":[[0,1,5],[2,3,6],[4,9,13],[7,10,11],[8,12,15],[14,16,17]],"d":4,"f":9,"l":1,"h":0},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,-2,-1,1,-1,-3,0,-2,0,0,0,1,0,-3,1,-2,1,-1,1,0,1],"t":"213312011202233013211323132102332133302212022","sol":[[0,1,2],[3,4,6],[5,7,11],[8,12,13],[9,10,14]],"d":4,"f":10,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,0,-1,1,-1,-2,0,-1,0,0,0,-3,1,-2,1,-1,1,-3,2,-2,2],"t":"132013223313113311232301201031101312133131023","sol":[[0,2,5],[1,3,4],[6,9,12],[7,8,10],[11,13,14]],"d":4,"f":8,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,0,-1,1,-1,0,0,-1,1,0,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"002102021111133013223323123023031333302202311","sol":[[1,3,4],[0,2,5],[8,10,13],[6,7,9],[11,12,14]],"d":4,"f":7,"l":1,"h":0},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,-1,-1,0,-1,1,-1,-1,0,1,0,-1,1,0,1,1,1,-1,2,0,2,1,2,-1,3,0,3],"t":"022213131021133101023003121111302102322002223233211202","sol":[[0,3,6],[1,4,7],[2,5,8],[9,12,15],[10,11,13],[14,16,17]],"d":4,"f":7,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,-2,0,-1,0,-3,1,-2,1,-1,1,-3,2,-2,2],"t":"221113032312023322332201323102321212333123203","sol":[[0,1,2],[5,8,10],[3,4,7],[6,9,11],[12,13,14]],"d":4,"f":7,"l":1,"h":0},{"c":[1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2],"t":"031203313003232112001013012121132033331102332023022113","sol":[[0,1,5],[2,6,10],[3,4,9],[8,13,14],[7,11,15],[12,16,17]],"d":4,"f":9,"l":1,"h":0},{"c":[2,-2,3,-2,1,-1,2,-1,3,-1,1,0,2,0,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"111212002013222231133322113001213101311032123","sol":[[0,1,3],[2,5,8],[4,6,9],[7,10,11],[12,13,14]],"d":4,"f":7,"l":1,"h":0},{"c":[1,-2,2,-2,0,-1,1,-1,2,-1,-1,0,2,0,-2,1,-1,1,1,1,2,1,-2,2,-1,2,0,2,1,2],"t":"021001031101203022302033003121012011111232233","sol":[[0,1,2],[3,4,6],[5,7,11],[8,12,13],[9,10,14]],"d":4,"f":6,"l":1,"h":0},{"c":[1,-2,2,-2,0,-1,1,-1,2,-1,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2],"t":"121313122232311213323221211202231222031111032302023002","sol":[[0,1,3],[2,6,7],[4,8,13],[5,9,10],[11,14,15],[12,16,17]],"d":4,"f":9,"l":1,"h":0},{"c":[0,-1,1,-1,2,-1,3,-1,-1,0,0,0,2,0,3,0,-1,1,2,1,-1,2,0,2,1,2,-1,3,0,3],"t":"033231132233332302331321131111013202201103001","sol":[[2,3,6],[0,1,4],[5,8,10],[7,9,12],[11,13,14]],"d":4,"f":5,"l":1,"h":0},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,-2,-1,1,-1,-3,0,-2,0,0,0,1,0,-3,1,-2,1,-1,1,0,1],"t":"132301133131123011032303222223311102231323002","sol":[[0,2,3],[1,4,6],[5,7,8],[9,10,14],[11,12,13]],"d":4,"f":5,"l":1,"h":0},{"c":[1,-2,2,-2,0,-1,1,-1,2,-1,-1,0,2,0,-2,1,-1,1,1,1,2,1,-2,2,-1,2,0,2,1,2],"t":"022221033031323032231132302012103212003021312","sol":[[0,1,4],[2,3,5],[7,8,11],[9,12,13],[6,10,14]],"d":4,"f":6,"l":1,"h":0},{"c":[0,-1,1,-1,2,-1,3,-1,-1,0,0,0,2,0,3,0,-1,1,2,1,-1,2,0,2,1,2,-1,3,0,3],"t":"032111312222203121112132211102331022122021023","sol":[[0,1,4],[2,3,7],[5,8,10],[6,9,12],[11,13,14]],"d":4,"f":5,"l":1,"h":0},{"c":[-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,1,-1,2,-1,-2,0,1,0,-2,1,-1,1,0,1,-2,2,-1,2],"t":"312211011302333111331313301201133223102013303","sol":[[0,4,8],[1,2,5],[3,6,7],[9,12,14],[10,11,13]],"d":4,"f":8,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,0,-1,1,-1,2,-1,-1,0,1,0,-2,1,-1,1,0,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"202301031103331233132303311322222113012003001313111122","sol":[[0,1,3],[2,5,6],[4,7,9],[8,11,12],[10,13,16],[14,15,17]],"d":4,"f":8,"l":1,"h":0},{"c":[2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-3,2,-2,2],"t":"332331011202333113233211231021132133201102111123013323","sol":[[2,3,4],[0,5,9],[1,6,10],[7,8,12],[11,16,17],[13,14,15]],"d":4,"f":7,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,-2,0,-1,0,-3,1,-2,1,-1,1,-3,2,-2,2],"t":"203301312313322131032012311002123231021101132","sol":[[0,2,5],[1,3,4],[6,7,9],[10,13,14],[8,11,12]],"d":4,"f":9,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"133112032121213022103221012033122322333023231211323102","sol":[[0,1,3],[2,5,8],[4,6,9],[7,11,13],[10,12,15],[14,16,17]],"d":4,"f":9,"l":1,"h":0},{"c":[-1,-2,0,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-1,1,0,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"323133112011132332013313301012232223231123312322212001103221233","sol":[[0,1,6],[2,3,7],[4,5,10],[8,9,13],[11,14,17],[12,15,18],[16,19,20]],"d":5,"f":9,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,0,-1,1,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,0,2,1,2],"t":"011312213331313301322112113221303202222111013022023332212323233","sol":[[0,1,2],[3,4,6],[5,8,12],[7,11,17],[9,15,19],[10,16,20],[13,14,18]],"d":5,"f":8,"l":1,"h":0},{"c":[-1,-2,0,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-1,1,0,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"303122132231032023031002312223001301003202331123232311333033131","sol":[[0,1,6],[4,5,10],[2,7,8],[3,9,13],[11,14,17],[12,15,18],[16,19,20]],"d":5,"f":8,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,0,-1,1,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,0,2,1,2],"t":"133332031012231203003201321322301132313022212021032111123333223","sol":[[3,5,8],[0,1,2],[4,6,9],[10,16,20],[7,12,13],[11,17,18],[14,15,19]],"d":5,"f":6,"l":1,"h":0},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,-2,0,-1,0,0,0,1,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2],"t":"003022023212321033102211312302031011223301202133001303","sol":[[1,3,6],[0,2,5],[4,7,10],[8,12,16],[9,13,17],[11,14,15]],"d":5,"f":7,"l":1,"h":0},{"c":[2,-3,3,-3,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,-1,0,1,0,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,-3,3,-2,3],"t":"132111133103122032131003011202232023101331333031203012","sol":[[0,2,6],[1,3,4],[5,8,11],[7,9,12],[10,14,15],[13,16,17]],"d":5,"f":6,"l":1,"h":0},{"c":[0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2],"t":"313333132311122212112312221001231102023223111113002302012011013","sol":[[2,6,11],[1,5,9],[0,3,7],[4,8,12],[10,15,16],[13,14,17],[18,19,20]],"d":5,"f":13,"l":1,"h":0},{"c":[1,-2,2,-2,0,-1,1,-1,2,-1,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2],"t":"122223103321011023333203012001003331332033002102013021","sol":[[0,1,3],[2,5,6],[4,7,12],[8,13,17],[9,10,14],[11,15,16]],"d":5,"f":10,"l":1,"h":0},{"c":[-1,-2,0,-2,1,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-1,2,0,2,1,2],"t":"022332231132031133112301303003012122101211212021013201323123333","sol":[[0,4,9],[1,2,5],[3,8,13],[6,10,14],[7,12,17],[11,15,18],[16,19,20]],"d":5,"f":11,"l":1,"h":0},{"c":[-1,-2,0,-2,1,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-1,2,0,2,1,2],"t":"021032221023213013222301333113212223322001002011313121003323022","sol":[[0,1,5],[2,6,11],[3,4,8],[7,12,16],[9,10,15],[13,14,18],[17,19,20]],"d":5,"f":8,"l":1,"h":0},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,-2,-1,-1,-1,0,-1,1,-1,-3,0,-2,0,-1,0,0,0,1,0,-3,1,-2,1,-1,1,0,1],"t":"001233101113122033301003312231123211332002132111133102","sol":[[5,9,14],[0,2,6],[1,3,7],[4,8,13],[10,11,12],[15,16,17]],"d":5,"f":7,"l":1,"h":0},{"c":[2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-1,0,0,0,1,0,2,0,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"211312031321021103323013032221303132311313111001123121","sol":[[0,2,3],[6,10,13],[4,7,8],[1,5,9],[11,14,16],[12,15,17]],"d":5,"f":8,"l":1,"h":0}],    key:'parcels-pt2-easy'},
+  medium: {name:'Medium',  data:[{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,-1,1,2,1,-2,2,-1,2,0,2,1,2,-1,3,0,3],"t":"003213133323301202312332012122313311121232032203111303022132302002103201","sol":[[3,4,7],[0,1,2],[5,8,9],[6,10,11],[12,13,17],[14,15,16],[18,19,20],[21,22,23]],"d":13,"f":3,"l":1,"h":0},{"c":[2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,1,-1,2,-1,-2,0,2,0,-2,1,-1,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3],"t":"023211112323012223302031301101123221102011002131013233311003132321122001","sol":[[2,3,7],[4,5,9],[0,1,6],[8,11,13],[10,12,15],[16,20,21],[14,19,23],[17,18,22]],"d":11,"f":2,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,-1,-1,2,-1,3,-1,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3],"t":"021312001103233112121011231301322311012203222113321131031313202133302213","sol":[[14,18,19],[17,22,23],[7,10,13],[0,1,3],[2,4,5],[6,8,9],[11,12,15],[16,20,21]],"d":13,"f":1,"l":2,"h":1},{"c":[1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-2,0,2,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-2,3,-1,3],"t":"013103123203323011222102131133303021213313322302212132202112032122012022","sol":[[2,7,8],[0,3,4],[1,5,6],[9,10,12],[11,13,17],[14,18,19],[20,22,23],[15,16,21]],"d":14,"f":2,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,2,-2,3,-2,-2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,2,1,-3,2,-2,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"312322103022332302331213223131111011301002032203003233132102313123122112","sol":[[2,3,6],[7,9,13],[12,15,19],[18,22,23],[4,8,10],[0,1,5],[11,14,16],[17,20,21]],"d":14,"f":1,"l":2,"h":1},{"c":[-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"333003301131312303123213202023313021033103101112212323032233201121223022","sol":[[2,8,13],[3,4,9],[10,14,18],[17,21,23],[16,20,22],[11,15,19],[5,6,12],[0,1,7]],"d":14,"f":0,"l":2,"h":1},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2],"t":"133312202021221032122233011223301102131132012303321111302311113231022023","sol":[[2,5,6],[0,1,3],[4,8,12],[7,11,16],[17,18,23],[9,10,13],[14,19,20],[15,21,22]],"d":14,"f":0,"l":2,"h":1},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2],"t":"001112221333103331111121031011222312223032102301003123213023231113022233","sol":[[1,4,7],[3,6,10],[0,2,5],[9,13,19],[14,15,16],[8,11,17],[12,18,23],[20,21,22]],"d":14,"f":0,"l":2,"h":1},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,-1,1,2,1,-2,2,-1,2,0,2,1,2,-1,3,0,3],"t":"331112012223001011131323132203121201033123101031321303322211003213133023","sol":[[0,2,3],[1,4,7],[5,8,9],[6,10,14],[11,15,16],[12,13,17],[21,22,23],[18,19,20]],"d":14,"f":0,"l":2,"h":1},{"c":[1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,-3,0,-2,0,2,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-1,3,0,3],"t":"122011223331233203333211032113101103302031321022312232212202112332222322","sol":[[3,4,8],[0,1,5],[2,6,9],[7,10,13],[11,14,17],[18,19,22],[16,21,23],[12,15,20]],"d":14,"f":1,"l":2,"h":1},{"c":[2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3],"t":"022131033231313202023132011333331121113203201312103311213101332021012223","sol":[[0,3,4],[1,5,6],[2,7,10],[8,11,14],[9,12,13],[15,16,21],[17,18,22],[19,20,23]],"d":14,"f":0,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,0,0,1,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2],"t":"121013022233131031101312222313002321021123023112011333001301331212232033","sol":[[0,3,7],[1,2,5],[6,11,16],[4,9,10],[8,12,13],[17,18,21],[20,22,23],[14,15,19]],"d":14,"f":2,"l":2,"h":1},{"c":[2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3],"t":"201221302032211301312222121231332232011123202102233313012002322203023031","sol":[[0,1,4],[2,3,7],[6,11,15],[10,14,18],[19,22,23],[12,16,20],[5,8,9],[13,17,21]],"d":14,"f":0,"l":2,"h":1},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-1,2,0,2,1,2,-1,3,0,3],"t":"112221303312003023131223133202212322011323002213321123302021102331033012","sol":[[0,1,2],[4,7,8],[3,5,6],[10,11,14],[9,12,17],[13,18,21],[19,22,23],[15,16,20]],"d":14,"f":0,"l":2,"h":1},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-2,0,2,0,3,0,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3],"t":"322012122232102123113302032233103112003323202332313022011121301033331211","sol":[[15,16,20],[17,18,21],[8,11,14],[2,3,7],[0,1,4],[19,22,23],[5,6,10],[9,12,13]],"d":14,"f":2,"l":2,"h":1},{"c":[1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,-3,0,-2,0,2,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-1,3,0,3],"t":"223321122013333003331233203112103313301023311221131312123232011332001113","sol":[[11,14,17],[7,10,13],[3,4,8],[0,1,2],[5,6,9],[12,15,16],[18,19,20],[21,22,23]],"d":14,"f":1,"l":2,"h":1},{"c":[1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,-2,0,1,0,2,0,-3,1,-2,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3],"t":"221131001013011101231321012112233311323203213002103003133302102303021202","sol":[[3,4,8],[0,1,2],[5,6,7],[9,11,14],[10,12,16],[13,17,21],[15,19,20],[18,22,23]],"d":14,"f":0,"l":2,"h":1},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-2,0,2,0,3,0,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3],"t":"011211232311111112113303121302231031323123203331012322122222312022033101","sol":[[4,5,6],[0,1,3],[2,7,8],[9,12,15],[10,13,16],[20,22,23],[11,14,17],[18,19,21]],"d":14,"f":1,"l":2,"h":1},{"c":[2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3],"t":"131301332322021201312303311211302212221011122032213133113013313202323233","sol":[[13,17,21],[5,9,12],[0,1,4],[16,19,20],[18,22,23],[3,7,8],[2,6,10],[11,14,15]],"d":14,"f":1,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,-1,-1,2,-1,3,-1,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3],"t":"111322333313301223311012132113233203033031332323023201123222021013321011","sol":[[0,3,7],[1,2,4],[5,6,8],[10,13,14],[17,22,23],[18,19,20],[12,16,21],[9,11,15]],"d":14,"f":1,"l":2,"h":1},{"c":[2,-3,3,-3,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-1,0,0,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3],"t":"222021323123312333031132212313032022002203033311322201013121103202332232","sol":[[0,1,3],[2,5,9],[6,10,14],[13,17,21],[18,19,22],[15,20,23],[4,7,11],[8,12,16]],"d":14,"f":0,"l":2,"h":1},{"c":[2,-3,3,-3,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,1,0,-3,1,-2,1,-1,1,0,1,1,1,-1,2,0,2,1,2,-1,3,0,3],"t":"221121231011321322012211201031132222302001002323332311301113122033021202","sol":[[15,16,17],[19,22,23],[18,20,21],[3,9,13],[0,1,4],[2,7,8],[5,10,14],[6,11,12]],"d":14,"f":2,"l":2,"h":1},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,0,2,-2,3,-1,3],"t":"302231111021301132233331201323222023221011123321002101212031303112332202","sol":[[21,22,23],[0,2,6],[1,3,4],[5,8,9],[7,12,13],[16,17,20],[10,11,15],[14,18,19]],"d":14,"f":1,"l":2,"h":1},{"c":[2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-3,0,-2,0,2,0,-3,1,-2,1,1,1,-2,2,-1,2,0,2,1,2,-2,3,-1,3,0,3],"t":"322332021001022222122101031012202221011102312321002303233311223003123132","sol":[[14,15,17],[18,21,22],[19,20,23],[10,13,16],[0,4,5],[1,6,9],[2,3,8],[7,11,12]],"d":14,"f":3,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,1,-1,2,-1,-2,0,2,0,-2,1,-1,1,1,1,2,1,-2,2,-1,2,0,2,1,2,-2,3,-1,3,0,3],"t":"221021001121321031322013333131213103332323101102312032012222302022132212","sol":[[7,8,11],[6,9,10],[1,2,5],[0,3,4],[12,16,20],[15,18,19],[13,14,17],[21,22,23]],"d":14,"f":2,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-1,0,1,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,1,2,-2,3,-1,3,0,3],"t":"113233303212123323103001333313022301311023322031213132201121033133312302","sol":[[6,10,12],[0,1,2],[3,4,7],[5,8,9],[11,13,17],[14,15,16],[18,21,22],[19,20,23]],"d":14,"f":1,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,2,-2,3,-2,-2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,2,1,-3,2,-2,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"332102012213312222123303132033331321113223301333311211101032011111121131","sol":[[4,5,8],[0,1,2],[15,19,23],[18,21,22],[16,17,20],[10,11,14],[3,6,7],[9,12,13]],"d":15,"f":2,"l":2,"h":1},{"c":[1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-2,0,2,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-2,3,-1,3],"t":"323031201233221202133232212313203223023211011333113311121001022111231303","sol":[[0,1,5],[3,4,8],[2,7,11],[13,14,17],[18,19,22],[20,21,23],[12,15,16],[6,9,10]],"d":15,"f":1,"l":2,"h":1},{"c":[2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-3,0,-2,0,2,0,-3,1,-2,1,1,1,-2,2,-1,2,0,2,1,2,-2,3,-1,3,0,3],"t":"023113233101003333203223322123013021001221122323132112201032313302022232","sol":[[2,3,8],[7,11,14],[12,15,17],[18,19,20],[10,13,16],[21,22,23],[4,5,9],[0,1,6]],"d":15,"f":1,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"221123102111021322332022233321302121011222132231101012031013133212303203323312331","sol":[[2,6,7],[3,8,10],[13,14,17],[18,21,22],[24,25,26],[19,20,23],[0,1,5],[4,9,11],[12,15,16]],"d":15,"f":1,"l":2,"h":1},{"c":[-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3],"t":"111311122011023031221211303203003312301333033133021232323013101213332201","sol":[[0,1,7],[5,6,12],[11,15,16],[2,3,9],[4,10,14],[8,13,18],[17,21,23],[19,20,22]],"d":15,"f":0,"l":2,"h":1},{"c":[2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,1,-1,2,-1,-2,0,2,0,-2,1,-1,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3],"t":"321101221021121213032211131002313301332111132322302001123201013312303102","sol":[[17,22,23],[13,14,18],[15,19,20],[12,16,21],[1,6,10],[0,5,9],[2,3,4],[7,8,11]],"d":15,"f":1,"l":2,"h":1},{"c":[-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2],"t":"121302232222331233033212013122001223203103112123113333023323201012133313","sol":[[2,3,7],[0,1,6],[5,10,14],[11,15,19],[20,21,22],[4,8,9],[13,18,23],[12,16,17]],"d":15,"f":1,"l":2,"h":1},{"c":[2,-3,3,-3,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,1,0,-3,1,-2,1,-1,1,0,1,1,1,-1,2,0,2,1,2,-1,3,0,3],"t":"322331313301311032001031221211023011321111231101102033003103213123113133","sol":[[4,9,13],[0,1,2],[3,7,8],[5,6,10],[12,16,17],[11,14,15],[19,22,23],[18,20,21]],"d":15,"f":1,"l":2,"h":1},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,2,-2,-2,-1,-1,-1,1,-1,2,-1,-3,0,-2,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2],"t":"031221111331333313201301112121001311202032232123033312322302113303332212","sol":[[1,4,8],[16,20,21],[0,2,6],[3,7,11],[10,14,15],[5,9,12],[13,19,23],[17,18,22]],"d":15,"f":2,"l":2,"h":1},{"c":[0,-3,1,-3,-1,-2,0,-2,1,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-1,0,1,0,2,0,3,0,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,-3,3,-2,3],"t":"123311213003232233333302303202131102002101032012112122132022301113133211","sol":[[7,11,12],[8,9,13],[16,17,18],[0,1,4],[2,3,6],[5,10,14],[15,21,23],[19,20,22]],"d":15,"f":1,"l":2,"h":1},{"c":[-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,1,-1,2,-1,3,-1,-2,0,1,0,2,0,-2,1,-1,1,0,1,1,1,2,1,-2,2,-1,2,0,2,1,2,-2,3,-1,3],"t":"113001122112311222213131013212301103003032323333223303201101133203022313","sol":[[4,8,9],[3,7,11],[1,2,6],[0,5,10],[13,14,18],[15,19,22],[12,17,21],[16,20,23]],"d":15,"f":1,"l":2,"h":1},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,0,2,-2,3,-1,3],"t":"003323322233232222001113212202201321312032211121031102301221012023103231","sol":[[0,1,3],[2,6,7],[10,11,16],[14,15,18],[19,20,22],[17,21,23],[9,12,13],[4,5,8]],"d":15,"f":0,"l":2,"h":1},{"c":[1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3],"t":"213003103133333323233201101313023222001322331303113031202223122312231131032013302","sol":[[7,8,12],[0,1,3],[4,5,9],[2,6,10],[11,16,17],[13,14,15],[18,19,22],[20,21,24],[23,25,26]],"d":16,"f":1,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"133013113023323303333203231021222122211112002331131332223001111221101121301011032","sol":[[7,8,10],[2,3,6],[0,1,5],[4,9,11],[13,14,17],[18,22,26],[21,24,25],[12,15,19],[16,20,23]],"d":16,"f":3,"l":2,"h":1},{"c":[-1,-2,0,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,0,2,1,2],"t":"021233313232311331102332001322231101132033301103112302212321003333202122032111222","sol":[[2,7,14],[3,9,16],[8,15,22],[21,25,26],[0,1,6],[4,10,11],[5,12,13],[18,19,20],[17,23,24]],"d":16,"f":1,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"031131112103331123213323332212312033223333203121011202102231023111032233232302122","sol":[[0,5,9],[1,2,3],[4,8,13],[6,7,11],[10,14,15],[12,16,18],[17,22,26],[19,23,24],[20,21,25]],"d":16,"f":0,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"231032322112332133202302001031132022121021301213211311331102103113012101013333223","sol":[[0,4,5],[8,9,13],[12,16,18],[19,20,23],[24,25,26],[17,21,22],[1,2,6],[3,7,11],[10,14,15]],"d":16,"f":0,"l":2,"h":1},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-2,3,-1,3],"t":"033133322233001121011211212323131103132313222101021331111112231201123003213321232","sol":[[0,1,3],[2,6,11],[4,8,9],[5,10,15],[7,13,19],[12,18,22],[14,20,24],[16,17,21],[23,25,26]],"d":16,"f":0,"l":2,"h":1},{"c":[1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,0,2,-3,3,-2,3,-1,3],"t":"002221001123313201301231232211101011302223121331032023031103212332012323122003233","sol":[[19,23,26],[18,22,25],[20,21,24],[11,16,17],[3,7,12],[0,1,4],[2,6,10],[5,8,13],[9,14,15]],"d":16,"f":1,"l":2,"h":1},{"c":[1,-3,2,-3,0,-2,1,-2,2,-2,3,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-2,3,-1,3],"t":"301131333001201002122101321322212211022112102121123221302133012332231232203033331","sol":[[5,9,10],[14,15,19],[20,24,26],[21,22,25],[2,6,11],[12,16,17],[13,18,23],[0,3,7],[1,4,8]],"d":16,"f":1,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"223101312232203233123112002133023122131313323003113311332231322302102212202103012222333213","sol":[[1,6,7],[0,4,5],[2,3,8],[9,10,13],[25,28,29],[23,24,27],[14,17,21],[18,22,26],[11,12,16],[15,19,20]],"d":17,"f":2,"l":2,"h":1},{"c":[1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-2,3,-1,3],"t":"323122312331102023311033232112132123231131013321101121332202303222011203201301032221302103","sol":[[0,2,3],[7,8,13],[1,4,9],[5,6,10],[11,15,21],[12,16,22],[14,17,18],[19,23,24],[20,25,28],[26,27,29]],"d":18,"f":2,"l":2,"h":1},{"c":[1,-3,2,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-2,3,-1,3],"t":"022323221213002313303312131001121333331003321012123011021211013122203031111301201202023332","sol":[[0,3,8],[2,7,13],[9,14,19],[12,15,16],[17,18,23],[22,26,27],[20,21,25],[24,28,29],[1,5,6],[4,10,11]],"d":18,"f":3,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3],"t":"133321212022202033332102021111233003001222303032011023013331031121123203221131333211201231","sol":[[13,17,21],[4,5,9],[0,1,2],[3,6,7],[10,14,18],[22,23,26],[8,11,15],[12,16,20],[19,25,29],[24,27,28]],"d":18,"f":1,"l":2,"h":1}],  key:'parcels-pt2-medium'},
+  hard:   {name:'Hard',    data:[{"c":[0,-4,1,-4,2,-4,3,-4,-1,-3,0,-3,2,-3,3,-3,4,-3,-1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,4,-1,-4,0,-3,0,3,0,4,0,-4,1,2,1,3,1,-4,2,-3,2,-2,2,1,2,-4,3,-3,3,-2,3,0,3,1,3,-3,4,-2,4,-1,4,0,4],"t":"122012202011332013322133001201233112101311302103323003211102232333022111132021212213303113301123023203313033","sol":[[4,5,9],[0,1,2],[13,14,16],[17,20,23],[3,6,7],[8,10,11],[12,15,19],[18,21,22],[24,25,27],[28,29,32],[33,34,35],[26,30,31]],"d":18,"f":0,"l":2,"h":1},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-3,1,2,1,-3,2,-2,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"323213003223313112322012133333021011202232101231102312211031002331132212222023022233321121311122123","sol":[[0,1,8],[2,3,9],[4,5,11],[10,14,18],[15,19,21],[6,7,12],[13,16,17],[20,22,23],[26,27,30],[29,31,32],[24,25,28]],"d":19,"f":0,"l":2,"h":1},{"c":[2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,4,-1,-4,0,-3,0,3,0,-4,1,-3,1,2,1,-4,2,-3,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4,0,4],"t":"032103113323303211123003221112031332312201013132232023122002301212302233133213102033101111131331333222121022","sol":[[1,2,6],[0,4,5],[3,9,10],[13,14,18],[17,20,21],[23,24,27],[7,8,12],[11,15,16],[19,22,26],[25,31,35],[29,30,34],[28,32,33]],"d":20,"f":0,"l":2,"h":1},{"c":[2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,3,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3],"t":"231211202221331031121233131101103013213302222333033232002122003011112332322012022032303311021023001","sol":[[2,3,7],[6,11,13],[0,4,8],[1,5,9],[10,12,15],[16,21,26],[20,25,30],[27,31,32],[17,18,22],[14,19,24],[23,28,29]],"d":20,"f":1,"l":2,"h":1},{"c":[1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,4,-1,-3,0,3,0,-4,1,-3,1,2,1,3,1,-4,2,-3,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4],"t":"103022311123211331101233112023332132321223222203021002221122312032232231302113303013322301003102121131313202","sol":[[3,9,13],[0,1,2],[4,5,6],[7,8,12],[10,14,17],[11,15,16],[19,23,27],[20,24,28],[22,26,32],[18,21,25],[29,30,31],[33,34,35]],"d":21,"f":1,"l":2,"h":1},{"c":[0,-4,1,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,3,-2,-3,-1,-2,-1,3,-1,4,-1,-4,0,-3,0,3,0,4,0,-4,1,-3,1,2,1,3,1,-3,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-1,4,0,4],"t":"023133202022213313322132212312203102012223131112331323113123103013122101233011031311001301222333121201111033","sol":[[4,10,13],[0,1,5],[12,16,20],[17,21,24],[6,7,8],[2,3,9],[11,14,18],[15,19,23],[22,25,31],[30,34,35],[28,29,33],[26,27,32]],"d":21,"f":0,"l":2,"h":1},{"c":[0,-4,1,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,3,-2,-3,-1,-2,-1,3,-1,4,-1,-4,0,-3,0,3,0,4,0,-4,1,-3,1,2,1,3,1,-3,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-1,4,0,4],"t":"121313132232333002213013321332202003103212112012311222323101022133032233001131123312231201221301223023211021","sol":[[2,3,9],[1,6,7],[0,4,5],[8,11,14],[10,13,17],[12,16,20],[21,24,27],[26,32,33],[15,18,19],[22,23,25],[31,34,35],[28,29,30]],"d":21,"f":3,"l":2,"h":1},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,3,-3,4,-3,-2,-2,3,-2,4,-2,-3,-1,-2,-1,4,-1,-4,0,-3,0,3,0,4,0,-4,1,2,1,3,1,-4,2,-3,2,2,2,-4,3,-3,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"223313013202212003333103331222031023112201111332021321132032131312102002232022213122001301101012311121231011","sol":[[0,1,5],[2,6,7],[3,4,9],[8,11,12],[15,18,19],[21,22,25],[13,16,20],[10,14,17],[23,24,27],[26,31,32],[28,29,30],[33,34,35]],"d":22,"f":0,"l":2,"h":1},{"c":[1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,4,-1,-3,0,3,0,-4,1,-3,1,2,1,3,1,-4,2,-3,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4],"t":"311322313133321331301003223012203233113131013001112323333232212231221101222132201202303033032023211031002011","sol":[[0,4,5],[1,2,6],[3,10,14],[7,8,12],[9,13,17],[11,15,16],[18,21,25],[19,20,24],[22,26,32],[23,27,28],[29,30,33],[31,34,35]],"d":23,"f":0,"l":2,"h":1},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,3,-3,4,-3,-2,-2,3,-2,4,-2,-3,-1,-2,-1,4,-1,-4,0,-3,0,3,0,4,0,-4,1,2,1,3,1,-4,2,-3,2,2,2,-4,3,-3,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"113201013231322212022332102313132301011321203131112302211221333121001311101331232323202122213023111032312002","sol":[[13,14,16],[5,6,10],[0,1,7],[17,20,23],[2,3,8],[4,9,11],[12,15,19],[24,26,31],[27,32,33],[28,29,34],[25,30,35],[18,21,22]],"d":23,"f":1,"l":2,"h":1},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,4,-2,-3,-1,3,-1,4,-1,-4,0,-3,0,3,0,4,0,-4,1,-3,1,3,1,-4,2,1,2,2,2,-4,3,-3,3,-2,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"221211123233013031201323023303311231033101213223103102331113232313002021322032001333321202112133212302132012","sol":[[1,6,11],[0,5,10],[13,16,17],[20,21,23],[2,7,8],[3,4,9],[12,15,19],[14,18,22],[26,31,32],[27,28,33],[29,34,35],[24,25,30]],"d":23,"f":0,"l":2,"h":1},{"c":[2,-4,3,-4,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,2,-1,3,-1,-2,0,1,0,2,0,-3,1,-2,1,0,1,-4,2,-3,2,-2,2,-1,2,0,2,-4,3,-3,3,-2,3,-1,3,-3,4,-2,4],"t":"013132221321021303023322302121212003323312131222123213331001223122332202032301033112203333233111022","sol":[[6,12,16],[7,8,13],[19,20,22],[23,24,27],[28,31,32],[26,29,30],[17,21,25],[11,15,18],[5,10,14],[0,1,2],[3,4,9]],"d":23,"f":0,"l":2,"h":1},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,2,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"332113312203221232112311121003301233213033001122222202333031102322303012323131103013313321201022133223011331","sol":[[0,4,9],[1,5,10],[2,3,8],[6,11,14],[12,15,19],[18,22,28],[7,13,17],[16,20,23],[21,24,29],[25,30,34],[26,31,35],[27,32,33]],"d":23,"f":0,"l":2,"h":1},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"331201301231031312323221011101322103223122202203013021111133233333222213313012121303003132113332123102022212","sol":[[0,7,8],[1,2,9],[3,10,11],[4,5,12],[6,13,17],[14,18,21],[15,16,19],[20,24,28],[22,25,29],[23,27,32],[26,30,33],[31,34,35]],"d":23,"f":0,"l":2,"h":1},{"c":[3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,3,-1,-4,0,-3,0,-2,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,-3,2,-2,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,1,3,-1,4,0,4],"t":"131301202032011221311322112313212113101103233312031102012321223302231201111033013021333023003331323002222121","sol":[[14,18,19],[6,10,11],[4,8,9],[0,1,5],[2,3,7],[12,13,17],[15,16,20],[21,22,26],[25,29,30],[23,27,31],[24,28,33],[32,34,35]],"d":24,"f":1,"l":2,"h":1},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,4,-2,-3,-1,3,-1,4,-1,-4,0,-3,0,3,0,4,0,-4,1,-3,1,3,1,-4,2,1,2,2,2,-4,3,-3,3,-2,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"122032202012102312322332121133232002323301031003123132112203212302303022233113021131201103023311011321313333","sol":[[4,8,9],[2,3,7],[0,1,5],[6,10,11],[12,14,18],[13,16,20],[15,19,22],[17,21,23],[25,30,35],[24,29,34],[26,27,31],[28,32,33]],"d":24,"f":1,"l":2,"h":1},{"c":[3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3,0,3,-2,4,-1,4],"t":"012332323011232121233033222102031003123301231311022111313312103203133333013132321202113101331021211","sol":[[1,7,14],[8,15,20],[0,5,6],[2,9,10],[3,4,12],[11,18,22],[13,19,23],[16,17,21],[25,28,29],[24,26,27],[30,31,32]],"d":24,"f":0,"l":2,"h":1},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"212311222301131111021013033203002101121223103011331231312221313202012201132122032023211302022233102232112321","sol":[[0,1,7],[2,3,8],[6,14,18],[9,10,11],[4,5,12],[13,17,21],[15,16,19],[20,23,24],[27,28,32],[31,34,35],[22,26,30],[25,29,33]],"d":25,"f":0,"l":2,"h":1},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,2,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"303102023202001112233311111323321302232132122012301222032002013113312031022313033201123101331322103133221011","sol":[[0,1,4],[5,6,10],[3,8,9],[2,7,13],[20,23,24],[16,17,21],[25,30,31],[22,26,27],[28,32,33],[29,34,35],[15,18,19],[11,12,14]],"d":25,"f":0,"l":2,"h":1},{"c":[-1,-3,0,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,-3,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-1,0,0,0,1,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,3,1,-3,2,-2,2,0,2,1,2,2,2,0,3,1,3],"t":"131023202311212331223313013333001112232121002203123332302022012221103113033122303133213322222101032","sol":[[28,31,32],[25,29,30],[3,4,8],[0,1,2],[7,13,14],[5,9,17],[6,10,11],[12,18,19],[20,21,26],[15,16,24],[22,23,27]],"d":25,"f":1,"l":2,"h":1},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,2,1,3,1,-4,2,-3,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"312132131102032222202302123203322001103033313201121002111301233021101311332223231211303031323133213212112003","sol":[[0,1,6],[3,4,5],[2,9,10],[8,13,14],[16,17,20],[23,24,28],[29,30,34],[7,11,12],[15,19,22],[18,21,26],[25,31,35],[27,32,33]],"d":25,"f":0,"l":2,"h":1},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,3,-1,4,-1,-3,0,-2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,-4,2,-3,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"331202302022013133023232001223303213033122323011313301103312333322203332311102321021221123111113112121132101","sol":[[15,18,23],[11,12,14],[25,29,30],[31,34,35],[0,1,6],[2,7,13],[3,4,8],[5,9,10],[16,19,24],[17,20,21],[22,26,32],[27,28,33]],"d":25,"f":2,"l":2,"h":1},{"c":[-1,-3,0,-3,1,-3,-2,-2,-1,-2,0,-2,1,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-1,0,1,0,2,0,3,0,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,-3,3,-2,3,-1,3,-3,4,-2,4],"t":"301201001031211121233331122221012312021222003311303123333212022023223011013232111332302202131323033","sol":[[0,1,2],[3,4,5],[6,11,12],[9,10,16],[20,25,28],[7,8,14],[13,18,23],[15,19,24],[17,21,22],[27,30,32],[26,29,31]],"d":25,"f":0,"l":2,"h":1},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,2,-2,3,-2,-2,-1,3,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3],"t":"001021102031011213321103312013331231222012022113033303111203323101333132223133023002212322003233313","sol":[[2,6,9],[4,5,8],[0,1,3],[10,12,15],[16,19,20],[7,11,13],[14,18,22],[17,21,27],[23,28,29],[24,25,30],[26,31,32]],"d":26,"f":0,"l":2,"h":1},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-3,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"232013101223023131002222332113213202032212102303333323022132021111112201302321121211311313331221011001122233","sol":[[0,7,13],[1,2,8],[3,9,15],[6,12,18],[4,10,16],[5,11,17],[14,19,22],[20,21,23],[27,28,32],[33,34,35],[25,26,31],[24,29,30]],"d":26,"f":0,"l":2,"h":1},{"c":[2,-4,3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,1,1,2,1,-4,2,-3,2,-2,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4],"t":"303221001313033223312111322213222013331202301211012132121031302201231022232101321011112103102233311333021002","sol":[[25,29,30],[31,32,35],[28,33,34],[0,4,9],[3,8,14],[13,16,17],[20,23,24],[1,5,10],[2,7,12],[6,11,15],[18,19,21],[22,26,27]],"d":26,"f":1,"l":2,"h":1},{"c":[1,-4,2,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,-2,4,-1,4],"t":"131121211021201311013223202301331102213312031221123231332232302032132113023313002233111203033133321322003323","sol":[[1,4,5],[6,10,11],[12,15,19],[18,21,22],[2,7,8],[0,3,9],[13,14,16],[17,20,24],[23,29,30],[25,31,34],[32,33,35],[26,27,28]],"d":26,"f":0,"l":2,"h":1},{"c":[3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4],"t":"201322102311121013131023313002222332022231103033021202323213212333223233012111331112321312221211001203302133","sol":[[1,5,6],[0,3,4],[9,10,11],[2,8,13],[7,12,16],[17,21,25],[20,24,29],[30,34,35],[26,31,32],[19,22,23],[14,15,18],[27,28,33]],"d":26,"f":0,"l":2,"h":1},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,0,-1,1,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-4,3,-3,3,0,3,1,3],"t":"131003113313323033203202233223222221132023211301022213332032312231111331031013102232103311101002012322011021","sol":[[0,3,7],[1,4,8],[2,5,6],[9,10,11],[12,13,14],[15,16,17],[22,29,34],[23,30,35],[24,25,31],[18,19,27],[20,21,28],[26,32,33]],"d":27,"f":1,"l":2,"h":1},{"c":[2,-4,3,-4,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,3,-1,4,-1,-4,0,-3,0,3,0,4,0,-4,1,-3,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,-3,4,-2,4],"t":"321212033003131021202311023102112312203132211121012002201331032022222133221001333323011302301103223303013123","sol":[[10,11,16],[5,12,13],[17,20,21],[1,3,4],[0,2,6],[7,8,9],[14,18,24],[15,19,25],[26,31,34],[27,32,35],[29,30,33],[22,23,28]],"d":27,"f":1,"l":2,"h":1},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,2,-2,3,-2,-2,-1,3,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3],"t":"013323133033103213123322233003333001113121201023231221331022302011101111303021132301031321332032232","sol":[[7,8,11],[0,1,2],[3,4,5],[6,9,10],[12,16,20],[15,19,25],[24,29,30],[23,27,28],[26,31,32],[13,14,18],[17,21,22]],"d":28,"f":1,"l":2,"h":1},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,3,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3],"t":"012303032231022121232113323213003332033312122203131023211311011021301201233132322111001101202112102123212031","sol":[[8,9,10],[2,6,11],[0,1,5],[3,4,7],[12,14,19],[18,24,30],[15,20,26],[25,31,32],[21,22,27],[13,16,17],[23,28,29],[33,34,35]],"d":28,"f":0,"l":2,"h":1},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,3,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3],"t":"111202323022012313031112332002212122232303013222211132201101221231032103312033223301311121023113333321331001","sol":[[0,4,5],[1,2,6],[3,7,8],[9,10,11],[12,14,19],[15,20,26],[18,24,25],[30,31,32],[13,16,22],[17,23,29],[21,28,35],[27,33,34]],"d":28,"f":0,"l":2,"h":1},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"332201313011212103023013122022003303211221123322121203032333223111323012331101312131002102233301031302021112231202213","sol":[[0,1,7],[2,3,4],[6,14,20],[8,9,15],[13,19,23],[24,27,32],[36,37,38],[28,29,33],[30,34,35],[16,21,25],[22,26,31],[10,11,17],[5,12,18]],"d":29,"f":0,"l":2,"h":1},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-3,1,2,1,-3,2,-2,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"103123012021331031113323201111231311003133001221223203121131013011333222101321112332212033002102022","sol":[[0,1,6],[2,7,8],[12,13,16],[17,20,22],[3,4,9],[5,11,15],[10,14,18],[19,21,25],[24,28,29],[27,31,32],[23,26,30]],"d":29,"f":0,"l":2,"h":1},{"c":[1,-4,2,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,-2,4,-1,4],"t":"222022133301023111233012001033021302112101323032231232202212011122002201121223322312332311031102331013313213","sol":[[1,4,10],[5,6,11],[12,15,18],[0,2,3],[7,8,9],[13,14,17],[16,20,24],[23,29,30],[25,31,32],[26,27,28],[19,21,22],[33,34,35]],"d":29,"f":0,"l":2,"h":1},{"c":[2,-4,3,-4,4,-4,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,3,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,-4,0,-3,0,2,0,-4,1,-3,1,2,1,-4,2,-3,2,-2,2,-1,2,1,2,2,2,-2,3,-1,3,0,3,1,3,-1,4,0,4],"t":"202012102111112322232331001312311231121332302101021233131211011201321323133333122203013223303003103","sol":[[3,7,8],[10,11,12],[15,16,19],[18,21,22],[0,4,5],[1,2,6],[9,13,14],[17,20,26],[30,31,32],[25,28,29],[23,24,27]],"d":29,"f":1,"l":2,"h":1},{"c":[-1,-3,0,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-2,1,-1,1,0,1,1,1,2,1,3,1,-2,2,-1,2,0,2,1,2,2,2,0,3,1,3],"t":"001312122233032302231021313201222022113203132322102103101202321012232223211023323011013332111221003","sol":[[0,1,3],[2,8,9],[7,13,14],[15,20,26],[4,5,10],[6,11,12],[16,17,18],[21,27,28],[22,23,24],[19,25,30],[29,31,32]],"d":30,"f":0,"l":2,"h":1},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,0,3,1,3],"t":"202032312132122112102002212223332333013031121331201103022123301321021211231003033313012233222101232111203131303023302","sol":[[3,7,8],[10,11,15],[14,21,22],[16,23,24],[9,12,17],[13,18,25],[20,28,29],[30,35,36],[31,32,37],[26,33,38],[19,27,34],[4,5,6],[0,1,2]],"d":30,"f":0,"l":2,"h":1},{"c":[-1,-3,0,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-1,1,0,1,-2,2,-1,2,0,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"112223121021303031312321301231232001102032202113211111011323222203201221313033131003013322213101023022332212","sol":[[0,1,5],[4,11,12],[10,18,19],[6,13,14],[2,3,7],[8,9,17],[15,21,25],[16,22,23],[20,24,26],[27,28,32],[29,30,31],[33,34,35]],"d":32,"f":0,"l":2,"h":1},{"c":[-1,-3,0,-3,1,-3,2,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,2,-1,3,-1,4,-1,-2,0,2,0,3,0,-3,1,-2,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,-3,4,-2,4],"t":"302322222022212132002112332211301032012011031121102321101232221201131013213113023203103323133033233","sol":[[1,2,3],[6,7,8],[0,5,12],[4,11,16],[19,20,24],[23,28,29],[25,26,27],[30,31,32],[9,10,14],[15,18,22],[13,17,21]],"d":34,"f":0,"l":2,"h":1},{"c":[0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-2,4,-1,4],"t":"102312201211321103222023031231221203032011121021003311301213123332002331112223001113101133013122303","sol":[[0,1,6],[7,12,13],[5,11,16],[17,20,22],[23,24,25],[19,21,26],[27,28,31],[29,30,32],[2,3,9],[4,10,15],[8,14,18]],"d":24,"f":0,"l":2,"h":2},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-3,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-3,4,-2,4,-1,4],"t":"113332221013003033001121021233123223111211011323313031311331231102321002312302112232202303322101212213023133","sol":[[2,7,8],[0,1,6],[18,19,22],[12,13,14],[24,25,30],[26,31,35],[27,28,32],[29,33,34],[11,17,21],[3,4,5],[9,10,16],[15,20,23]],"d":29,"f":0,"l":2,"h":2},{"c":[1,-4,2,-4,0,-3,1,-3,2,-3,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3],"t":"003001002322312113211133231321301221032101111031201222122102021323202203212302112313232012131022132","sol":[[0,1,2],[3,5,8],[4,7,11],[6,9,13],[10,14,15],[16,22,23],[21,29,30],[20,27,28],[12,17,25],[24,31,32],[18,19,26]],"d":29,"f":0,"l":2,"h":2},{"c":[3,-4,4,-4,1,-3,2,-3,3,-3,4,-3,0,-2,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,0,2,-4,3,-3,3,-2,3,-1,3,-4,4,-3,4],"t":"313323022122303333322202032302312222132301011001212123012021231321101332133033112113002111201221331","sol":[[2,3,6],[7,8,10],[11,12,18],[4,9,13],[0,1,5],[14,15,19],[17,22,26],[20,23,24],[16,21,25],[29,30,32],[27,28,31]],"d":30,"f":0,"l":2,"h":2},{"c":[3,-4,4,-4,1,-3,2,-3,3,-3,4,-3,0,-2,1,-2,2,-2,3,-2,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,-3,2,-2,2,-1,2,0,2,-4,3,-3,3,-2,3,-1,3,-4,4,-3,4],"t":"121003303232111022002313322332101032112202233021033212222102001311031011131231312012223221103013302","sol":[[2,6,10],[0,3,7],[11,16,22],[13,17,18],[5,9,12],[1,4,8],[14,15,19],[20,21,25],[26,29,30],[23,27,31],[24,28,32]],"d":33,"f":1,"l":2,"h":2},{"c":[2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3],"t":"221312232213212103022201021203031231113302332003303313013333111222012301223032023121131122321311331011323233102002202","sol":[[1,5,10],[0,4,9],[2,3,7],[8,12,13],[6,11,17],[14,15,20],[18,19,24],[25,26,33],[21,27,34],[16,22,28],[23,29,35],[30,31,32],[36,37,38]],"d":37,"f":0,"l":2,"h":2},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,0,-2,1,-2,2,-2,0,-1,1,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-4,3,-3,3,0,3,1,3],"t":"232002302122312012202102222332132032101321211333323033011301001131023203133213212221331123013103313111233303","sol":[[1,2,6],[0,3,4],[9,10,11],[5,7,8],[15,22,23],[17,25,31],[16,24,30],[29,34,35],[18,26,32],[12,19,20],[13,14,21],[27,28,33]],"d":43,"f":0,"l":2,"h":2},{"c":[3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,-2,1,-1,1,0,1,1,1,-2,2,-1,2,0,2,-2,3,-1,3,0,3,-2,4,-1,4],"t":"211033012112212321102121302201312133023331323213123013203311032333313332111232132221131301113031222","sol":[[5,13,19],[2,3,4],[0,1,6],[7,8,15],[14,20,24],[9,10,11],[12,18,22],[16,17,21],[23,25,26],[27,28,29],[30,31,32]],"d":24,"f":0,"l":2,"h":3},{"c":[2,-3,3,-3,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,-3,3,-2,3],"t":"133222221022122322333212312302121001213331012101132113233313131332102013203123003231031103032223311","sol":[[0,2,9],[7,8,14],[6,13,21],[10,16,17],[15,22,29],[20,27,28],[23,24,25],[18,19,26],[30,31,32],[1,3,4],[5,11,12]],"d":23,"f":0,"l":3,"h":4}],    key:'parcels-pt2-hard'},
+  extreme:{name:'Extreme', data:[{"c":[0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,-2,4,-1,4],"t":"303222111313212301302122022101011112032211232102321131012123221133331312323231203121031311223013201332132023322202113233001103","sol":[[0,5,6],[1,7,8],[12,13,19],[14,20,26],[15,21,27],[25,31,36],[32,33,38],[37,40,41],[28,34,39],[16,22,29],[2,9,17],[11,18,23],[3,4,10],[24,30,35]],"d":28,"f":0,"l":3,"h":4},{"c":[1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4],"t":"301302012022213232013122033101211321231202311221001223102131331031023011201233103121332002021132313212112222032123203312003333","sol":[[0,5,6],[1,2,7],[3,4,9],[10,11,16],[12,13,17],[8,14,18],[15,19,23],[20,24,27],[21,25,31],[22,26,32],[30,36,40],[37,38,41],[33,34,39],[28,29,35]],"d":33,"f":0,"l":3,"h":4},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"321213113203323013132302112333023103233212222221223022002033001332101102232211303111003123301231331122133012021131121011201311","sol":[[0,1,6],[7,13,17],[14,18,21],[22,25,32],[26,33,39],[30,31,38],[2,9,16],[3,4,5],[8,15,19],[10,11,12],[20,24,29],[23,27,34],[28,35,36],[37,40,41]],"d":36,"f":1,"l":3,"h":4},{"c":[1,-4,2,-4,3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,0,-2,1,-2,2,-2,3,-2,4,-2,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,-4,2,-3,2,-2,2,-1,2,0,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4,-1,4],"t":"221001321201331131311111031101021211333023212203213323302132112013103123312002232133102222322122121022332301012233313223033303","sol":[[14,18,19],[13,17,23],[12,16,22],[15,21,27],[20,25,26],[24,28,33],[29,30,31],[34,35,38],[32,36,37],[39,40,41],[2,3,8],[6,7,11],[0,1,5],[4,9,10]],"d":39,"f":0,"l":3,"h":4},{"c":[-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3],"t":"313013213032301321103113123333131303033212331001232323332223011111121101233102302002022031221211202322132203311222122012312112","sol":[[3,4,8],[9,10,16],[14,15,21],[17,22,28],[0,1,2],[7,13,20],[5,11,18],[6,12,19],[24,31,32],[25,26,27],[33,37,38],[34,35,36],[23,29,30],[39,40,41]],"d":39,"f":0,"l":3,"h":4},{"c":[0,-4,1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,3,-1,4,-1,-4,0,-3,0,-2,0,2,0,3,0,4,0,-4,1,-3,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4,0,4],"t":"331022103121012131231311303203021031001032032121202003223111123133313112133122101003331033123132323312301103233113323303333023213013302113231322","sol":[[4,11,17],[0,5,6],[1,2,7],[12,18,23],[3,8,13],[9,14,19],[15,20,25],[10,16,22],[21,27,32],[24,29,36],[26,30,31],[37,42,43],[35,40,41],[45,46,47],[34,39,44],[28,33,38]],"d":41,"f":0,"l":3,"h":4},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,2,0,3,0,4,0,-4,1,-3,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"312331221213232202312303111031221232132032102133311212022322033222202112333211022113111122033303203322211201001023003011003122333213133323203113","sol":[[0,1,7],[2,3,4],[8,14,15],[9,10,16],[5,6,13],[12,18,22],[11,17,21],[23,27,28],[19,20,25],[26,30,36],[24,29,35],[31,37,43],[32,33,39],[38,44,45],[34,40,41],[42,46,47]],"d":44,"f":0,"l":3,"h":4},{"c":[0,-4,1,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-1,4,0,4],"t":"332133022213231011203021332101301013023021203002221333022302212122232111231112322323002031303102032331201011211122301131321131302033031211212023","sol":[[0,1,4],[5,10,16],[6,11,17],[15,21,22],[23,27,28],[2,7,12],[3,8,13],[9,14,19],[18,24,30],[20,26,32],[25,31,37],[36,42,43],[41,46,47],[29,33,39],[34,35,40],[38,44,45]],"d":44,"f":0,"l":3,"h":4},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,2,0,3,0,4,0,-4,1,-3,1,2,1,3,1,-4,2,-3,2,-2,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"222003323333203232311133313302123222202133321001031331113011221113022213021201301233313211131023103131202103021233023312201013332012121203332121","sol":[[1,2,7],[8,9,14],[3,4,10],[0,6,13],[5,11,12],[15,19,24],[16,20,26],[25,30,36],[29,35,42],[18,23,28],[17,21,22],[27,31,32],[37,43,44],[33,38,39],[34,40,45],[41,46,47]],"d":47,"f":0,"l":3,"h":4},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"311301221011021331021131031001031211301101201321233333121132113022133033303123121102032322233013203111112032012332022112122202102232002332212322","sol":[[0,1,5],[6,7,11],[2,8,12],[18,19,20],[9,13,14],[3,4,10],[15,21,25],[24,30,31],[22,26,27],[16,17,23],[28,29,34],[32,33,37],[35,40,41],[36,42,47],[44,45,46],[38,39,43]],"d":49,"f":0,"l":3,"h":4},{"c":[0,-4,1,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-3,2,-2,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"231203233222001012003113023032201323103303233321102301212012312033101131322202022212301101232132132221222112002211011033102302022111311002112202","sol":[[0,5,12],[1,6,13],[2,7,8],[3,9,16],[14,15,19],[4,10,17],[11,18,23],[21,22,27],[28,33,38],[29,34,39],[37,43,44],[40,41,45],[42,46,47],[30,35,36],[24,25,31],[20,26,32]],"d":51,"f":0,"l":3,"h":4},{"c":[0,-4,1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4,0,4],"t":"311321331301113033222111131021223212221001211301003313121331133103123011313123333032322332023233013101213302033103223121131002323013022202211233","sol":[[0,5,6],[1,2,3],[4,10,16],[11,17,23],[22,26,32],[7,12,13],[14,18,19],[8,9,15],[20,21,25],[27,33,34],[28,29,35],[38,39,44],[40,41,42],[30,36,43],[24,31,37],[45,46,47]],"d":51,"f":0,"l":3,"h":4},{"c":[0,-4,1,-4,2,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,4,0,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4,-1,4],"t":"033213112303123033011121021222123303313112231311122321213011311101022022101121231222122111031131322202332202203002201032012201301103023001002103","sol":[[1,2,6],[12,13,19],[7,14,20],[8,15,21],[26,30,31],[24,25,29],[37,38,43],[9,16,22],[10,17,23],[27,28,32],[33,34,40],[39,44,45],[0,3,4],[5,11,18],[35,36,41],[42,46,47]],"d":60,"f":0,"l":3,"h":4},{"c":[2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3],"t":"222322321123312332131203302002122033313012101132013031232111212133201032021011202323303022103311211333233112301223003113023231","sol":[[0,2,3],[1,4,5],[7,8,14],[6,11,18],[9,15,20],[10,16,22],[12,13,19],[17,24,25],[21,29,36],[23,30,31],[26,32,37],[27,28,33],[35,40,41],[34,38,39]],"d":35,"f":0,"l":3,"h":5},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"311211012022002321131313212122333331021111302002211031203122132102322011222012001103133013323113123333323033123332213013113213223023303223303133","sol":[[0,5,11],[1,6,12],[2,3,4],[7,8,13],[9,10,16],[14,15,21],[20,24,25],[17,18,19],[22,23,27],[26,31,37],[28,29,34],[30,36,42],[38,43,44],[32,33,39],[41,46,47],[35,40,45]],"d":47,"f":0,"l":3,"h":5},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"122233213312011133333011113333321012223023003013113313103101012111313213033312031222203223233302131221303331322111211311301022211033311331103122","sol":[[0,4,9],[1,5,6],[10,11,18],[2,3,7],[8,15,22],[14,21,27],[16,17,23],[28,29,30],[34,35,36],[41,42,46],[12,19,25],[13,20,26],[24,31,37],[38,43,47],[40,44,45],[32,33,39]],"d":48,"f":0,"l":3,"h":5},{"c":[0,-4,1,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-1,4,0,4],"t":"312033002303121003013201312201013003023122123331033323001032301102213133233012123223303023332233301213211001031133212102333011322332211122103031","sol":[[0,4,5],[1,6,11],[10,17,23],[7,8,12],[2,3,9],[13,18,24],[14,19,20],[16,22,28],[15,21,27],[25,26,32],[29,34,39],[30,31,36],[33,38,44],[35,40,45],[37,43,47],[41,42,46]],"d":48,"f":0,"l":3,"h":5},{"c":[0,-4,1,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-1,4,0,4],"t":"213013321311103301123333221331033022311101021013323133321121213123313003011101332302333003233121023002212113323222322002122331202313031122132031131112102","sol":[[1,6,7],[0,5,11],[4,10,16],[15,21,28],[17,22,23],[2,3,9],[8,12,13],[14,18,19],[20,25,26],[27,34,40],[24,32,33],[31,36,37],[29,30,35],[38,39,46],[41,47,48],[42,43,44],[45,49,50]],"d":52,"f":3,"l":3,"h":5},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"221231332001321021201213111121131031211301101301331311003233202131121011022122003303222303023133311331323333133223321101031013203313011231233123","sol":[[1,6,12],[13,20,26],[19,25,32],[11,18,24],[0,4,5],[8,9,10],[2,3,7],[14,21,22],[15,16,17],[23,28,29],[27,34,35],[30,36,42],[31,37,43],[41,46,47],[33,40,45],[38,39,44]],"d":54,"f":0,"l":3,"h":5},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4],"t":"131301313233033011001101123333123221221223312323033213322331031101001231011021333332201302002313132022021023202102212302102211332022232212202023323121222","sol":[[3,4,9],[2,8,16],[15,23,30],[17,25,32],[10,11,18],[24,31,38],[29,36,37],[0,5,12],[1,6,7],[19,26,27],[13,14,20],[21,22,28],[33,34,35],[41,42,47],[39,40,46],[43,48,49],[44,45,50]],"d":54,"f":0,"l":3,"h":5},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"222012111232202332112001331032122012101221212332002312033123301321011122222213303303231331311301321333132033233102023011323203223213203113032121","sol":[[0,3,4],[1,5,10],[6,11,17],[9,14,23],[15,16,24],[7,12,20],[2,8,13],[21,22,28],[29,30,31],[18,19,27],[25,33,38],[26,34,39],[35,40,45],[42,43,44],[32,36,37],[41,46,47]],"d":57,"f":0,"l":3,"h":5},{"c":[0,-4,1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4,0,4],"t":"022332101322112232302013231031132132022121211131322102001131301021002112033313111232313222223332323023121101113301111002012333003323333203013123","sol":[[2,3,7],[5,6,12],[0,1,4],[11,17,23],[10,16,22],[8,9,15],[13,14,18],[19,20,21],[24,25,30],[31,37,43],[36,41,42],[45,46,47],[26,27,33],[28,29,35],[32,38,39],[34,40,44]],"d":47,"f":0,"l":3,"h":6},{"c":[1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4],"t":"213033003303133023003101302013203333103023202122121332313212032202011323232222321201012132332032131321022303021232302031111002212103112012313131","sol":[[11,18,23],[0,5,12],[1,6,13],[3,4,9],[28,34,41],[40,45,46],[27,33,39],[10,16,17],[22,26,32],[2,7,8],[14,19,24],[15,20,21],[25,31,38],[29,30,37],[43,44,47],[35,36,42]],"d":49,"f":0,"l":3,"h":6},{"c":[0,-4,1,-4,2,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-4,0,-3,0,-2,0,-1,0,0,0,1,0,2,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,-3,4,-2,4],"t":"213323203003133002101011331333232231332302111201021202033231322312022212222212332013013232032122121122201113102302202101022313213003131333301211","sol":[[1,5,11],[2,6,13],[0,3,4],[7,8,15],[14,21,28],[12,18,19],[20,27,34],[22,29,36],[32,39,44],[25,26,33],[10,17,24],[9,16,23],[35,41,42],[30,31,37],[38,43,46],[40,45,47]],"d":49,"f":0,"l":3,"h":6},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,2,0,3,0,4,0,-4,1,-3,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"211331001133132201121101131312122231221121232212112223122321322202332302223013032112222131133202322213323033132311212002103313221222331321303203003311103","sol":[[2,3,9],[4,10,16],[14,15,21],[7,8,13],[0,1,6],[5,11,12],[17,18,19],[20,26,31],[22,27,28],[32,38,39],[23,29,33],[24,25,30],[34,35,40],[36,41,42],[46,47,48],[37,44,45],[43,49,50]],"d":50,"f":0,"l":3,"h":6},{"c":[1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,2,0,3,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4,-1,4],"t":"221121321111001321021301031031103322331311201021233011122101131011132322231222012222002032331133232112022211333012301302232122303131022312002032","sol":[[0,3,4],[1,2,6],[5,12,13],[7,14,19],[8,15,21],[20,24,30],[25,31,38],[9,16,22],[10,11,17],[18,23,27],[26,32,39],[28,33,40],[41,45,46],[29,37,44],[36,43,47],[34,35,42]],"d":52,"f":0,"l":3,"h":6},{"c":[1,-4,2,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-2,4,-1,4],"t":"123303023223113003013131323223023032033323302312032211303111232112031213111132332222221203201211021101003012212301321231011131031123311301231311121121001","sol":[[5,6,10],[12,19,27],[11,17,18],[20,28,29],[16,25,26],[34,35,42],[36,37,43],[1,4,9],[13,21,22],[30,31,39],[14,23,32],[2,7,15],[0,3,8],[24,33,41],[38,44,45],[40,46,49],[47,48,50]],"d":55,"f":0,"l":3,"h":6},{"c":[0,-4,1,-4,2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,3,-1,4,-1,-3,0,3,0,-4,1,-3,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"221021232312002333033121122132322301012233312002212012101021003222202001132032001212032301023023203231122302223333123323013223303213003133323133","sol":[[0,1,7],[12,19,20],[5,6,13],[11,18,23],[16,21,22],[9,10,17],[24,29,36],[2,3,4],[8,14,15],[25,26,30],[27,32,33],[28,34,35],[31,38,39],[37,43,44],[41,42,47],[40,45,46]],"d":57,"f":0,"l":3,"h":6},{"c":[1,-4,2,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,-3,4,-2,4],"t":"322021303123211301121033221331231231123002223131311121311202302222303212001031102031113021213302202002221032313001332312322201232132232132223032","sol":[[0,3,8],[2,7,14],[9,10,15],[1,4,5],[6,11,18],[12,19,25],[13,20,26],[16,17,24],[31,32,33],[38,39,40],[30,37,43],[44,45,47],[41,42,46],[22,23,29],[21,27,28],[34,35,36]],"d":62,"f":0,"l":3,"h":6},{"c":[0,-4,1,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4,-1,4,0,4],"t":"323012121121201132011332203331112012013203312231011212032202021131001022002322301211031132322112001131321002222033211302122302101013332221212033312201113","sol":[[1,6,12],[0,4,5],[9,15,21],[16,22,28],[3,8,14],[2,7,13],[20,26,27],[32,33,34],[18,23,24],[10,11,17],[19,25,31],[29,30,35],[40,41,46],[37,38,39],[36,42,43],[44,45,50],[47,48,49]],"d":63,"f":0,"l":3,"h":6},{"c":[0,-4,1,-4,-1,-3,0,-3,1,-3,2,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-2,3,-1,3,0,3,1,3,-1,4,0,4],"t":"032002012212302131002202322131222233022112032013013003213223302232312102133123103203122102321132023313033113213021203103233003132111122323111133","sol":[[1,3,8],[0,2,6],[4,9,16],[5,10,17],[11,18,19],[15,23,30],[27,34,35],[24,25,26],[20,21,28],[7,12,13],[14,22,29],[31,36,37],[32,33,38],[39,42,43],[40,41,45],[44,46,47]],"d":66,"f":0,"l":3,"h":6},{"c":[1,-4,2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,0,3,1,3],"t":"222013301101333213022221023323313011223123231122302002131001233003102202201203112133232331033322211103021212321311012113332303","sol":[[2,5,6],[0,1,3],[4,9,10],[7,11,18],[8,12,13],[14,15,21],[19,20,26],[23,24,25],[16,17,22],[27,28,29],[30,31,32],[36,40,41],[33,34,35],[37,38,39]],"d":32,"f":0,"l":3,"h":7},{"c":[2,-4,3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,1,-1,2,-1,3,-1,-3,0,-2,0,2,0,3,0,-3,1,-2,1,-1,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4],"t":"203333113031201323003233023121113233303123003132013201322013311211332313202223321221002122033211303012312112012302202103231002232222212132322212","sol":[[0,6,12],[1,2,8],[5,10,11],[3,4,9],[16,17,18],[7,13,19],[14,15,21],[20,24,30],[25,31,38],[22,26,32],[23,27,28],[33,39,40],[34,35,36],[29,37,44],[42,43,47],[41,45,46]],"d":51,"f":0,"l":3,"h":7},{"c":[2,-4,3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4],"t":"113101122311031222202212302013121202333332221111201123331121013331312311003211232001111032212112132303211213322302122011213321102232112131322012","sol":[[0,1,2],[5,6,7],[3,4,10],[8,9,14],[12,13,18],[11,17,23],[15,16,21],[22,28,35],[27,34,41],[40,45,46],[19,24,30],[20,25,31],[26,33,39],[29,36,42],[32,38,44],[37,43,47]],"d":54,"f":0,"l":3,"h":7},{"c":[3,-4,4,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,-3,2,-2,2,-1,2,0,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4,-1,4],"t":"221331311033131001131021102312121301211221111223313302211121011201331031321111233001301201123302133122101022132332112312222212002222022132322212","sol":[[0,1,5],[4,11,18],[6,7,12],[2,9,16],[3,10,17],[8,15,23],[24,30,35],[13,14,22],[19,20,21],[25,26,31],[32,33,34],[27,28,29],[36,39,40],[41,44,45],[42,46,47],[37,38,43]],"d":62,"f":0,"l":3,"h":7},{"c":[1,-4,2,-4,3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,0,-2,1,-2,2,-2,3,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-1,3,0,3,1,3,-1,4,0,4],"t":"233223233303313003113213113123122303023311001121211022133231011121331013001032321211311021101231011023201131212333212321101221021103012312331112","sol":[[27,34,41],[19,20,26],[13,14,21],[9,10,15],[0,4,5],[1,6,11],[2,3,8],[7,12,18],[16,22,29],[17,23,24],[25,32,33],[28,35,42],[30,36,37],[31,39,40],[38,43,46],[44,45,47]],"d":65,"f":0,"l":3,"h":7},{"c":[3,-4,4,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-4,0,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-3,2,-2,2,-1,2,0,2,1,2,-3,3,-2,3,-1,3,0,3,1,3,-2,4,-1,4,0,4],"t":"012311001221303131321011331221311201011301312021031131001321222133113211301101012103202021222111003332223323033202121013203313203123333123033313","sol":[[0,3,4],[1,6,13],[20,26,33],[27,34,39],[42,43,44],[45,46,47],[21,28,29],[35,36,40],[30,31,32],[37,38,41],[7,14,22],[15,23,24],[8,16,17],[2,9,10],[11,18,25],[5,12,19]],"d":69,"f":0,"l":3,"h":7},{"c":[1,-4,2,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,-2,4,-1,4],"t":"303313323011223003233102222313302033333033312032031223103213133112212322021022021131103101303332023231202113122002102311101013331022032202012002","sol":[[0,2,9],[1,4,11],[3,10,17],[5,12,19],[6,13,20],[18,24,31],[25,26,32],[29,30,37],[33,39,40],[38,45,47],[43,44,46],[16,23,28],[14,21,22],[7,8,15],[27,35,36],[34,41,42]],"d":45,"f":0,"l":3,"h":8},{"c":[0,-4,1,-4,2,-4,-1,-3,0,-3,1,-3,2,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,1,-1,2,-1,3,-1,4,-1,-4,0,-3,0,-2,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-2,3,-1,3,0,3,1,3,-2,4,-1,4],"t":"012112031312112212323202101131221001131301221003123031321211133233013302101211022003023231121331302313012123102111011311203321233301001231002121","sol":[[2,5,6],[0,1,3],[4,9,16],[7,14,21],[8,15,23],[22,27,28],[29,30,38],[35,36,37],[42,46,47],[31,39,43],[41,44,45],[24,32,40],[10,11,12],[13,20,26],[17,18,19],[25,33,34]],"d":46,"f":0,"l":3,"h":8},{"c":[0,-4,1,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-3,2,-2,2,-1,2,0,2,1,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4],"t":"202332012112102233021122132201222312203312013122231032121221211111201211333012033013212021111131203023102313301302213101213113303223332303023113","sol":[[13,20,27],[19,26,34],[14,21,28],[3,8,15],[0,2,7],[1,4,10],[9,16,23],[22,29,30],[35,40,41],[36,37,42],[45,46,47],[5,6,11],[12,18,25],[17,24,31],[32,38,43],[33,39,44]],"d":47,"f":0,"l":3,"h":8},{"c":[1,-4,2,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,-2,4,-1,4],"t":"033122301212101113003011311323122323033013211101221021112023223031321231233001333131311211212213103023231012021213132332032123201131302232022112","sol":[[1,4,5],[0,2,3],[6,12,13],[11,19,20],[9,10,16],[7,8,14],[15,22,23],[17,18,24],[21,27,34],[35,41,42],[28,36,43],[29,30,37],[25,31,38],[26,32,33],[39,40,45],[44,46,47]],"d":48,"f":0,"l":3,"h":8},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"232132132033332032202222331231033131323232021213121012233111002123122001303121302112322203212231323031223032131012112203222103311312013333122031303011201","sol":[[6,7,13],[14,21,28],[15,22,23],[2,3,8],[4,9,10],[0,1,5],[11,12,20],[18,19,26],[16,17,24],[25,32,40],[27,33,34],[35,41,42],[46,47,48],[37,44,49],[29,36,43],[30,31,39],[38,45,50]],"d":51,"f":0,"l":3,"h":8},{"c":[2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"302013102132222331202321122112223323221131011012322222221121101231232102213022021312312013331311233001023023223103202302333112201303033021201323032113133","sol":[[0,5,11],[4,10,18],[8,16,17],[2,3,9],[15,22,23],[24,25,30],[1,6,13],[7,14,21],[12,19,26],[20,27,34],[28,35,42],[46,47,48],[29,36,37],[43,44,49],[31,39,40],[32,33,41],[38,45,50]],"d":52,"f":0,"l":3,"h":8},{"c":[1,-4,2,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-2,4,-1,4],"t":"211323003032111102313013301011223031001133132102332332311222231302321033122203022111021213231202012233022301213132333232101123003233031333013023033303323","sol":[[2,3,9],[0,1,5],[4,10,17],[7,8,14],[6,11,19],[12,20,27],[13,21,28],[34,35,36],[41,42,43],[46,47,48],[45,49,50],[15,22,29],[23,30,37],[38,39,44],[16,24,31],[18,25,26],[32,33,40]],"d":54,"f":0,"l":3,"h":8},{"c":[1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-3,4,-2,4],"t":"222312321332132002323001232332113033331111331032221013302311321201232302003111301001133211122121123011211101002112103112131231021221313121102103101132113","sol":[[2,7,13],[3,4,8],[0,1,5],[6,12,18],[11,17,24],[9,15,22],[10,16,23],[30,31,32],[14,19,20],[25,33,34],[21,26,27],[35,41,42],[46,47,48],[38,39,40],[29,37,44],[28,36,43],[45,49,50]],"d":55,"f":1,"l":3,"h":8},{"c":[2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,4,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-3,-1,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-3,3,-2,3,-1,3,0,3,1,3,-2,4,-1,4],"t":"222332101232022112103332002323122211022322131203111312002133211233032202101021001303023301012311011031113323213121231021011312301303221331032111","sol":[[0,4,10],[1,5,12],[6,13,20],[11,18,19],[17,22,23],[7,14,21],[2,8,15],[3,9,16],[27,28,34],[29,35,41],[30,37,43],[36,42,46],[44,45,47],[24,31,38],[33,39,40],[25,26,32]],"d":45,"f":0,"l":3,"h":9},{"c":[2,-4,3,-4,4,-4,1,-3,2,-3,3,-3,4,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-4,4,-3,4,-2,4],"t":"212311003202033013023123113121111302033103133031313231023133001232302001301113123011103321101233022232212011313031012301213201122203321233203223","sol":[[0,1,5],[2,6,12],[23,24,30],[31,38,44],[17,18,22],[4,10,11],[21,28,29],[3,9,16],[15,20,27],[34,35,36],[37,42,43],[33,40,41],[45,46,47],[25,32,39],[13,19,26],[7,8,14]],"d":51,"f":0,"l":3,"h":9},{"c":[0,-4,1,-4,2,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-2,-2,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,-4,4,-3,4,-2,4],"t":"033221011302131201331101023111321021121211001301033103112131021011232212202223001231031212032122312031331322202013201123211102113332311002323023022103223","sol":[[0,1,3],[8,15,22],[36,43,48],[38,45,49],[29,37,44],[9,16,24],[23,30,31],[17,18,19],[28,35,42],[27,33,34],[25,26,32],[14,20,21],[6,7,13],[10,11,12],[2,4,5],[39,46,50],[40,41,47]],"d":59,"f":0,"l":3,"h":9},{"c":[0,-4,1,-4,2,-4,3,-4,-1,-3,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,1,0,2,0,3,0,4,0,-4,1,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,0,3,1,3,-4,4,-3,4],"t":"312122112132002232122222022002132012011222332302003032323023112312133333313101201331201101021212323032011031321211321303111121231131033202231331","sol":[[8,12,16],[17,18,25],[23,24,32],[33,39,40],[38,44,45],[22,30,31],[43,46,47],[29,36,37],[27,35,42],[19,20,28],[26,34,41],[2,3,6],[0,1,4],[5,10,14],[7,11,15],[9,13,21]],"d":64,"f":0,"l":3,"h":9},{"c":[2,-4,3,-4,0,-3,1,-3,2,-3,3,-3,-1,-2,0,-2,1,-2,2,-2,3,-2,4,-2,-2,-1,-1,-1,0,-1,1,-1,2,-1,3,-1,4,-1,-3,0,-2,0,-1,0,0,0,1,0,2,0,3,0,-3,1,-2,1,-1,1,0,1,1,1,2,1,3,1,-4,2,-3,2,-2,2,-1,2,0,2,1,2,2,2,-4,3,-3,3,-2,3,-1,3,0,3,1,3,-2,4,-1,4],"t":"021232102223103321033322101013003112311221102003013023231031311001103023233303312123203113323012022223031222321233111032112323231232322002002132","sol":[[0,3,7],[2,6,12],[4,8,14],[1,5,9],[13,20,21],[19,26,33],[27,35,36],[34,40,41],[37,42,43],[44,46,47],[15,22,28],[23,24,29],[10,16,17],[11,18,25],[30,38,45],[31,32,39]],"d":50,"f":0,"l":3,"h":11}], key:'parcels-pt2-extreme'},
 };
-setBoard(3,false);
+let CAT='easy', PUZZLES=CATS.easy.data;
+// load a board's shape: cells come stored as a flat list q0,r0,q1,r1,...
+function loadShape(raw){ const c=[]; for(let i=0;i<raw.c.length;i+=2) c.push([raw.c[i],raw.c[i+1]]); setCells(c); CARD=CELLS.map((_,i)=>blobPath([i],6,9)); svgFrame(); }
 // ---- hex geometry (pointy-top hexes, radius S) ----
 const S=50, W3=Math.sqrt(3), PAD=4;
 function center(i){ const [q,r]=CELLS[i]; return [W3*S*(q+r/2), 1.5*S*r]; }
@@ -540,7 +416,7 @@ function setTheme(key){
   const demo=document.querySelector('#shapeDemo');
   if(demo) demo.innerHTML=[0,1,2,3].map(s=>`<svg viewBox="-20 -20 40 40" aria-label="${TH.shapes[s]}">${glyph(s,0,0,s)}</svg>`).join('');
 }
-const CARD=CELLS.map((_,i)=>blobPath([i],6,9));
+let CARD=[];
 const GK=S/68;   // glyph scale: keeps every symbol well inside its hexagon
 
 // ================= state =================
@@ -553,12 +429,11 @@ function clearFx(){ timers.forEach(clearTimeout); timers=[]; rafs.forEach(cancel
 
 const KEY='parcels-playtest-v1';
 let store={};
-function loadStore(){ store={}; try{ store=JSON.parse(localStorage.getItem(PACKS[PACK].key)||'{}')||{}; }catch(e){} }
-function save(){ try{ localStorage.setItem(PACKS[PACK].key, JSON.stringify(store)); }catch(e){} }
-function setPack(k){
-  PACK='simple'; PUZZLES=PACKS[PACK].data; RULESET=PACK; loadStore();
-  const cr=document.querySelector('#countRule'); if(cr) cr.innerHTML=PACKS[PACK].rule;
-  document.querySelectorAll('#packSeg button').forEach(b=>b.classList.toggle('on', b.dataset.p===PACK));
+function loadStore(){ store={}; try{ store=JSON.parse(localStorage.getItem(CATS[CAT].key)||'{}')||{}; }catch(e){} }
+function save(){ try{ localStorage.setItem(CATS[CAT].key, JSON.stringify(store)); }catch(e){} }
+function setCat(k){
+  CAT=CATS[k]?k:'easy'; PUZZLES=CATS[CAT].data; loadStore();
+  document.querySelectorAll('#catSeg button').forEach(b=>b.classList.toggle('on', b.dataset.c===CAT));
 }
 let prefs={sound:true, seenHelp:false}; try{ Object.assign(prefs, JSON.parse(localStorage.getItem(KEY+'-prefs')||'{}')); }catch(e){}
 function savePrefs(){ try{ localStorage.setItem(KEY+'-prefs', JSON.stringify(prefs)); }catch(e){} }
@@ -649,9 +524,7 @@ const sfx={
   },
 };
 function buzz(ms){ try{ navigator.vibrate&&navigator.vibrate(ms); }catch(e){} }
-function paintSound(){ $('#bSound').innerHTML = prefs.sound
-  ? '<svg viewBox="0 0 20 20"><path d="M3 8h3l4-3v10l-4-3H3z" fill="currentColor"/><path d="M13 7.5a3.5 3.5 0 010 5M15 5a7 7 0 010 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
-  : '<svg viewBox="0 0 20 20"><path d="M3 8h3l4-3v10l-4-3H3z" fill="currentColor"/><path d="M13 8l4 4M17 8l-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'; }
+function paintSound(){ const b=$('#bSound'); b.textContent=prefs.sound?'On':'Off'; b.classList.toggle('primary',prefs.sound); }
 
 // ================= particles =================
 const fx=$('#fx'), ctx=fx.getContext('2d'); let parts=[], fxOn=false;
@@ -711,12 +584,12 @@ function render(){
       g.cells.map((i,k)=>tileSVG(i,k)).join('')+(g.pinned?badgeSVG(g):'')+`</g></g>`;
   }).join('');
   let free=''; for(let i=0;i<N;i++) if(!inGroup.has(i)) free+=tileSVG(i,0);
-  board.innerHTML=`<g id="world"><g id="hole">${holeSVG()}</g><g>${pairSVG}</g><g>${parcelSVG}</g><path id="trail" d=""/><g>${free}</g></g>`;
+  const [bx,by]=centroid(CELLS.map((_,i)=>i));
+  board.innerHTML=`<g id="world"><g>${pairSVG}</g><g>${parcelSVG}</g><path id="trail" d=""/><g>${free}</g><g transform="translate(${bx.toFixed(1)},${by.toFixed(1)})"><g id="hole">${holeSVG()}</g></g></g>`;
   Object.values(groups).forEach(g=>{g.fresh=false; g.badgeFresh=false;}); pairs.forEach(p=>p.fresh=false);
   $('#misses').textContent=misses;
   $('#prog').textContent=Object.keys(groups).length;
   $('#progBar').style.width=(Object.keys(groups).length/GROUPS*100)+'%';
-  $('#bReveal').disabled=done||celebrating;
 }
 function holeSVG(){
   let rays=''; for(let k=0;k<12;k++){ const a=k*30*Math.PI/180; rays+=`<path d="M0,0 L${(46*Math.cos(a-0.12)).toFixed(1)},${(46*Math.sin(a-0.12)).toFixed(1)} L${(46*Math.cos(a+0.12)).toFixed(1)},${(46*Math.sin(a+0.12)).toFixed(1)}Z" fill="#f6c945" opacity=".55"/>`; }
@@ -762,14 +635,14 @@ function submit(cells){
   if(!connected(cells)) msg='The three tiles have to touch.';
   else { msg=whyInvalid(...cells.map(k=>P.tiles[k])); rule=!!msg; }
   if(msg){
-    busy=true; if(rule){ misses++; st.streak=0; sfx.bad(); buzz([20,40,20]); }
+    busy=true; if(rule){ misses++; st.streak=0; st.trail.push('🟥'); sfx.bad(); buzz([20,40,20]); }
     setMsg(msg,'bad'); sel=[]; render();
     board.querySelectorAll('.tile').forEach(el=>{ if(cells.includes(+el.dataset.i)) el.classList.add('shake'); });
     later(()=>{ busy=false; board.querySelectorAll('.shake').forEach(el=>el.classList.remove('shake')); },420);
     return;
   }
   pairs=pairs.filter(p=>!p.cells.some(c=>cells.includes(c)));
-  const now=Date.now(); st.built++; st.streak++; st.best=Math.max(st.best,st.streak); if(viaSwipe) st.swipes++;
+  const now=Date.now(); st.trail.push('🟩'); st.built++; st.streak++; st.best=Math.max(st.best,st.streak); if(viaSwipe) st.swipes++;
   if(st.lastT){ const gap=now-st.lastT; st.fast=st.fast===null?gap:Math.min(st.fast,gap); } st.lastT=now;
   const id=nextId++; const g={id, cells, color:freeColor(cells), pinned:false, fresh:true};
   groups[id]=g; sel=[];
@@ -783,7 +656,7 @@ function submit(cells){
 
 // Clearing a parcel: it swells, the outline bursts outward, confetti puffs, and the tiles spring back loose.
 function breakGroup(g){
-  st.pops++; st.streak=0;
+  st.pops++; st.streak=0; st.trail.push('🫧');
   const el=board.querySelector(`.pwrap[data-g="${g.id}"] .parcel`);
   const [cx,cy]=centroid(g.cells), [sx,sy]=toScreen(cx,cy);
   sfx.pop(); buzz(10); setMsg('');
@@ -935,84 +808,188 @@ board.addEventListener('contextmenu',e=>e.preventDefault());
 
 // ================= puzzles, winning =================
 let st, viaSwipe=false;
-const newStats=()=>({pops:0,pairs:0,locks:0,built:0,swipes:0,streak:0,best:0,lastT:null,fast:null});
+const newStats=()=>({trail:[],pops:0,pairs:0,locks:0,built:0,swipes:0,streak:0,best:0,lastT:null,fast:null});
 // A fun title for how the board was solved: first match wins.
-function awardFor(time,s){
+// ---------- scoring ----------
+// Par time: what a focused first-time solver might need. Roughly a fixed amount per parcel
+// (more per parcel on harder levels, where each tile has more plausible options) plus a little per false parcel.
+const PAR_PER_PARCEL={easy:12, medium:18, hard:24, extreme:30}, PAR_PER_DECOY=2;
+const parFor=p=>1000*(PAR_PER_PARCEL[CAT]*p.c.length/6 + PAR_PER_DECOY*p.d);
+// Mistakes and pops cost less on bigger boards, where some are expected.
+const ALLOW={easy:{miss:4,pop:4}, medium:{miss:6,pop:6}, hard:{miss:8,pop:8}, extreme:{miss:10,pop:12}};
+// Score out of 1000: speed (500) + accuracy (300) + tidiness (200).
+function scoreFor(time,par,mistakes,pops){
+  const x=time/par;
+  const speed= x<=.5?500 : x<=1?500-300*(x-.5)/.5 : x<=2?350-250*(x-1) : Math.max(0,100-100*(x-2));
+  const acc=Math.max(0,300-300*mistakes/ALLOW[CAT].miss);
+  const tidy=Math.max(0,200-200*pops/ALLOW[CAT].pop);
+  const r=v=>Math.round(v);
+  return {speed:r(speed), acc:r(acc), tidy:r(tidy), total:r(speed)+r(acc)+r(tidy)};
+}
+// Star thresholds ease off a little as the levels get harder.
+const TIERS={easy:[930,800,620,400], medium:[900,770,590,380], hard:[870,740,560,360], extreme:[840,700,520,340]};
+const starsFor=total=>{ const t=TIERS[CAT]; return total>=t[0]?5:total>=t[1]?4:total>=t[2]?3:total>=t[3]?2:1; };
+const COMPLIMENTS={
+  easy:{5:['Perfect warm-up. You make it look effortless.','Not a single wasted move. Beautiful.'],
+        4:['Smooth and tidy. Nicely done.','Quick work. You’re ready for Medium.'],
+        3:['Solid solve. You found your rhythm.','Good going. A few detours, but you got there.'],
+        2:['Done and dusted. Next one will be quicker.','Every solve counts. Nice job sticking with it.'],
+        1:['You finished it, and that’s what matters.','Warm-up complete. Onward!']},
+  medium:{5:['Masterful. That board never stood a chance.','Clean, fast, and clever. Superb.'],
+          4:['Sharp thinking. That was a great solve.','Really nice work. Hard is calling your name.'],
+          3:['Nicely reasoned. You’re getting the hang of this.','Good solve. A couple of wobbles, nothing more.'],
+          2:['You worked it out. That’s real progress.','Tricky one, and you cracked it.'],
+          1:['Persistence pays off. Board solved!','A win is a win. Well played.']},
+  hard:{5:['Elite solve. Genuinely impressive.','That was surgical. Wow.'],
+        4:['Excellent. Hard boards bow to you.','Strong, steady, and smart. Great solve.'],
+        3:['Good solve on a tough board. Respect.','You untangled a hard one. Nicely done.'],
+        2:['Hard won and well earned.','That board fought back, and you still won.'],
+        1:['You beat a Hard board. Take the victory lap.','Grit over speed. Solved!']},
+  extreme:{5:['Legendary. That was an Extreme board, flawlessly.','Untouchable. Take a bow.'],
+           4:['Outstanding. Few people solve these this well.','Brilliant work on a brutal board.'],
+           3:['Great solve. Extreme is no joke.','You stayed cool under pressure. Excellent.'],
+           2:['You conquered an Extreme board. Huge.','Long haul, big reward. Well done.'],
+           1:['Extreme board: defeated. Seriously.','That took real determination. Solved!']},
+};
+const LEVEL_EMOJI={easy:'🟢', medium:'🟡', hard:'🟠', extreme:'🔴'};
+const starRow=n=>n===5?'🌟🌟🌟🌟🌟':'⭐'.repeat(n)+'☆'.repeat(5-n);
+
+// A fun title for how the board was solved: first match wins.
+// r = one run: {time, misses, pops, best, trail}
+function awardFor(r,par){
   const A=[
-    [misses===0&&s.pops===0, '💎','Flawless','No mistakes, nothing popped'],
-    [time<90000, '⚡','Speed Run','Under a minute and a half'],
-    [s.pops>=12, '🫧','Bubble Wrap Enthusiast',`${s.pops} parcels popped`],
-    [misses>=8, '🧗','Never Gave Up',`${misses} mistakes and still solved it`],
-    [s.best>=9, '🔥','Unstoppable',`${s.best} parcels in a row without a slip`],
-    [misses===0, '🎯','Sharpshooter','Zero mistakes'],
+    [r.misses===0&&r.pops===0, '💎','Flawless','No mistakes, nothing popped'],
+    [r.time<=par*.5, '⚡','Speed Run',`Under ${fmt(par*.5)}, half of par`],
+    [r.pops>=Math.max(8,GROUPS), '🫧','Bubble Wrap Enthusiast',`${r.pops} parcels popped`],
+    [r.best>=Math.max(6,Math.round(GROUPS*.75)), '🔥','Unstoppable',`${r.best} parcels in a row without a slip`],
+    [r.misses===0, '🎯','Sharpshooter','Zero mistakes'],
+    [r.misses>=ALLOW[CAT].miss*2, '🧗','Never Gave Up',`${r.misses} mistakes and still solved it`],
   ];
   const a=A.find(a=>a[0]); return a?a.slice(1):null;
+}
+function shareText(r,sc,stars){
+  // the move-by-move trail, 10 per line: 🟩 parcel made, 🟥 mistake, 🫧 pop
+  const tr=r.trail||[], t=tr.slice(0,40), rows=[]; for(let i=0;i<t.length;i+=10) rows.push(t.slice(i,i+10).join('')); if(tr.length>40) rows[rows.length-1]+='…';
+  return `Parcels ${LEVEL_EMOJI[CAT]} ${CATS[CAT].name} #${cur}\n${starRow(stars)}  ${sc.total}\n⏱ ${fmt(r.time)}  ❌ ${r.misses}  🫧 ${r.pops}`+(rows.length?`\n${rows.join('\n')}`:'');
 }
 function countUp(el,to,fmtFn,delay){
   const t0=performance.now()+delay, D=700;
   const f=now=>{ const p=Math.max(0,Math.min(1,(now-t0)/D)), e=1-Math.pow(1-p,3); el.textContent=fmtFn(to*e); if(p<1) rafs.push(requestAnimationFrame(f)); };
   rafs.push(requestAnimationFrame(f));
 }
-function showStats(time){
-  const aw=awardFor(time,st), box=$('#award');
+function showResults(r,note){
+  const par=parFor(P), sc=scoreFor(r.time,par,r.misses,r.pops), stars=starsFor(sc.total);
+  $('#stars').innerHTML=[0,1,2,3,4].map(k=>`<i class="${k<stars?'':'off'}" style="animation-delay:${300+k*120}ms">${stars===5?'🌟':'⭐'}</i>`).join('');
+  const sEl=$('#score'); sEl.textContent='0'; countUp(sEl,sc.total,v=>Math.round(v),250);
+  const pool=COMPLIMENTS[CAT][stars]; $('#compliment').textContent=pool[cur%pool.length];
+  $('#breakdown').innerHTML=`Speed <b>${sc.speed}</b> · Accuracy <b>${sc.acc}</b> · Tidiness <b>${sc.tidy}</b>`+(note?` · ${note}`:'');
+  const aw=awardFor(r,par), box=$('#award');
   box.style.display=aw?'':'none';
   if(aw) box.innerHTML=`<span class="em">${aw[0]}</span><span>${aw[1]}<small>${aw[2]}</small></span>`;
-  $('#winline').innerHTML=`<b>${fmt(time)}</b>`+(st.newBest?' · new best!':'');
-  const sec=v=>(v/1000).toFixed(1)+'s';
   const items=[
-    ['❌','Mistakes',misses,v=>Math.round(v)],
-    ['🫧','Popped',st.pops,v=>Math.round(v)],
-    ['🔥','Best streak',st.best,v=>Math.round(v)],
+    ['⏱',`Par ${fmt(par)}`,r.time,v=>fmt(v)],
+    ['❌','Mistakes',r.misses,v=>Math.round(v)],
+    ['🫧','Popped',r.pops,v=>Math.round(v)],
   ];
   const g=$('#statgrid');
   g.innerHTML=items.map(([ic,lbl],k)=>`<div class="stat" style="animation-delay:${200+k*70}ms"><span class="ico">${ic}</span><b>0</b><span>${lbl}</span></div>`).join('');
   [...g.querySelectorAll('.stat b')].forEach((el,k)=>countUp(el,items[k][2],items[k][3],250+k*70));
+  $('#diag').textContent=statText(P);
+  const txt=shareText(r,sc,stars), sb=$('#shareBox'); sb.textContent=txt; sb.style.display='none';
+  $('#bShare').textContent='Share result';
+  $('#bShare').onclick=async()=>{
+    sb.style.display='block';
+    try{ await navigator.clipboard.writeText(txt); $('#bShare').textContent='Copied! Paste anywhere'; }
+    catch(e){ $('#bShare').textContent='Select the text below to copy'; }
+    setTimeout(()=>$('#bShare').textContent='Share result',2400);
+  };
+  return {score:sc.total, stars};
 }
-// Opening a board you've already finished shows its solution; "Play again" starts it fresh.
+// "Results" on a solved board: the best run saved for it
+function showLoser(){
+  $('#winTitle').textContent='Peeked!';
+  $('#stars').innerHTML=[0,1,2,3,4].map(k=>`<i class="off" style="animation-delay:${300+k*120}ms">⭐</i>`).join('');
+  $('#score').textContent='0';
+  $('#compliment').textContent=['No points for peeking. The next one’s yours.','Peeked! It happens to the best of us.','Sometimes you just need to see it. Onward!'][cur%3];
+  $('#breakdown').textContent='Solution viewed · no points';
+  const box=$('#award'); box.style.display='';
+  box.innerHTML='<span class="em">🫠</span><span>Loser<small>Looked at the solution</small></span>';
+  $('#statgrid').innerHTML=''; $('#diag').textContent=statText(P);
+  const txt=`Parcels ${LEVEL_EMOJI[CAT]} ${CATS[CAT].name} #${cur}\n☆☆☆☆☆  0\n🫠 Peeked at the solution`, sb=$('#shareBox'); sb.textContent=txt; sb.style.display='none';
+  $('#bShare').textContent='Share result';
+  $('#bShare').onclick=async()=>{ sb.style.display='block';
+    try{ await navigator.clipboard.writeText(txt); $('#bShare').textContent='Copied! Paste anywhere'; }catch(e){ $('#bShare').textContent='Select the text below to copy'; }
+    setTimeout(()=>$('#bShare').textContent='Share result',2400); };
+}
+function openResults(){
+  const rec=store[cur]; if(!rec) return;
+  if(rec.revealed){ showLoser(); $('#mWin').classList.add('open'); return; }
+  $('#winTitle').textContent='Best result';
+  showResults({time:rec.time, misses:rec.misses||0, pops:rec.pops||0, best:rec.best||0, trail:rec.trail||[]}, '');
+  $('#mWin').classList.add('open');
+}
+// Opening a board you've already finished shows its solution. Finished boards can't be replayed.
 function openPuzzle(n, fresh=false){
   clearFx(); closeAll(); parts=[];
   cur=n; const raw=PUZZLES[n-1];
+  loadShape(raw);
   P={...raw, tiles:[...Array(N)].map((_,i)=>({s:+raw.t[3*i],c:+raw.t[3*i+1],n:+raw.t[3*i+2]})), solution:raw.sol};
   groups={}; pairs=[]; nextId=0; sel=[]; misses=0; st=newStats(); startT=null; endT=null; done=false; busy=false; revealed=false; celebrating=false;
   board.classList.remove('dancing');
-  $('#pzNum').textContent=` #${n}${PACKS[PACK].tag}`+(store[n]?(store[n].revealed?' · shown':' ✓'):'');
-  $('#bPrev').disabled=n<=1; $('#bNext').disabled=n>=100;
+  $('#pzNum').textContent=` ${CATS[CAT].name} #${n}`+(store[n]?(store[n].revealed?' 🫠':' ✓'):'');
+  $('#bPrev').disabled=n<=1; $('#bNext').disabled=n>=PUZZLES.length;
+  $('#ofN').textContent='/'+GROUPS;
   $('#timer').textContent='0:00'; setMsg('');
   setReset(false);
   if(!fresh && store[n]) showFinished(store[n]); else render();
 }
-function setReset(playAgain){ const b=$('#bReset'); b.textContent=playAgain?'Play again':'Start over'; b.classList.toggle('primary',playAgain); }
+// Finished boards (solved or peeked) are final: Start over disappears and Solution becomes Results.
+function setReset(finished){
+  $('#bReset').style.display=finished?'none':'';
+  const r=$('#bReveal');
+  r.textContent=finished?'Results':'Solution'; r.classList.toggle('primary',finished);
+  r.disabled=celebrating;
+}
 function showFinished(rec){
   done=true; revealed=!!rec.revealed;
   P.solution.forEach(cells=>{ const id=nextId++; groups[id]={id,cells,color:0,pinned:false,fresh:false}; groups[id].color=freeColor(cells); });
   if(!revealed){ misses=rec.misses||0; $('#timer').textContent=fmt(rec.time); }
   render(); setReset(true);
-  setMsg(revealed ? 'Solution shown earlier. Tap Play again to try it yourself.'
-                  : `Solved in ${fmt(rec.time)} with ${rec.misses||0} mistake${rec.misses===1?'':'s'}.`, 'ok', true);
+  if(revealed) $('#timer').textContent='—';
+  setMsg(revealed ? 'You viewed the solution for this one. 0 points.'
+                  : `Best: ${rec.score!=null?rec.score+' points · ':''}${fmt(rec.time)}, ${rec.misses||0} mistake${rec.misses===1?'':'s'}.`, 'ok', true);
 }
 
 function win(){
   done=true; endT=Date.now();
   const time=endT-(startT||endT);
   const prev=store[cur];
-  st.newBest=!!(prev&&!prev.revealed&&time<prev.time);
-  if(!prev || prev.revealed || time<prev.time) store[cur]={time, misses, pops:st.pops, pairs:st.pairs, locks:st.locks, best:st.best, at:new Date().toISOString()};
-  save();
   $('#timer').textContent=fmt(time);
-  showStats(time); setReset(true);
-  $('#diag').textContent=statText(P);
-  $('#pzNum').textContent=` #${cur}${PACKS[PACK].tag} ✓`;
+  const run={time, misses, pops:st.pops, best:st.best, trail:st.trail.slice()};
+  $('#winTitle').textContent='Solved!';
+  const res=showResults(run, '');
+  const better=!prev || prev.revealed || (res.score>(prev.score??-1));
+  if(prev&&!prev.revealed&&better) $('#breakdown').innerHTML+=' · new best!';
+  else if(prev&&!prev.revealed) $('#breakdown').innerHTML+=` · best ${prev.score}`;
+  if(better) store[cur]={...run, pairs:st.pairs, locks:st.locks, score:res.score, stars:res.stars, at:new Date().toISOString()};
+  save(); setReset(true);
+  $('#pzNum').textContent=` ${CATS[CAT].name} #${cur} ✓`;
   setMsg('');
   later(celebrate,450);
 }
 
 // The big finish: a wave around the ring, a spinning dance, everything turns gold, star in the middle.
 function celebrate(){
-  celebrating=true; render();
+  celebrating=true; render(); $('#bReveal').disabled=true;
   $('#mWin').classList.remove('open');
+  // spin around the board's own center of mass, scaled so the spinning, drifting board stays on screen
+  const [BX,BY]=centroid(CELLS.map((_,i)=>i)), vb=board.viewBox.baseVal;
+  const avail=Math.min(BX-vb.x, vb.x+vb.width-BX, BY-vb.y, vb.y+vb.height-BY);
+  const Rb=Math.max(...CELLS.map((_,i)=>{const [x,y]=center(i); return Math.hypot(x-BX,y-BY);}))+S;
+  const FIT=Math.min(1, avail/(Rb*1.18+10));
   const wraps=[...board.querySelectorAll('.pwrap')].map(el=>{
     const g=groups[el.dataset.g], [cx,cy]=centroid(g.cells);
-    return {el, inner:el.querySelector('.parcel'), g, cx, cy, ang:Math.atan2(cy,cx)};
+    return {el, inner:el.querySelector('.parcel'), g, cx, cy, ang:Math.atan2(cy-BY,cx-BX)};
   }).sort((a,b)=>a.ang-b.ang);
   // 1. wave
   wraps.forEach((w,k)=>later(()=>{
@@ -1028,14 +1005,15 @@ function celebrate(){
     const ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
     const frame=now=>{
       const p=Math.min(1,(now-t0)/D), e=ease(p), out=Math.sin(Math.PI*p);
-      world.setAttribute('transform',`rotate(${(360*e).toFixed(2)})`);
-      wraps.forEach((w,k)=>{ const bob=Math.sin(p*Math.PI*7+k*.8)*9*out, r=.26*out;
-        w.el.setAttribute('transform',`translate(${(w.cx*r).toFixed(2)},${(w.cy*r+bob).toFixed(2)})`); });
+      const sc=1-(1-FIT)*Math.min(1,out*1.6);
+      world.setAttribute('transform',`translate(${BX.toFixed(1)},${BY.toFixed(1)}) rotate(${(360*e).toFixed(2)}) scale(${sc.toFixed(3)}) translate(${(-BX).toFixed(1)},${(-BY).toFixed(1)})`);
+      wraps.forEach((w,k)=>{ const bob=Math.sin(p*Math.PI*7+k*.8)*9*out, r=.18*out;
+        w.el.setAttribute('transform',`translate(${((w.cx-BX)*r).toFixed(2)},${((w.cy-BY)*r+bob).toFixed(2)})`); });
       if(p<1) rafs.push(requestAnimationFrame(frame));
       else { world.removeAttribute('transform'); wraps.forEach(w=>w.el.removeAttribute('transform')); }
     };
     rafs.push(requestAnimationFrame(frame));
-    for(let k=0;k<6;k++) later(()=>{ const w=wraps[(k*2)%wraps.length]; const [sx,sy]=toScreen(w.cx*1.2,w.cy*1.2); burst(sx,sy,groupColors(w.g),10,4); }, 300+k*300);
+    for(let k=0;k<6;k++) later(()=>{ const w=wraps[(k*2)%wraps.length]; const [sx,sy]=toScreen(BX+(w.cx-BX)*1.2,BY+(w.cy-BY)*1.2); burst(sx,sy,groupColors(w.g),10,4); }, 300+k*300);
   }, t2);
   // 3. merge: every parcel turns gold, the gaps close, a star lands in the middle
   later(()=>{
@@ -1045,7 +1023,7 @@ function celebrate(){
       w.inner.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1.02)'}],{duration:600,delay:k*25,fill:'forwards',easing:'cubic-bezier(.3,1.5,.5,1)'});
     });
     $('#hole').classList.add('show');
-    const [hx,hy]=toScreen(0,0);
+    const [hx,hy]=toScreen(BX,BY);
     burst(hx,hy,['#f2b705','#fff',...COLORS],70,10);
     later(()=>{
       burst(0,innerHeight,['#f2b705',...COLORS,...TINTS.map(t=>t[1])],90,17,-Math.PI/3,.7);
@@ -1055,16 +1033,17 @@ function celebrate(){
     buzz([30,40,60]);
   }, t2+2350);
   // 4. results
-  later(()=>{ celebrating=false; board.classList.remove('dancing'); $('#bReveal').disabled=true; $('#mWin').classList.add('open'); }, t2+3500);
+  later(()=>{ celebrating=false; board.classList.remove('dancing'); setReset(true); $('#mWin').classList.add('open'); }, t2+3500);
 }
 
 function reveal(){
   if(done) return;
   revealed=true; done=true; groups={}; pairs=[]; nextId=0; sel=[];
   P.solution.forEach(cells=>{ const id=nextId++; groups[id]={id,cells,color:0,pinned:false,fresh:true}; groups[id].color=freeColor(cells); });
-  if(!store[cur]){ store[cur]={revealed:true, at:new Date().toISOString()}; save(); }
-  $('#pzNum').textContent=` #${cur}${PACKS[PACK].tag} · shown`;
-  render(); setMsg('Here’s the only solution.','ok'); setReset(true);
+  store[cur]={revealed:true, score:0, stars:0, at:new Date().toISOString()}; save();
+  $('#pzNum').textContent=` ${CATS[CAT].name} #${cur} 🫠`;
+  render(); setMsg('Here’s the only solution. 0 points.','bad',true); setReset(true);
+  later(openResults,700);
 }
 
 // ================= menu, modals =================
@@ -1075,14 +1054,14 @@ function showMenu(){
     const r=store[i+1], b=document.createElement('button');
     b.className='pz'+(r?(r.revealed?' revealed':' solved'):'')+(i+1===cur?' current':'');
     if(r&&!r.revealed) solved++;
-    b.innerHTML=`<div class="n">${i+1}</div><div class="st">${r?(r.revealed?'shown':fmt(r.time)+(r.misses?` · ${r.misses}✗`:'')):''}</div>`;
+    b.innerHTML=`<div class="n">${i+1}</div><div class="st">${r?(r.revealed?'🫠 0':(r.stars?'★'.repeat(r.stars)+'<span style="opacity:.3">'+'★'.repeat(5-r.stars)+'</span>':fmt(r.time))):''}</div>`;
     b.onclick=()=>openPuzzle(i+1);
     g.appendChild(b);
   });
-  $('#nSolved').textContent=solved; $('#share').style.display='none';
+  $('#nSolved').textContent=solved; $('#nTotal').textContent=PUZZLES.length;
   $('#menu').classList.add('open');
 }
-function nextUnsolved(from){ for(let k=1;k<=100;k++){ const n=((from+k-1)%100)+1; if(!store[n]) return n; } return null; }
+function nextUnsolved(from){ const L=PUZZLES.length; for(let k=1;k<=L;k++){ const n=((from+k-1)%L)+1; if(!store[n]) return n; } return null; }
 
 $('#bMenu').onclick=showMenu;
 $('#bMenuClose').onclick=()=>$('#menu').classList.remove('open');
@@ -1090,34 +1069,62 @@ $('#bHelp').onclick=()=>$('#mHelp').classList.add('open');
 $('#bHelpClose').onclick=()=>{ $('#mHelp').classList.remove('open'); prefs.seenHelp=true; savePrefs(); };
 $('#mHelp').onclick=e=>{ if(e.target.id==='mHelp') $('#bHelpClose').onclick(); };
 $('#bSound').onclick=()=>{ prefs.sound=!prefs.sound; savePrefs(); paintSound(); if(prefs.sound) sfx.pin(); };
+$('#bSettings').onclick=()=>{ $('#confirmClear').style.display='none'; $('#mSettings').classList.add('open'); };
+$('#bSettingsClose').onclick=()=>$('#mSettings').classList.remove('open');
+$('#mSettings').addEventListener('click',e=>{ if(e.target.id==='mSettings') $('#mSettings').classList.remove('open'); });
+function allHistory(){ const progress={}; for(const k of Object.keys(CATS)){ try{ progress[k]=JSON.parse(localStorage.getItem(CATS[k].key)||'{}')||{}; }catch(e){ progress[k]={}; } } return progress; }
+// Save a file: inside Claude the page asks the viewer to confirm the download; opened on its own, a normal browser download.
+async function saveFile(filename,text,btn){
+  const label=btn.textContent;
+  try{
+    const d = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
+    if(d){ await d.save({filename, data:text}); btn.textContent='Saved'; setTimeout(()=>btn.textContent=label,2000); return; }
+  }catch(e){ if(e&&e.code==='declined') return; }
+  try{
+    const url=URL.createObjectURL(new Blob([text],{type:filename.endsWith('.csv')?'text/csv':'application/json'}));
+    const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000); btn.textContent='Saved'; setTimeout(()=>btn.textContent=label,2000);
+  }catch(e){ setMsg('Couldn’t save the file here.','bad'); }
+}
+const stamp=()=>new Date().toISOString().slice(0,10);
+$('#bExportJson').onclick=()=>saveFile(`parcels-history-${stamp()}.json`, JSON.stringify({app:'parcels-playtest',version:2,exported:new Date().toISOString(),progress:allHistory()},null,1), $('#bExportJson'));
+$('#importFile').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>importHistory(rd.result); rd.readAsText(f); e.target.value=''; };
+// Importing merges: for each board, keep whichever result is better (a real solve beats a peek; higher score wins).
+function importHistory(text){
+  let data; try{ data=JSON.parse(text); }catch(e){ setMsg('That doesn’t look like exported history.','bad'); return; }
+  const incoming=data&&data.progress; if(!incoming||typeof incoming!=='object'){ setMsg('That doesn’t look like exported history.','bad'); return; }
+  let added=0;
+  for(const k of Object.keys(CATS)){ const mine=allHistory()[k], theirs=incoming[k]||{};
+    for(const [n,r] of Object.entries(theirs)){ const m=mine[n], sc=x=>x.revealed?-1:(x.score??0);
+      if(!m || sc(r)>sc(m)){ mine[n]=r; added++; } }
+    try{ localStorage.setItem(CATS[k].key, JSON.stringify(mine)); }catch(e){} }
+  loadStore(); $('#mSettings').classList.remove('open'); openPuzzle(cur); setMsg(`Imported ${added} result${added===1?'':'s'}.`,'ok');
+}
 $('#bPrev').onclick=()=>openPuzzle(cur-1);
 $('#bNext').onclick=()=>openPuzzle(cur+1);
-$('#bReset').onclick=()=>openPuzzle(cur,true);
-$('#bReveal').onclick=()=>$('#mReveal').classList.add('open');
+$('#bReset').onclick=()=>{ if(!done) openPuzzle(cur,true); };
+$('#bReveal').onclick=()=>{ if(done) openResults(); else $('#mReveal').classList.add('open'); };
 $('#bRevealNo').onclick=()=>$('#mReveal').classList.remove('open');
 $('#bRevealYes').onclick=()=>{ $('#mReveal').classList.remove('open'); reveal(); };
 $('#bWinNext').onclick=()=>{ const n=nextUnsolved(cur); n?openPuzzle(n):showMenu(); };
-$('#bWinMenu').onclick=()=>{ $('#mWin').classList.remove('open'); showMenu(); };
-$('#bReplay').onclick=()=>{ clearFx(); $('#hole').classList.remove('show'); celebrate(); };
+$('#bWinClose').onclick=()=>$('#mWin').classList.remove('open');
+// tapping outside the results card closes it; if the tap landed on a top button (menu, sound, help), that button works too
+$('#mWin').addEventListener('click',e=>{
+  if(e.target.id!=='mWin') return;
+  const m=$('#mWin'); m.classList.remove('open');
+  const under=document.elementFromPoint(e.clientX,e.clientY), btn=under&&under.closest('.top button');
+  if(btn) btn.click();
+});
 $('#bNextUnsolved').onclick=()=>{ const n=nextUnsolved(0); if(n) openPuzzle(n); };
-$('#bExport').onclick=async()=>{
-  const rows=['puzzle,result,seconds,misses,popped,pairs,locked,best_streak,decoys,single_option_tiles,logic'];
-  PUZZLES.forEach((p,i)=>{ const r=store[i+1]; if(!r) return;
-    rows.push([i+1, r.revealed?'shown':'solved', r.revealed?'':Math.round(r.time/1000), r.revealed?'':r.misses, r.pops??'', r.pairs??'', r.locks??'', r.best??'', p.d, p.f, LEVELS[p.l]].join(',')); });
-  const text=rows.join('\n'), box=$('#share'); box.textContent=text; box.style.display='block';
-  try{ await navigator.clipboard.writeText(text); $('#bExport').textContent='Copied'; }
-  catch(e){ $('#bExport').textContent='Select the text below to copy'; }
-  setTimeout(()=>$('#bExport').textContent='Copy results',2000);
-};
 $('#bClear').onclick=()=>{ $('#confirmClear').style.display='block'; };
 $('#bClearNo').onclick=()=>{ $('#confirmClear').style.display='none'; };
-$('#bClearYes').onclick=()=>{ store={}; save(); $('#confirmClear').style.display='none'; showMenu(); };
+$('#bClearYes').onclick=()=>{ for(const k of Object.keys(CATS)){ try{ localStorage.removeItem(CATS[k].key); }catch(e){} } loadStore(); $('#confirmClear').style.display='none'; $('#mSettings').classList.remove('open'); openPuzzle(1); setMsg('History cleared.','ok'); };
 
 setTheme('neon');
 paintSound();
-svgFrame();
 setInterval(tick,500);
-setPack('simple');
+document.querySelectorAll('#catSeg button').forEach(b=>b.onclick=()=>{ prefs.cat=b.dataset.c; savePrefs(); setCat(prefs.cat); cur=0; showMenu(); });
+setCat(prefs.cat||'easy');
 openPuzzle(nextUnsolved(0)||1);
 if(!prefs.seenHelp) $('#mHelp').classList.add('open');
 </script>
