@@ -1,4 +1,4 @@
-import { S, W3, axialCenter, outlinePath } from './core/hex.js';
+import { S, W3, axialCenter, outlinePath, pairOutline } from './core/hex.js';
 import { whyInvalid } from './core/rules.js';
 import { fitDashes } from './render.js';
 import { POS, TH, TINTS, glyph } from './themes.js';
@@ -101,7 +101,7 @@ class Mini {
     };
     const pts = (cells) => cells.map((i) => this.c[i]);
     const pair = this.pair
-      ? `<path class="pair${this.pair.fresh ? ' enter' : ''}" d="${outlinePath(pts(this.pair.cells), 2, 13)}"/>`
+      ? `<path class="pair${this.pair.fresh ? ' enter' : ''}" d="${pairOutline(this.c[this.pair.cells[0]], this.c[this.pair.cells[1]], 2, 13)}"/>`
       : '';
     const parcels = this.parcels
       .map((p, n) => [p, n])
@@ -508,14 +508,26 @@ class Mini {
     if (this.sel.length === 3) return this.submit(this.sel);
     this.render();
   }
+  // Same rules as pencilPair() in actions.js: touching tiles or the two ends of a bend make a pair;
+  // with only one tile that fits between them it becomes that parcel; anything else isn't a pair.
   pencil(cells) {
-    if (!this.adj(cells[0], cells[1])) {
-      this.sel = [];
-      this.render();
-      return this.say('Pairs have to touch.', 'bad');
+    const [a, b] = cells;
+    if (this.adj(a, b)) {
+      this.makePair([a, b]);
+      return this.say('Pair pencilled in. Add a third tile when you’re sure.');
     }
-    this.makePair(cells.slice());
-    this.say('Pair pencilled in. Add a third tile when you’re sure.');
+    const mid = this.c.map((_, k) => k).filter((k) => k !== a && k !== b && this.adj(k, a) && this.adj(k, b));
+    if (mid.length === 2) {
+      this.makePair([a, b]);
+      return this.say('Pair pencilled in. One of the two tiles between them makes the parcel.');
+    }
+    if (mid.length === 1 && this.parcelOf(mid[0]) < 0) return this.submit([a, mid[0], b]);
+    this.sel = [];
+    this.render();
+    this.say(
+      mid.length ? 'The tile between them is already in a parcel.' : 'That’s not a valid pair.',
+      'bad',
+    );
   }
   // Same checks as submit() in actions.js.
   submit(cells) {

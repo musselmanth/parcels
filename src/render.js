@@ -1,5 +1,17 @@
 import { $, board, fmt } from './core/dom.js';
-import { CELLS, GROUPS, N, S, W3, adj, blobPath, center, centroid, setCells } from './core/hex.js';
+import {
+  CELLS,
+  GROUPS,
+  N,
+  S,
+  W3,
+  adj,
+  blobPath,
+  center,
+  centroid,
+  pairOutline,
+  setCells,
+} from './core/hex.js';
 import { G, pairOf } from './state.js';
 import { saveProgress } from './progress.js';
 import { POS, STAR, TINTS, glyph, tileLabel } from './themes.js';
@@ -81,7 +93,10 @@ export function render() {
   const inGroup = new Set();
   Object.values(G.groups).forEach((g) => g.cells.forEach((i) => inGroup.add(i)));
   const pairSVG = G.pairs
-    .map((p) => `<path class="pair${p.fresh ? ' enter' : ''}" d="${blobPath(p.cells, 2, 13)}"/>`)
+    .map(
+      (p) =>
+        `<path class="pair${p.fresh ? ' enter' : ''}" d="${pairOutline(center(p.cells[0]), center(p.cells[1]), 2, 13)}"/>`,
+    )
     .join('');
   const parcelSVG = Object.values(G.groups)
     .sort((a, b) => (a.id === G.top) - (b.id === G.top)) // G.top is drawn last, i.e. on top

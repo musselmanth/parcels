@@ -1,5 +1,5 @@
 import { board, buzz, later } from './core/dom.js';
-import { GROUPS, NEIGH, adj, blobPath, centroid, connected } from './core/hex.js';
+import { GROUPS, NEIGH, adj, between, blobPath, centroid, connected } from './core/hex.js';
 import { whyInvalid } from './core/rules.js';
 import { burst, groupColors, toScreen } from './fx.js';
 import { win } from './game.js';
@@ -78,16 +78,42 @@ export function freeColor(cells) {
 }
 
 // Pencil in two touching tiles as a pair (replacing any pair they were in).
-export function makePair(cells) {
+// Pencil in two tiles as a pair (replacing any pair they were in). Usually they touch; they can also
+// be the two ends of a bend, with two possible middle tiles (see pencilPair).
+export function makePair(cells, msg = 'Pair pencilled in. Add a third tile when you’re sure.') {
   G.st.pairs++;
   G.pairs = G.pairs.filter((p) => !p.cells.some((c) => cells.includes(c)));
   G.pairs.push({ cells: cells.slice(), fresh: true });
   G.sel = [];
-  track('pair', { cells });
+  track('pair', { cells, gap: !adj(cells[0], cells[1]) });
   sfx.pair();
   buzz(8);
-  setMsg('Pair pencilled in. Add a third tile when you’re sure.');
+  setMsg(msg);
   render();
+}
+
+// Pencil in tiles a and b (tapped = the one tapped again to ask for it):
+//   - touching: a pair.
+//   - one tile apart, at the ends of a bend: two tiles could go in the middle, so it's a pair too
+//     (its outline squeezes between those two).
+//   - one tile apart with only one tile that fits between them (the ends of a line, or a bend
+//     missing a tile at the board's edge): no need to pencil, it becomes that parcel right away.
+//   - anything else: not a pair.
+function pencilPair(a, b, tapped) {
+  if (adj(a, b)) return makePair([a, b]);
+  const mid = between(a, b);
+  if (mid.length === 2)
+    return makePair([a, b], 'Pair pencilled in. One of the two tiles between them makes the parcel.');
+  if (mid.length === 1) {
+    if (!groupOf(mid[0])) return submit([a, mid[0], b]);
+    G.sel = [];
+    setMsg('The tile between them is already in a parcel.', 'bad');
+    paintSel();
+    return;
+  }
+  G.sel = G.sel.filter((x) => x !== tapped);
+  setMsg('That’s not a valid pair.', 'bad');
+  paintSel();
 }
 
 // Try to make a parcel from 3 cells. Not touching -> message only. Breaks a rule -> counts a miss,
@@ -390,17 +416,7 @@ export function tapCell(i) {
     return;
   }
   // With two tiles picked, tapping either one again pencils them in as a pair.
-  if (G.sel.length === 2 && G.sel.includes(i)) {
-    const [a, b] = G.sel;
-    if (adj(a, b)) {
-      makePair([a, b]);
-      return;
-    }
-    G.sel = G.sel.filter((x) => x !== i);
-    setMsg('Pairs have to touch.', 'bad');
-    paintSel();
-    return;
-  }
+  if (G.sel.length === 2 && G.sel.includes(i)) return pencilPair(G.sel[0], G.sel[1], i);
   G.sel = G.sel.includes(i) ? G.sel.filter((x) => x !== i) : G.sel.concat(i);
   sfx.tap();
   if (G.sel.length === 3) {

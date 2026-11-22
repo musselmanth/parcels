@@ -99,6 +99,48 @@ export function outlinePath(centers, inset, R) {
     pts.push(at.get(key));
     key = next.get(key);
   } while (key !== start && pts.length < 200);
+  return roundedPath(pts, inset, R);
+}
+
+// The six corners of the hex centered at c, in the order outlines trace them (clockwise on screen).
+const hexCorners = ([cx, cy]) =>
+  [0, 1, 2, 3, 4, 5].map((k) => {
+    const a = (Math.PI / 180) * (30 + 60 * k);
+    return [cx + S * Math.cos(a), cy + S * Math.sin(a)];
+  });
+
+// The outline of a pencilled pair, from the two tiles' centers. Touching tiles get the usual outline.
+// Two tiles at the ends of a bend have a gap between them: the two tiles that could go in the middle
+// touch each other along an edge running straight from one end tile to the other. The outline goes
+// around both end tiles and joins them with a thin neck along that edge, squeezing between the two
+// middle candidates. neck = half its width before the inset.
+export function pairOutline(ca, cb, inset, R, neck = 6) {
+  if (Math.hypot(cb[0] - ca[0], cb[1] - ca[1]) < W3 * S + 1) return outlinePath([ca, cb], inset, R);
+  const va = hexCorners(ca),
+    vb = hexCorners(cb);
+  const dist = (p, c) => Math.hypot(p[0] - c[0], p[1] - c[1]);
+  const nearest = (vs, c) => vs.reduce((best, v, i) => (dist(v, c) < dist(vs[best], c) ? i : best), 0);
+  const ia = nearest(va, cb), // the corner of each end tile that points at the other one
+    ib = nearest(vb, ca);
+  const A = va[ia],
+    B = vb[ib],
+    len = dist(A, B);
+  let side = [(-(B[1] - A[1]) / len) * neck, ((B[0] - A[0]) / len) * neck];
+  // leave tile a along the side of the neck its preceding corner is on, so the outline doesn't cross itself
+  const prev = va[(ia + 5) % 6];
+  if ((prev[0] - A[0]) * side[0] + (prev[1] - A[1]) * side[1] < 0) side = [-side[0], -side[1]];
+  const shift = (p, k) => [p[0] + side[0] * k, p[1] + side[1] * k];
+  const pts = [];
+  for (let k = 1; k <= 5; k++) pts.push(va[(ia + k) % 6]); // around tile a
+  pts.push(shift(A, 1), shift(B, 1)); // along one side of the neck
+  for (let k = 1; k <= 5; k++) pts.push(vb[(ib + k) % 6]); // around tile b
+  pts.push(shift(B, -1), shift(A, -1)); // and back along the other side
+  return roundedPath(pts, inset, R);
+}
+
+// Pull a closed outline (corners in tracing order) in by `inset`, round every corner with radius R,
+// and return it as an SVG path.
+function roundedPath(pts, inset, R) {
   const n = pts.length,
     unit = (a, b) => {
       const dx = b[0] - a[0],
@@ -133,6 +175,9 @@ export function outlinePath(centers, inset, R) {
 
 // True if cells a and b touch.
 export const adj = (a, b) => NEIGH[a].includes(b);
+// Cells touching both a and b: for two tiles one apart, the tiles that could go between them
+// (one at the ends of a line, two at the ends of a bend).
+export const between = (a, b) => NEIGH[a].filter((c) => c !== b && NEIGH[b].includes(c));
 // True if the given 3 cells form a connected parcel shape (line, bend or triangle).
 export const connected = (cells) =>
   PKEYS.has(
