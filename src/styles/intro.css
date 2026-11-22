@@ -2,17 +2,24 @@
  * The start screen (#intro, filled in by src/intro.js): the name over a small animated board,
  * How to play, and a button per level. Side by side in landscape.
  */
+/* Centered when it fits, but never cut off when it doesn't: plain centering pushes overflow off the
+   top where it can't be scrolled to (this happened in Facebook's in-app browser, which is short).
+   Auto margins center the content when there's room and fall back to top-aligned + scrolling. */
 #intro {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 18px;
-  padding: 0 20px calc(16px + env(safe-area-inset-bottom));
+  padding: 8px 20px calc(16px + env(safe-area-inset-bottom));
   overflow: auto;
 }
 .intro-hero {
   text-align: center;
+  margin-top: auto;
+}
+.intro-actions {
+  margin-bottom: auto;
 }
 /* square: the board spins inside it (help.js frames it to fit the spin) */
 #introArt {
@@ -243,6 +250,37 @@ body.theme-neon .lv-name {
   display: none;
 }
 
+/* short portrait screens (in-app browsers like Facebook's, small phones): a more compact start screen */
+@media (orientation: portrait) and (max-height: 720px) {
+  #intro {
+    gap: 12px;
+  }
+  #introArt {
+    width: 130px;
+    height: 130px;
+    margin-bottom: 2px;
+  }
+  .intro-name {
+    font-size: 36px;
+  }
+  .intro-actions,
+  .intro-levels,
+  .intro-row {
+    gap: 8px;
+  }
+  .intro-help {
+    padding-top: 9px;
+    padding-bottom: 9px;
+  }
+  #introLevels .level {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .intro-playtest {
+    margin-top: 4px;
+  }
+}
+
 /* bigger screens */
 @media (min-width: 700px) and (min-height: 600px) {
   #introArt {
@@ -258,6 +296,15 @@ body.theme-neon .lv-name {
 }
 /* landscape: name and board on the left, buttons on the right */
 @media (orientation: landscape) and (min-width: 600px) {
+  #intro {
+    justify-content: center;
+    align-items: flex-start; /* each side centers itself with auto margins, safely */
+  }
+  .intro-hero,
+  .intro-actions {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
   #intro {
     flex-direction: row;
     gap: clamp(24px, 7vw, 100px);
