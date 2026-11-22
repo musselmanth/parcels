@@ -4,7 +4,7 @@
 #menu {
   display: flex;
   flex-direction: column;
-  padding: 0 12px calc(10px + env(safe-area-inset-bottom));
+  padding: var(--topbar-h, 54px) 12px calc(10px + env(safe-area-inset-bottom));
   max-width: 520px;
   margin: 0 auto;
 }

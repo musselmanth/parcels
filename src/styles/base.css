@@ -27,8 +27,14 @@ body {
   display: flex;
   flex-direction: column;
 }
+/* The top bar floats over the screens (it's empty on the start screen, which then gets the full
+   height). The game and menu screens leave its height free at the top: --topbar-h, kept up to date
+   by trackTopbarHeight() in screens.js. */
 #topbar {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 5;
   width: 100%;
   max-width: 520px;
@@ -54,7 +60,7 @@ body {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  padding: 0 12px calc(10px + env(safe-area-inset-bottom));
+  padding: var(--topbar-h, 54px) 12px calc(10px + env(safe-area-inset-bottom));
 }
 
 /* ---- top bar: what changes per screen (body[data-screen] is set by screens.js) ---- */
@@ -69,6 +75,9 @@ body {
   outline-offset: 3px;
 }
 /* on the start screen the big name is the title, so the bar's title and left button hide */
+[data-screen='intro'] #topbar {
+  pointer-events: none;
+}
 [data-screen='intro'] #topbar .titles,
 [data-screen='intro'] #bNav {
   visibility: hidden;

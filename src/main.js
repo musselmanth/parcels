@@ -16,7 +16,7 @@ import { initIntro, renderIntro } from './intro.js';
 import { initInstall } from './install.js';
 import { initFeedback } from './feedback.js';
 import { startTelemetry, track } from './telemetry.js';
-import { currentScreen, onScreen, previousScreen, showScreen } from './screens.js';
+import { currentScreen, onScreen, previousScreen, showScreen, trackTopbarHeight } from './screens.js';
 import { setMsg, tick } from './render.js';
 import { openResults } from './results.js';
 import { paintSound, sfx } from './sound.js';
@@ -199,6 +199,7 @@ paintSound();
 paintTimer();
 setInterval(tick, 500);
 document.querySelectorAll('#catSeg button').forEach((b) => (b.onclick = () => pickLevel(b.dataset.c)));
+trackTopbarHeight(); // screens leave the floating top bar's height free
 initIntro(pickLevel);
 initInstall(); // the start screen's Install as an app button
 initFeedback(); // the playtest note and feedback form

@@ -58,3 +58,13 @@ export function showScreen(name, { animate = true } = {}) {
 
 // The screen shown before the current one (null at startup).
 export const previousScreen = () => previous;
+
+// The top bar floats over the screens; screens that need it leave its height free at the top
+// (padding: var(--topbar-h) in the CSS). Keep that variable equal to the bar's real height, which
+// changes with screen size and the phone's notch.
+export function trackTopbarHeight() {
+  const bar = $('#topbar');
+  const set = () => document.documentElement.style.setProperty('--topbar-h', bar.offsetHeight + 'px');
+  set();
+  new ResizeObserver(set).observe(bar);
+}

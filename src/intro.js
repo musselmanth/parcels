@@ -33,13 +33,35 @@ export function renderIntro(onPick) {
   }
 }
 
+// Shrink the start screen's content to fit when the screen is too short for it (in-app browsers,
+// small phones, large text settings), so it never needs scrolling and nothing is cut off.
+// zoom shrinks the layout itself; where it isn't supported, a transform shrinks the look.
+const canZoom = CSS.supports('zoom', '0.5');
+export function fitIntro() {
+  const intro = $('#intro'),
+    inner = intro.querySelector('.intro-inner');
+  inner.style.zoom = '';
+  inner.style.transform = '';
+  const cs = getComputedStyle(intro);
+  const h = intro.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const w = intro.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const s = Math.min(1, h / inner.offsetHeight, w / inner.offsetWidth);
+  if (s < 1) {
+    if (canZoom) inner.style.zoom = s.toFixed(3);
+    else inner.style.transform = `scale(${s.toFixed(3)})`;
+  }
+}
+
 // Play the little animated board only while the intro is showing.
 export function initIntro(onPick) {
   const art = introArt($('#introArt'));
   onScreen((name) => {
     if (name === 'intro') {
       renderIntro(onPick); // progress may have changed since last time
+      fitIntro();
       art.start();
     } else art.stop();
   });
+  new ResizeObserver(fitIntro).observe($('#intro'));
+  document.fonts && document.fonts.ready.then(fitIntro); // the title's font can change its size
 }

@@ -139,8 +139,8 @@
       '.        stage'
       'controls stage';
     column-gap: clamp(16px, 3vw, 44px);
-    padding: 4px calc(16px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom))
-      calc(16px + env(safe-area-inset-left));
+    padding: calc(var(--topbar-h, 50px) + 4px) calc(16px + env(safe-area-inset-right))
+      calc(12px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
   }
   #topbar {
     max-width: 1400px;

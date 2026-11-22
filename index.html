@@ -126,63 +126,67 @@
       <main id="screens">
         <!-- Start screen. The level buttons are filled in by src/intro.js. -->
         <section class="screen" id="intro">
-          <div class="intro-hero">
-            <svg id="introArt" aria-hidden="true"></svg>
-            <div class="intro-name">Parcels</div>
-            <div class="intro-tag">A hex-tile logic puzzle</div>
-            <div class="subtitle">playtesting</div>
-          </div>
-          <div class="intro-actions">
-            <div class="intro-row">
-              <button id="bIntroHelp" class="intro-help">How to play</button>
-              <button id="bIntroSettings" class="intro-help intro-settings" aria-label="Settings">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <circle cx="12" cy="12" r="3" />
-                  <path
-                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
-                  />
-                </svg>
-                Settings
-              </button>
+          <!-- shrinks to fit the screen when needed (intro.js) -->
+          <div class="intro-inner">
+            <div class="intro-hero">
+              <svg id="introArt" aria-hidden="true"></svg>
+              <div class="intro-name">Parcels</div>
+              <div class="intro-tag">A hex-tile logic puzzle</div>
+              <div class="subtitle">playtesting</div>
             </div>
-            <div class="intro-pick">Choose a level</div>
-            <div class="intro-levels" id="introLevels"></div>
-            <!-- install as an app (src/install.js shows it when the browser allows it, or on iPhone/iPad) -->
-            <div class="intro-install" id="introInstall" hidden>
-              <button id="bInstall" class="intro-installbtn">Install as an app</button>
-              <button id="bInstallX" class="intro-installx" aria-label="Don't offer this again">✕</button>
-              <p id="installTip" class="install-tip" hidden>
-                In Safari, tap <b>Share</b>
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+            <div class="intro-actions">
+              <div class="intro-row">
+                <button id="bIntroHelp" class="intro-help">How to play</button>
+                <button id="bIntroSettings" class="intro-help intro-settings" aria-label="Settings">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                    />
+                  </svg>
+                  Settings
+                </button>
+              </div>
+              <div class="intro-pick">Choose a level</div>
+              <div class="intro-levels" id="introLevels"></div>
+              <!-- install as an app (src/install.js shows it when the browser allows it, or on iPhone/iPad) -->
+              <div class="intro-install" id="introInstall" hidden>
+                <button id="bInstall" class="intro-installbtn">Install as an app</button>
+                <button id="bInstallX" class="intro-installx" aria-label="Don't offer this again">✕</button>
+                <p id="installTip" class="install-tip" hidden>
+                  In Safari, tap <b>Share</b>
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 3v12M8 7l4-4 4 4" />
+                    <path d="M6 11v9h12v-9" />
+                  </svg>
+                  then <b>Add to Home Screen</b>.
+                </p>
+              </div>
+              <!-- playtest note: feedback link and data notice (src/feedback.js hides them if no collector is set up) -->
+              <p class="intro-playtest">
+                You're playtesting Parcels.
+                <button class="linkbtn feedback-link" hidden>Leave feedback</button>
+                <small class="data-note" hidden
+                  >Anonymous play data (moves, times, scores, rough location) is sent to help improve the
+                  game.</small
                 >
-                  <path d="M12 3v12M8 7l4-4 4 4" />
-                  <path d="M6 11v9h12v-9" />
-                </svg>
-                then <b>Add to Home Screen</b>.
               </p>
             </div>
-            <!-- playtest note: feedback link and data notice (src/feedback.js hides them if no collector is set up) -->
-            <p class="intro-playtest">
-              You're playtesting Parcels. <button class="linkbtn feedback-link" hidden>Leave feedback</button>
-              <small class="data-note" hidden
-                >Anonymous play data (moves, times, scores, rough location) is sent to help improve the
-                game.</small
-              >
-            </p>
           </div>
         </section>
         <!-- Puzzle picker. -->
