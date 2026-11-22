@@ -43,13 +43,6 @@
   line-height: 1.45;
   margin: 8px 0;
 }
-.help .hnote {
-  font-size: 13px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: rgba(154, 140, 255, 0.12);
-  border: 1px solid rgba(154, 140, 255, 0.3);
-}
 
 /* ---- example boxes ---- */
 .hdemo {
