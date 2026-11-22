@@ -700,6 +700,8 @@ function ruleVerdict(m, ok) {
 //   setup(m)      optional: the starting position for trying it (default: all tiles loose)
 //   ways          optional: gesture choices shown as a switch under the example, e.g. ['Swipe', 'Tap'];
 //                 the script reads the chosen one from m.way
+//   pages         optional: the number of examples the script steps through (m.page); adds a
+//                 ‹ • • • › pager under the example, and swiping the example left or right
 //   still(m)      optional: the frame to show instead of the animation when reduced motion is on
 //                 (default: the script's last frame)
 const DEMOS = {
@@ -743,7 +745,9 @@ const DEMOS = {
     },
   },
 
-  // Walk through rule examples, checking shape, color and count one at a time.
+  // Walk through rule examples, checking shape, color and count one at a time. One example per
+  // loop (m.page); it moves on to the next by itself until the player picks one with the pager,
+  // then it stays on that one.
   hdRule: {
     cells: [
       [0, 0],
@@ -751,17 +755,20 @@ const DEMOS = {
       [2, 0],
     ],
     tiles: RULE_EXAMPLES[0],
+    pages: RULE_EXAMPLES.length,
     script: async (m) => {
-      for (const ex of RULE_EXAMPLES) {
-        const ok = ruleSetup(m, ex);
-        await m.wait(600);
-        for (const row of $h('hdRuleChecks').children) {
-          row.classList.add('show');
-          await m.wait(450);
-        }
-        await ruleVerdict(m, ok);
-        await m.wait(1900);
+      m.paintPager();
+      const ok = ruleSetup(m, RULE_EXAMPLES[m.page]);
+      await m.wait(900);
+      for (const row of $h('hdRuleChecks').children) {
+        row.classList.add('show');
+        await m.wait(800);
       }
+      await ruleVerdict(m, ok);
+      if (m.fast) return;
+      if (m.held) for (;;) await m.wait(60000); // stay on the example the player picked
+      await m.wait(3000);
+      m.page = (m.page + 1) % RULE_EXAMPLES.length;
     },
   },
 
@@ -945,6 +952,45 @@ function build() {
       svg.after(sw); // under the board, above the message line
       demo.ways = sw;
     }
+    if (d.pages) {
+      m.page = 0;
+      const pg = document.createElement('div');
+      pg.className = 'hpager';
+      pg.innerHTML =
+        `<button data-step="-1" aria-label="Previous example">‹</button>` +
+        [...Array(d.pages)]
+          .map((_, n) => `<button class="dot" data-n="${n}" aria-label="Example ${n + 1}"></button>`)
+          .join('') +
+        `<button data-step="1" aria-label="Next example">›</button>`;
+      const go = (n) => {
+        m.page = (n + d.pages) % d.pages;
+        m.held = true;
+        watch(demo);
+      };
+      pg.onclick = (e) => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        go(b.dataset.n != null ? +b.dataset.n : m.page + +b.dataset.step);
+      };
+      m.paintPager = () =>
+        pg.querySelectorAll('.dot').forEach((b, n) => {
+          b.classList.toggle('on', n === m.page);
+          b.setAttribute('aria-current', n === m.page);
+        });
+      // swipe the example sideways for the next or previous one
+      let x0 = null,
+        y0 = 0;
+      svg.addEventListener('pointerdown', (e) => ([x0, y0] = [e.clientX, e.clientY]));
+      svg.addEventListener('pointerup', (e) => {
+        if (x0 == null) return;
+        const dx = e.clientX - x0,
+          dy = e.clientY - y0;
+        x0 = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(m.page + (dx < 0 ? 1 : -1));
+      });
+      svg.addEventListener('pointercancel', () => (x0 = null));
+      box.append(pg);
+    }
     return demo;
   });
 }
@@ -979,7 +1025,11 @@ function watch({ m, d, box, chip, ways }) {
 }
 function start() {
   if (!demos) build();
-  demos.forEach(watch);
+  demos.forEach((demo) => {
+    demo.m.page = 0; // each time the sheet opens, the rule examples start from the first, on their own
+    demo.m.held = false;
+    watch(demo);
+  });
 }
 function stop() {
   if (demos) demos.forEach(({ m }) => m.stop());
