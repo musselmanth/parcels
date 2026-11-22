@@ -1,5 +1,6 @@
 import { $ } from './core/dom.js';
 import { prefs, savePrefs } from './storage.js';
+import { track } from './telemetry.js';
 
 // "Install as an app", offered on the start screen only (the button lives in #intro).
 //   - Android / desktop Chrome and Edge: the browser fires `beforeinstallprompt` when the site can be
@@ -37,9 +38,13 @@ export function initInstall() {
     if (deferred) {
       deferred.prompt();
       const { outcome } = await deferred.userChoice;
+      track('install', { outcome });
       deferred = null;
       if (outcome === 'accepted') show(false);
-    } else tip.hidden = !tip.hidden; // iPhone / iPad: show the steps
+    } else {
+      tip.hidden = !tip.hidden; // iPhone / iPad: show the steps
+      track('install', { outcome: 'ios_tip' });
+    }
   };
   $('#bInstallX').onclick = () => {
     prefs.installDismissed = true;

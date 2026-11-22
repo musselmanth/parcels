@@ -6,6 +6,7 @@ import { win } from './game.js';
 import { paintSel, render, setMsg } from './render.js';
 import { sfx } from './sound.js';
 import { G, groupOf, pairOf } from './state.js';
+import { track } from './telemetry.js';
 import { TINTS } from './themes.js';
 
 // What the player's moves do: making parcels, pencilling pairs, popping and locking parcels.
@@ -17,6 +18,9 @@ const cellKey = (cells) =>
     .slice()
     .sort((a, b) => a - b)
     .join(',');
+
+// Is this parcel part of the solution? (for the playtest log)
+const inSolution = (cells) => G.P.solution.some((s) => cellKey(s) === cellKey(cells));
 
 // Hint: outline one parcel from the solution that the player hasn't made (or already been shown).
 // Prefers parcels whose tiles are all still loose; only when none is left does it pick one that
@@ -40,6 +44,7 @@ export function giveHint() {
   begin();
   G.hints.push(pick.slice());
   G.st.hints = (G.st.hints || 0) + 1;
+  track('hint', { cells: pick, overlap: least });
   G.st.trail.push('💡');
   sfx.hint();
   buzz(8);
@@ -78,6 +83,7 @@ export function makePair(cells) {
   G.pairs = G.pairs.filter((p) => !p.cells.some((c) => cells.includes(c)));
   G.pairs.push({ cells: cells.slice(), fresh: true });
   G.sel = [];
+  track('pair', { cells });
   sfx.pair();
   buzz(8);
   setMsg('Pair pencilled in. Add a third tile when you’re sure.');
@@ -98,6 +104,7 @@ export function submit(cells) {
   }
   if (msg) {
     G.busy = true;
+    track('miss', { cells, reason: msg, counted: rule });
     if (rule) {
       G.misses++;
       G.st.streak = 0;
@@ -138,6 +145,7 @@ export function submit(cells) {
   G.groups[id] = g;
   G.sel = [];
   const n = Object.keys(G.groups).length;
+  track('parcel', { cells, correct: inSolution(cells), via: G.viaSwipe ? 'swipe' : 'tap', hinted, n });
   sfx.group(n - 1);
   buzz(14);
   setMsg(
@@ -183,6 +191,7 @@ function popEffect(g, quiet = false) {
 
 // Clearing a parcel (a player's pop, counted in the stats): it pops, and the tiles spring back loose.
 function breakGroup(g) {
+  track('pop', { cells: g.cells, correct: inSolution(g.cells), locked: g.pinned });
   G.st.pops++;
   G.st.streak = 0;
   G.st.trail.push('🫧');
@@ -244,6 +253,7 @@ function erasePair(p) {
     3,
   );
   G.sel = [];
+  track('pair_erase', { cells: p.cells });
   setMsg('Pair erased.');
   const finish = () => {
     G.pairs = G.pairs.filter((x) => x !== p);
@@ -271,6 +281,7 @@ function togglePin(g) {
   g.pinned = true;
   g.badgeFresh = true;
   G.st.locks++;
+  track('lock', { cells: g.cells, correct: inSolution(g.cells) });
   sfx.pin();
   buzz(12);
   setMsg('Locked in. Hold it again to pop it.', 'ok');

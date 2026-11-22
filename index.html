@@ -175,6 +175,13 @@
                 then <b>Add to Home Screen</b>.
               </p>
             </div>
+            <!-- playtest note: feedback link and data notice (src/feedback.js hides them if no collector is set up) -->
+            <p class="intro-playtest">
+              You're playtesting Parcels. <button class="linkbtn feedback-link" hidden>Leave feedback</button>
+              <small class="data-note" hidden
+                >Anonymous play data (moves, times, scores) is sent to help improve the game.</small
+              >
+            </p>
           </div>
         </section>
         <!-- Puzzle picker. -->
@@ -363,6 +370,11 @@
           <span>Show timer</span
           ><button class="switch" id="bTimer" role="switch" aria-label="Show timer"></button>
         </div>
+        <h3 class="data-note" hidden>Playtest</h3>
+        <p class="setnote data-note" hidden>
+          Anonymous play data (moves, times, scores) is sent to help improve the game.
+        </p>
+        <div class="setbtns"><button class="feedback-link" hidden>Leave feedback</button></div>
         <h3>Play history</h3>
         <p class="setnote">
           Your scores are saved in this browser only. Export them to a file to move to another device, then
@@ -381,6 +393,36 @@
             <button id="bClearYes" class="danger">Yes, clear it</button><button id="bClearNo">Cancel</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- feedback form (src/feedback.js) -->
+    <div class="modal" id="mFeedback">
+      <div class="sheet feedback">
+        <button class="xclose" id="bFeedbackClose" aria-label="Close">✕</button>
+        <h2>Feedback</h2>
+        <p class="setnote">Thanks for playtesting! What's fun, what's confusing, what would you change?</p>
+        <div class="fb-rating" role="group" aria-label="How are you liking it?">
+          <button data-r="1" aria-label="1 of 5">😖</button><button data-r="2" aria-label="2 of 5">😕</button
+          ><button data-r="3" aria-label="3 of 5">😐</button><button data-r="4" aria-label="4 of 5">🙂</button
+          ><button data-r="5" aria-label="5 of 5">😍</button>
+        </div>
+        <textarea
+          id="fbMsg"
+          rows="5"
+          maxlength="5000"
+          placeholder="Your thoughts…"
+          aria-label="Your feedback"
+        ></textarea>
+        <input
+          id="fbContact"
+          type="text"
+          maxlength="200"
+          placeholder="Name or email (optional, if you'd like a reply)"
+          aria-label="Name or email (optional)"
+        />
+        <div class="row"><button class="primary" id="bFbSend">Send</button></div>
+        <p id="fbStatus" class="setnote" role="status"></p>
       </div>
     </div>
 

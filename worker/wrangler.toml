@@ -1,0 +1,14 @@
+# Cloudflare Worker that collects playtest data and feedback for Parcels. See README.md.
+name = "parcels-playtest"
+main = "src/index.js"
+compatibility_date = "2025-10-01"
+
+[vars]
+# Sites allowed to send data (comma separated). Add any other address you serve the game from.
+ALLOWED_ORIGINS = "https://parcelsgame.com,https://www.parcelsgame.com,https://musselmanth.github.io,http://localhost:5173"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "parcels-playtest"
+# Replace with the id printed by:  npx wrangler d1 create parcels-playtest
+database_id = "adf4ef78-87a6-4afd-8e64-6da53f9e7c29"

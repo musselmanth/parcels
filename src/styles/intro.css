@@ -225,6 +225,24 @@ body.theme-neon .lv-name {
   vertical-align: -2px;
 }
 
+/* playtest note under the start screen's buttons */
+.intro-playtest {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.intro-playtest small {
+  display: block;
+  font-size: 11.5px;
+  opacity: 0.8;
+}
+.intro-playtest small[hidden],
+.intro-playtest .linkbtn[hidden] {
+  display: none;
+}
+
 /* bigger screens */
 @media (min-width: 700px) and (min-height: 600px) {
   #introArt {

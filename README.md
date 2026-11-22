@@ -35,6 +35,10 @@ npm run check-puzzles               # verify every puzzle has exactly one soluti
 | `src/data/`         | The puzzles (`easy.json` ... `extreme.json`) and `puzzles.js`, which lists levels                                                                      |
 | `src/storage.js`    | Current level, saved results and preferences (localStorage)                                                                                            |
 | `src/progress.js`   | Boards in progress: saved after every move, restored when you come back                                                                                |
+| `src/telemetry.js`  | Playtest data: an anonymous log of each session, sent in batches to the collector                                                                      |
+| `src/feedback.js`   | The playtest note and the feedback form                                                                                                                |
+| `src/config.js`     | The collector's address (`DEPLOYED_API`); empty turns data and feedback off                                                                            |
+| `src/install.js`    | The start screen's Install as an app button                                                                                                            |
 | `src/themes.js`     | Tile shapes and colors (the Neon theme)                                                                                                                |
 | `src/render.js`     | Draws the board SVG, the selection trail, the tip message and the timer                                                                                |
 | `src/input.js`      | Pointer handling: taps, swipes, press-and-hold                                                                                                         |
@@ -51,6 +55,7 @@ npm run check-puzzles               # verify every puzzle has exactly one soluti
 | `src/styles/`       | CSS: color tokens and theme, page layout, board and animations, dialogs, menu, help; `responsive.css` adapts it all for tablets, desktop and landscape |
 | `public/`           | Copied as-is to the site root: icons, `og-image.png` (link previews), `site.webmanifest`, `robots.txt`, `sitemap.xml`                                  |
 | `generator/`        | Puzzle generator ([generator/README.md](generator/README.md))                                                                                          |
+| `worker/`           | Playtest data collector: a Cloudflare Worker + database, with a private admin page ([worker/README.md](worker/README.md))                              |
 
 Every module starts with a comment saying what it's for, and functions have a line or two above them.
 
@@ -94,6 +99,7 @@ Every module starts with a comment saying what it's for, and functions have a li
 - **Feel and animation timing:** `styles/board.css` (tile and parcel animations), `HOLD` in `src/actions.js` (press-and-hold time), `celebrate()` in `src/celebrate.js`.
 - **Hints:** `giveHint()` in `src/actions.js` picks the parcel; the dotted outline is `.hint` in `src/styles/board.css`.
 - **Best times:** one per level, fastest solve without hints, saved by `loadBest`/`saveBest` in `src/storage.js` and checked in `win()` in `src/game.js`.
+- **Playtest data:** add an event with `track('name', {...})` from `src/telemetry.js`; it shows up in the collector's `events` table. Setup and reading the data: [worker/README.md](worker/README.md).
 - **Puzzles:** `npm run generate`; see [generator/README.md](generator/README.md).
 
 ## Things to know

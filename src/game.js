@@ -9,6 +9,7 @@ import { loadShape, render, setMsg } from './render.js';
 import { openResults, showBestTime, showResults } from './results.js';
 import { newStats } from './scoring.js';
 import { G } from './state.js';
+import { send, track } from './telemetry.js';
 import { clearProgress, elapsed, restoreProgress, saveProgress } from './progress.js';
 import { CAT, PUZZLES, loadBest, save, saveBest, store } from './storage.js';
 
@@ -17,6 +18,13 @@ import { CAT, PUZZLES, loadBest, save, saveBest, store } from './storage.js';
 // Opening a board you've already finished shows its solution. Finished boards can't be replayed.
 // fresh: start over (forget any saved progress). Otherwise a board in progress is restored.
 export function openPuzzle(n, fresh = false) {
+  if (G.P && !G.done)
+    track('board_leave', {
+      elapsed: elapsed(),
+      parcels: Object.keys(G.groups).length,
+      to: n,
+      startOver: fresh,
+    });
   saveProgress(); // the board being left, if any
   clearFx();
   closeAll();
@@ -56,9 +64,11 @@ export function openPuzzle(n, fresh = false) {
   if (fresh) clearProgress(CAT, n);
   if (!fresh && store[n]) {
     clearProgress(CAT, n); // finished boards are final
+    track('board_open', { finished: true, revealed: !!store[n].revealed });
     showFinished(store[n]);
   } else {
     const resumed = !fresh && restoreProgress(CAT, n);
+    track('board_open', { resumed, fresh, parcels: Object.keys(G.groups).length, size: GROUPS });
     render();
     if (resumed) {
       $('#timer').textContent = fmt(elapsed());
@@ -129,6 +139,21 @@ export function win() {
     }
   }
   showBestTime(G.level, outcome);
+  track('game_finished', {
+    outcome: 'solved',
+    ...run,
+    trail: undefined,
+    pairs: G.st.pairs,
+    locks: G.st.locks,
+    swipes: G.st.swipes,
+    fastestGap: G.st.fast,
+    score: res.score,
+    stars: res.stars,
+    newBest: !!(outcome && outcome.kind === 'new'),
+    previousBest: outcome && outcome.was,
+    parcels: GROUPS,
+  });
+  send(); // finished boards are reported right away
   const better = !prev || prev.revealed || res.score > (prev.score ?? -1);
   if (prev && !prev.revealed && better) $('#breakdown').innerHTML += ' · new best!';
   else if (prev && !prev.revealed) $('#breakdown').innerHTML += ` · best ${prev.score}`;
@@ -151,6 +176,18 @@ export function win() {
 // Give up: show the solution, save a 0-point 'peeked' record. Final for this board.
 export function reveal() {
   if (G.done) return;
+  track('game_finished', {
+    outcome: 'revealed',
+    time: elapsed(),
+    misses: G.misses,
+    pops: G.st.pops,
+    hints: G.st.hints || 0,
+    pairs: G.st.pairs,
+    locks: G.st.locks,
+    placed: Object.keys(G.groups).length,
+    parcels: GROUPS,
+  });
+  send(); // reported right away
   G.revealed = true;
   G.done = true;
   G.hints = [];

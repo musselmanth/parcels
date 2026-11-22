@@ -14,6 +14,8 @@ import { initHelp } from './help.js';
 import { nextUnsolved, renderMenu } from './menu.js';
 import { initIntro, renderIntro } from './intro.js';
 import { initInstall } from './install.js';
+import { initFeedback } from './feedback.js';
+import { startTelemetry, track } from './telemetry.js';
 import { currentScreen, onScreen, previousScreen, showScreen } from './screens.js';
 import { setMsg, tick } from './render.js';
 import { openResults } from './results.js';
@@ -63,6 +65,7 @@ document.addEventListener('historychange', () => {
 // The title goes back to the start screen from anywhere.
 $('#bHome').onclick = () => showScreen('intro');
 onScreen((name) => {
+  track('screen', { name });
   $('#bNav').setAttribute('aria-label', name === 'menu' ? 'Back' : 'All puzzles');
   // the timer pauses while you're off the game screen, and the board is saved as you leave
   if (name === 'game') {
@@ -84,6 +87,7 @@ function paintHelpHint() {
 }
 function openHelp() {
   $('#mHelp').classList.add('open');
+  track('help_open', { first: !prefs.seenHelp });
   if (!prefs.seenHelp) {
     prefs.seenHelp = true;
     savePrefs();
@@ -98,6 +102,7 @@ $('#mHelp').onclick = (e) => {
 $('#bSound').onclick = () => {
   prefs.sound = !prefs.sound;
   savePrefs();
+  track('setting', { sound: prefs.sound });
   paintSound();
   if (prefs.sound) sfx.pin();
 };
@@ -111,6 +116,7 @@ function paintTimer() {
 $('#bTimer').onclick = () => {
   prefs.showTimer = !prefs.showTimer;
   savePrefs();
+  track('setting', { showTimer: prefs.showTimer });
   paintTimer();
 };
 // Settings opens from the top bar (game screen) or the start screen's button.
@@ -129,6 +135,7 @@ $('#bNext').onclick = () => openPuzzle(G.cur + 1);
 // Start over: everything on the board pops, then it resets
 $('#bReset').onclick = () => {
   if (G.done || G.busy || G.celebrating) return;
+  track('start_over', { parcels: Object.keys(G.groups).length });
   popAll(() => openPuzzle(G.cur, true));
 };
 $('#bHint').onclick = giveHint;
@@ -194,6 +201,8 @@ setInterval(tick, 500);
 document.querySelectorAll('#catSeg button').forEach((b) => (b.onclick = () => pickLevel(b.dataset.c)));
 initIntro(pickLevel);
 initInstall(); // the start screen's Install as an app button
+initFeedback(); // the playtest note and feedback form
+startTelemetry({ sound: prefs.sound, showTimer: prefs.showTimer }); // playtest data (if PLAYTEST_API is set)
 setCat(prefs.cat || 'easy');
 showScreen('intro', { animate: false }); // the site opens on the start screen
 paintHelpHint(); // first visit: How to play shimmers instead of opening by itself
