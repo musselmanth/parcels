@@ -120,6 +120,9 @@ function paint() {
   const s = loadSync();
   $('#syncOff').hidden = !!s;
   $('#syncOn').hidden = !s;
+  $('#syncNote').textContent = s
+    ? 'Your results are synced across your devices. Enter this code on another device to add it.'
+    : 'Your results are saved in this browser. Sync them to keep them the same on all your devices.';
   if (!s) return;
   $('#syncCode').textContent = pretty(s.code);
   $('#syncWhen').textContent = s.at ? 'Last synced ' + ago(s.at) + '.' : 'Not synced yet.';
