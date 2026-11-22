@@ -9,7 +9,7 @@ import { G } from './state.js';
 //
 // The log goes out in batches: every 20 seconds, when 40 events pile up, and when the tab is
 // hidden or closed (with sendBeacon, which survives the page going away). Players are a random id
-// kept in this browser; a session is one page load.
+// kept in this browser; a session is one page load. Browsers marked as yours (?me) send nothing.
 //
 // Event types: session_start (device), screen, board_open, board_leave, parcel, miss, pop, pair,
 // pair_erase, lock, hint, start_over, game_finished (the summary of a solved/revealed board),
@@ -37,7 +37,37 @@ export const player = (() => {
   }
 })();
 export const session = newId();
-export const enabled = !!PLAYTEST_API;
+
+// Your own browsers: visit the site once with ?me to stop this browser sending playtest data (it's
+// remembered) and to delete what it already sent; ?notme starts sending again. The ?me / ?notme is
+// then removed from the address bar.
+const ME_KEY = 'parcels-playtest-v1-me';
+export const isMe = (() => {
+  try {
+    const q = new URLSearchParams(location.search);
+    if (q.has('me')) {
+      localStorage.setItem(ME_KEY, '1');
+      // ask the collector to delete everything this browser has sent so far
+      if (PLAYTEST_API)
+        fetch(PLAYTEST_API + '/api/forget', {
+          method: 'POST',
+          body: JSON.stringify({ player }),
+          keepalive: true,
+          headers: { 'Content-Type': 'text/plain' },
+        }).catch(() => {});
+    }
+    if (q.has('notme')) localStorage.removeItem(ME_KEY);
+    if (q.has('me') || q.has('notme')) {
+      q.delete('me');
+      q.delete('notme');
+      history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+    }
+    return localStorage.getItem(ME_KEY) === '1';
+  } catch (e) {
+    return false;
+  }
+})();
+export const enabled = !!PLAYTEST_API && !isMe;
 const t0 = Date.now();
 let queue = [];
 

@@ -4,7 +4,7 @@ export const G = {
   P: null,
   // Number of the current board within its level (1-based).
   cur: 0,
-  // Parcels the player has made, by id: {id, cells, color (index into TINTS), pinned (locked), fresh/badgeFresh (play the entry animation on next render)}.
+  // Parcels the player has made, by id: {id, cells, color (index into TINTS), pinned (locked), fresh/sealFresh (play the entry animation on next render)}.
   groups: {},
   // Id of the parcel drawn on top of the others: the one last pressed or made, so its outline,
   // hold ring and animations are never covered by a neighbor's.
@@ -17,7 +17,7 @@ export const G = {
   nextId: 0,
   // Cells currently selected by taps or a swipe in progress.
   sel: [],
-  // Rule-breaking parcels tried on this board (shown as Misses).
+  // Rule-breaking parcels tried on this board (shown as Mistakes on the results card).
   misses: 0,
   // Timestamps (ms): first move, and the solve.
   startT: null,

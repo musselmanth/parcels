@@ -7,7 +7,7 @@ import { clearParticles } from './fx.js';
 import { closeAll } from './menu.js';
 import { loadShape, render, setMsg } from './render.js';
 import { openResults, showBestTime, showResults } from './results.js';
-import { newStats } from './scoring.js';
+import { newStats, resultOf, resultRank } from './scoring.js';
 import { G } from './state.js';
 import { send, track } from './telemetry.js';
 import { clearProgress, elapsed, restoreProgress, saveProgress } from './progress.js';
@@ -85,7 +85,7 @@ export function setReset(finished) {
   r.classList.toggle('primary', finished);
   r.disabled = G.celebrating;
 }
-// Show a finished board as solved (its saved best result), or as revealed.
+// Show a finished board (each board is played once): solved, or with its solution viewed.
 function showFinished(rec) {
   G.done = true;
   G.revealed = !!rec.revealed;
@@ -96,15 +96,15 @@ function showFinished(rec) {
   });
   if (!G.revealed) {
     G.misses = rec.misses || 0;
+    G.st.hints = rec.hints || 0; // shown in the Hints counter
     $('#timer').textContent = fmt(rec.time);
   }
   render();
   setReset(true);
   if (G.revealed) $('#timer').textContent = '—';
+  const res = resultOf(rec);
   setMsg(
-    G.revealed
-      ? 'You viewed the solution for this one. 0 points.'
-      : `Best: ${rec.score != null ? rec.score + ' points · ' : ''}${fmt(rec.time)}, ${rec.misses || 0} mistake${rec.misses === 1 ? '' : 's'}.`,
+    G.revealed ? 'You viewed the solution for this one.' : `${res.title} · ${fmt(rec.time)}`,
     'ok',
     true,
   );
@@ -116,7 +116,6 @@ export function win() {
   G.endT = Date.now();
   clearProgress(G.level, G.cur);
   const time = G.endT - (G.startT || G.endT);
-  const prev = store[G.cur];
   $('#timer').textContent = fmt(time);
   const run = {
     time,
@@ -126,8 +125,7 @@ export function win() {
     best: G.st.best,
     trail: G.st.trail.slice(),
   };
-  $('#winTitle').textContent = 'Solved!';
-  const res = showResults(run, '');
+  const res = showResults(run);
   // best time for the level: only solves without hints count
   let outcome = { kind: 'hinted' };
   if (!run.hints) {
@@ -147,25 +145,16 @@ export function win() {
     locks: G.st.locks,
     swipes: G.st.swipes,
     fastestGap: G.st.fast,
-    score: res.score,
-    stars: res.stars,
+    result: res.kind,
     newBest: !!(outcome && outcome.kind === 'new'),
     previousBest: outcome && outcome.was,
     parcels: GROUPS,
   });
   send(); // finished boards are reported right away
-  const better = !prev || prev.revealed || res.score > (prev.score ?? -1);
-  if (prev && !prev.revealed && better) $('#breakdown').innerHTML += ' · new best!';
-  else if (prev && !prev.revealed) $('#breakdown').innerHTML += ` · best ${prev.score}`;
-  if (better)
-    store[G.cur] = {
-      ...run,
-      pairs: G.st.pairs,
-      locks: G.st.locks,
-      score: res.score,
-      stars: res.stars,
-      at: new Date().toISOString(),
-    };
+  // boards are played once, so this is the board's result (only an imported one could be here already)
+  const prev = store[G.cur];
+  const rec = { ...run, pairs: G.st.pairs, locks: G.st.locks, at: new Date().toISOString() };
+  if (!prev || resultRank(rec) >= resultRank(prev)) store[G.cur] = rec;
   save();
   setReset(true);
   $('#pzNum').textContent = ` ${CATS[CAT].name} #${G.cur} ✓`;
@@ -186,6 +175,7 @@ export function reveal() {
     locks: G.st.locks,
     placed: Object.keys(G.groups).length,
     parcels: GROUPS,
+    result: 'loser',
   });
   send(); // reported right away
   G.revealed = true;
@@ -201,11 +191,11 @@ export function reveal() {
     G.groups[id] = { id, cells, color: 0, pinned: false, fresh: true };
     G.groups[id].color = freeColor(cells);
   });
-  store[G.cur] = { revealed: true, score: 0, stars: 0, at: new Date().toISOString() };
+  store[G.cur] = { revealed: true, at: new Date().toISOString() };
   save();
   $('#pzNum').textContent = ` ${CATS[CAT].name} #${G.cur} 🫠`;
   render();
-  setMsg('Here’s the only solution. 0 points.', 'bad', true);
+  setMsg('Here’s the only solution.', 'bad', true);
   setReset(true);
   later(openResults, 700);
 }

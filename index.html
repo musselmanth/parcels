@@ -70,8 +70,22 @@
       href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Space+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <!-- Shown before the stylesheet and script arrive: the dark background, and the page content
+         kept invisible until main.js has set it up (it adds .ready, which fades it in). -->
+    <style>
+      html {
+        background: #0b0a1a;
+      }
+      #shell {
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+      html.ready #shell {
+        opacity: 1;
+      }
+    </style>
   </head>
-  <body>
+  <body data-screen="intro">
     <div id="shell">
       <header id="topbar" class="top">
         <!-- left button: "All puzzles" on the game screen, "Back" on the puzzle menu, hidden on the intro -->
@@ -125,7 +139,7 @@
       <!-- The three screens slide between each other (src/screens.js). -->
       <main id="screens">
         <!-- Start screen. The level buttons are filled in by src/intro.js. -->
-        <section class="screen" id="intro">
+        <section class="screen active" id="intro">
           <!-- shrinks to fit the screen when needed (intro.js) -->
           <div class="intro-inner">
             <div class="intro-hero">
@@ -182,7 +196,7 @@
                 You're playtesting Parcels.
                 <button class="linkbtn feedback-link" hidden>Leave feedback</button>
                 <small class="data-note" hidden
-                  >Anonymous play data (moves, times, scores, rough location) is sent to help improve the
+                  >Anonymous play data (moves, times, results, rough location) is sent to help improve the
                   game.</small
                 >
               </p>
@@ -202,16 +216,16 @@
           <div class="scroll">
             <div class="grid" id="grid"></div>
             <p class="legend">
-              Green = solved, with your star rating. Dashed = in progress, with parcels placed so far. 🫠 =
-              solution viewed (0 points). Solved boards are final. Export or clear your history in Settings on
-              the start screen.
+              Each finished board shows its result: Perfect! (no hints), the number of hints used, or Loser
+              (solution viewed). Dashed = in progress, with parcels placed so far. Finished boards are final.
+              Export or clear your history in Settings on the start screen.
             </p>
           </div>
         </section>
         <!-- The game. -->
         <section class="screen" id="app">
           <div class="stats">
-            <div class="chip"><span class="lbl">Misses</span><b id="misses">0</b></div>
+            <div class="chip"><span class="lbl">Hints</span><b id="hintCount">0</b></div>
             <div class="chip">
               <span class="lbl">Parcels</span
               ><b><span id="prog">0</span><span class="of" id="ofN">/12</span></b>
@@ -311,22 +325,10 @@
           </div>
         </div>
 
-        <h3>Score</h3>
+        <h3>Stuck?</h3>
         <ul>
-          <li>
-            Up to <b>1000 points</b> and 5 stars: use fewer hints, make fewer mistakes, and pop fewer parcels.
-            Harder levels forgive more slips.
-          </li>
-          <li><b>Misses</b> counts the parcels you tried that broke the rule.</li>
-          <li>
-            Stuck? <b>Hint</b> circles a real parcel with a dotted line until you make it. Each hint costs
-            some points.
-          </li>
-          <li>
-            Time isn't scored, but your fastest solve on each level (without hints) is kept as your
-            <b>best time</b>.
-          </li>
-          <li><b>Solution</b> shows the answer, but that board scores 0 and can't be replayed.</li>
+          <li><b>Hint</b> circles a real parcel with a dotted line until you make it.</li>
+          <li><b>Solution</b> shows the answer, but that board ends there.</li>
         </ul>
 
         <!-- holds the "More below" hint, pinned to the bottom edge -->
@@ -339,11 +341,10 @@
     <div class="modal" id="mWin">
       <div class="sheet">
         <button class="xclose" id="bWinClose" aria-label="Close">✕</button>
-        <div class="big" id="winTitle">Solved!</div>
-        <div class="stars" id="stars"></div>
-        <div class="score"><b id="score">0</b><span>points</span></div>
+        <!-- filled in by src/results.js: the result (Perfect!, Solved with N Hints or Loser), praise,
+             the level's best time, a badge, the stats, and the share text -->
+        <div class="big" id="winTitle">Perfect!</div>
         <div class="compliment" id="compliment"></div>
-        <div class="breakdown" id="breakdown"></div>
         <div class="besttime" id="bestTime"></div>
         <div class="award" id="award"></div>
         <div class="statgrid" id="statgrid"></div>
@@ -370,14 +371,18 @@
           <span>Show timer</span
           ><button class="switch" id="bTimer" role="switch" aria-label="Show timer"></button>
         </div>
+        <p class="setnote" id="meNote" hidden>
+          This browser is marked as yours, so it doesn't send playtest data. Visit the site with
+          <b>?notme</b> at the end of the address to change that.
+        </p>
         <h3 class="data-note" hidden>Playtest</h3>
         <p class="setnote data-note" hidden>
-          Anonymous play data (moves, times, scores, rough location) is sent to help improve the game.
+          Anonymous play data (moves, times, results, rough location) is sent to help improve the game.
         </p>
         <div class="setbtns"><button class="feedback-link" hidden>Leave feedback</button></div>
         <h3>Play history</h3>
         <p class="setnote">
-          Your scores are saved in this browser only. Export them to a file to move to another device, then
+          Your results are saved in this browser only. Export them to a file to move to another device, then
           import that file there.
         </p>
         <div class="setbtns">
@@ -388,7 +393,7 @@
         </div>
         <div class="setbtns"><button id="bClear" class="danger">Clear all history</button></div>
         <div id="confirmClear" class="setnote" style="display: none; text-align: center">
-          Delete every saved score on this device?
+          Delete every saved result on this device?
           <div class="setbtns">
             <button id="bClearYes" class="danger">Yes, clear it</button><button id="bClearNo">Cancel</button>
           </div>
@@ -430,7 +435,7 @@
       <div class="sheet" style="text-align: center">
         <h2>Show the solution?</h2>
         <div style="font-size: 14.5px; color: var(--muted)">
-          You’ll get <b>0 points</b> and the 🫠 <b>Loser</b> badge for this board, and it’s final.
+          This board will be marked <b>Loser</b>, and it’s final.
         </div>
         <div class="row">
           <button class="primary" id="bRevealYes">Show it</button><button id="bRevealNo">Keep trying</button>

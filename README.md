@@ -44,7 +44,7 @@ npm run check-puzzles               # verify every puzzle has exactly one soluti
 | `src/input.js`      | Pointer handling: taps, swipes, press-and-hold                                                                                                         |
 | `src/actions.js`    | What moves do: make / pop / lock parcels, pencil pairs                                                                                                 |
 | `src/game.js`       | Opening a board, winning, revealing the solution                                                                                                       |
-| `src/scoring.js`    | Score (hints, accuracy, tidiness), stars, compliments, awards, share text                                                                              |
+| `src/scoring.js`    | Results (Perfect!, Solved with N Hints, Loser), compliments, badges, share text                                                                        |
 | `src/results.js`    | The results card                                                                                                                                       |
 | `src/celebrate.js`  | The win animation                                                                                                                                      |
 | `src/fx.js`         | Confetti                                                                                                                                               |
@@ -82,13 +82,7 @@ Every module starts with a comment saying what it's for, and functions have a li
 ## Making common changes
 
 - **The rules text and help:** the help sheet's text is in `index.html` (`#mHelp`). Its animated, playable examples (boards, tiles and what the pretend finger does) are `DEMOS` in `src/help.js`, styled by `src/styles/help.css`. Rule-break messages are `whyInvalid()` in `src/core/rules.js`.
-- **Scoring:** everything is at the top of `src/scoring.js`:
-  - the score is out of 1000: hints 500, accuracy 300, tidiness 200 (`scoreFor`); time isn't scored
-  - how many hints use up the hints part (`hintAllowance`: half the board's parcels)
-  - how many mistakes and pops each level forgives (`ALLOW`)
-  - star thresholds (`TIERS`)
-  - awards (`awardFor`)
-  - compliments
+- **Results:** a finished board is **Perfect!** (no hints), **Solved with N Hints**, or **Loser** (solution viewed); see `resultOf` in `src/scoring.js`. There are no points or stars. Time, mistakes and pops are shown on the results card and feed the badges (`awardFor`), but never change the result. The line of praise under the result does react to how it went: speed (seconds per parcel) and slips (mistakes + pops), judged per level; see `PACE` and `PRAISE` in `src/scoring.js`.
 - **Colors:** tile colors and parcel tints are in `THEMES` in `src/themes.js`; page colors are the CSS tokens in `src/styles/theme-neon.css`. How strongly parcels are tinted is `.parcel .card` in `src/styles/board.css`.
 - **A new theme:** Neon is the only one, and its CSS is the base styles (so the page never flashes an
   unstyled look while loading). For another theme:

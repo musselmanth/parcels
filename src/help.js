@@ -54,7 +54,7 @@ class Mini {
 
   // Back to loose tiles, nothing selected, finger hidden.
   reset() {
-    this.parcels = []; // [{cells, color, pinned, fresh, badgeFresh}]
+    this.parcels = []; // [{cells, color, pinned, fresh, sealFresh}]
     this.top = null; // the parcel drawn on top (last pressed or made)
     this.pair = null; // {cells, fresh}
     this.sel = [];
@@ -112,7 +112,7 @@ class Mini {
           `<g class="pwrap" data-n="${n}"><g class="parcel${p.pinned ? ' pinned' : ''}${p.fresh ? ' enter' : ''}">` +
           `<path class="outline" pathLength="1" d="${outlinePath(pts(p.cells), 1.5, 13)}" fill="${tint}" stroke="${dark}"/>` +
           p.cells.map((i, k) => tile(i, k)).join('') +
-          (p.pinned ? this.badge(p, dark) : '') +
+          (p.pinned ? this.seal(p, dark) : '') +
           '</g></g>'
         );
       })
@@ -124,20 +124,17 @@ class Mini {
     });
     this.world.innerHTML = `<g>${pair}</g><g>${parcels}</g><path class="htrail" d="${trail}"/><g>${loose}</g>`;
     fitDashes(this.world);
-    this.parcels.forEach((p) => (p.fresh = p.badgeFresh = false));
+    this.parcels.forEach((p) => (p.fresh = p.sealFresh = false));
     if (this.pair) this.pair.fresh = false;
   }
 
-  // Padlock badge, placed like badgeSVG() in render.js.
-  badge(p, dark) {
-    const [a, b, c] = p.cells,
-      tri = this.adj(a, b) && this.adj(b, c) && this.adj(a, c);
-    const mid = p.cells.find((m) => p.cells.every((o) => o === m || this.adj(m, o)));
-    const [x, y] = tri ? [0, 1].map((k) => p.cells.reduce((s, i) => s + this.c[i][k], 0) / 3) : this.c[mid];
-    return (
-      `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})"><g class="badge${p.badgeFresh ? ' enter' : ''}"><circle r="11" fill="${dark}" stroke="#fffaf0" stroke-width="2.5"/>` +
-      `<rect x="-5" y="-1.5" width="10" height="8" rx="1.5" fill="#fffaf0"/><path d="M-3,-1.5 V-4 a3,3 0 0 1 6,0 V-1.5" fill="none" stroke="#fffaf0" stroke-width="2"/></g></g>`
-    );
+  // A locked parcel's seal, like sealSVG() in render.js.
+  seal(p, dark) {
+    return `<path class="seal${p.sealFresh ? ' enter' : ''}" pathLength="1" d="${outlinePath(
+      p.cells.map((i) => this.c[i]),
+      8,
+      9,
+    )}" stroke="${dark}"/>`;
   }
 
   // Pause the script. Throws STOP if the demo was stopped meanwhile. Instant in reduced-motion mode.
@@ -343,10 +340,10 @@ class Mini {
     inner.classList.add('holding');
     return { ring, inner };
   }
-  // Lock parcel n (with the same pop-in badge animation as the game).
+  // Lock parcel n (its seal draws itself in, as in the game).
   lock(n) {
     const p = this.parcels[n];
-    p.pinned = p.badgeFresh = true;
+    p.pinned = p.sealFresh = true;
     this.render();
     this.world.querySelector(`.pwrap[data-n="${n}"] .parcel`).classList.add('pinning');
   }

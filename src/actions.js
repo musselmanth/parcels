@@ -26,7 +26,7 @@ const inSolution = (cells) => G.P.solution.some((s) => cellKey(s) === cellKey(ce
 // Prefers parcels whose tiles are all still loose; only when none is left does it pick one that
 // overlaps the player's parcels (fewest overlapping tiles), which tells them those parcels are wrong.
 // The outline stays until that parcel is made (see submit), which then locks it automatically.
-// Each hint counts against the score.
+// Each hint is counted: a board solved with hints shows "Solved with N Hints" instead of Perfect!.
 export function giveHint() {
   if (G.done || G.celebrating || G.busy) return;
   const made = new Set(Object.values(G.groups).map((g) => cellKey(g.cells)));
@@ -166,7 +166,7 @@ export function submit(cells) {
   }
   G.st.lastT = now;
   const id = G.nextId++;
-  const g = { id, cells, color: freeColor(cells), pinned: hinted, badgeFresh: hinted, fresh: true };
+  const g = { id, cells, color: freeColor(cells), pinned: hinted, sealFresh: hinted, fresh: true };
   G.top = id; // a new parcel is drawn on top
   G.groups[id] = g;
   G.sel = [];
@@ -305,7 +305,7 @@ function erasePair(p) {
 // Lock a parcel so a tap no longer pops it.
 function togglePin(g) {
   g.pinned = true;
-  g.badgeFresh = true;
+  g.sealFresh = true;
   G.st.locks++;
   track('lock', { cells: g.cells, correct: inSolution(g.cells) });
   sfx.pin();

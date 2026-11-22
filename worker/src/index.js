@@ -4,6 +4,9 @@
 //   POST /api/events      a batch of play events from one session (the game sends one every ~20s,
 //                         when the tab is hidden or closed, and right away when a board is finished)
 //   POST /api/feedback    a feedback form entry
+//   (both are silently dropped when they come from an address in the IGNORE_IPS secret)
+//   POST /api/forget      delete everything from one player (the game sends it when a browser is
+//                         marked as yours with ?me; only that browser knows its random player id)
 //   GET  /admin?key=...   private page: feedback, finished games, sessions, per-level summary
 //   GET  /admin/export.csv?key=...&table=games|feedback|events|sessions   download as CSV
 //
@@ -22,9 +25,10 @@ export default {
     try {
       if (req.method === 'POST' && url.pathname === '/api/events')
         return json(await postEvents(req, env), cors);
+      if (req.method === 'POST' && url.pathname === '/api/forget') return json(await forget(req, env), cors);
       if (req.method === 'POST' && url.pathname === '/api/feedback')
         return json(await postFeedback(req, env), cors);
-      if (req.method === 'GET' && url.pathname === '/admin') return await adminPage(url, env);
+      if (req.method === 'GET' && url.pathname === '/admin') return await adminPage(url, env, req);
       if (req.method === 'GET' && url.pathname === '/admin/export.csv') return await exportCsv(url, env);
       if (url.pathname === '/') return new Response('Parcels playtest collector is running.\n');
       return new Response('Not found\n', { status: 404, headers: cors });
@@ -87,7 +91,20 @@ function locationOf(req) {
   return Object.values(loc).some(Boolean) ? loc : null;
 }
 
+// Your own devices' addresses, to drop their data (the IGNORE_IPS secret: comma separated; an entry
+// ending in * matches every address that starts with it, handy for IPv6 networks, e.g. 2601:5c0:1234:*).
+const clientIP = (req) => req.headers.get('CF-Connecting-IP') || '';
+function ignored(req, env) {
+  const ip = clientIP(req);
+  return (env.IGNORE_IPS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .some((p) => (p.endsWith('*') ? ip.startsWith(p.slice(0, -1)) : ip === p));
+}
+
 async function postEvents(req, env) {
+  if (ignored(req, env)) return { ok: true, ignored: true }; // from your own devices: dropped
   const body = await readBody(req);
   const player = str(body.player),
     session = str(body.session);
@@ -144,7 +161,20 @@ async function postEvents(req, env) {
   return { ok: true, stored: stmts.length };
 }
 
+async function forget(req, env) {
+  const player = str((await readBody(req)).player);
+  if (!player) throw fail(400, 'needs player');
+  const results = await env.DB.batch(
+    ['events', 'games', 'feedback'].map((t) =>
+      env.DB.prepare(`DELETE FROM ${t} WHERE player = ?`).bind(player),
+    ),
+  );
+  const [events, games, feedback] = results.map((r) => r.meta.changes || 0);
+  return { ok: true, deleted: { events, games, feedback } };
+}
+
 async function postFeedback(req, env) {
+  if (ignored(req, env)) return { ok: true, ignored: true };
   const b = await readBody(req);
   const message = str(b.message, 5000),
     rating = int(b.rating);
@@ -228,7 +258,7 @@ function table(rows, cols) {
   );
 }
 
-async function adminPage(url, env) {
+async function adminPage(url, env, req) {
   checkKey(url, env);
   const key = encodeURIComponent(url.searchParams.get('key'));
   const [feedback, games, summary, sessions, totals, countries] = await Promise.all([
@@ -236,7 +266,8 @@ async function adminPage(url, env) {
     env.DB.prepare('SELECT * FROM games ORDER BY id DESC LIMIT 300').all(),
     env.DB.prepare(
       `SELECT level, COUNT(*) AS n, SUM(outcome = 'solved') AS solved, AVG(CASE WHEN outcome = 'solved' THEN time_ms END) AS avg_time,
-        AVG(hints) AS hints, AVG(misses) AS misses, AVG(pops) AS pops, AVG(CASE WHEN outcome = 'solved' THEN score END) AS score
+        AVG(hints) AS hints, AVG(misses) AS misses, AVG(pops) AS pops,
+        SUM(outcome = 'solved' AND COALESCE(hints, 0) = 0) AS perfect, SUM(outcome = 'revealed') AS losers
        FROM games GROUP BY level ORDER BY CASE level WHEN 'easy' THEN 1 WHEN 'medium' THEN 2 WHEN 'hard' THEN 3 ELSE 4 END`,
     ).all(),
     env.DB.prepare(SESSIONS_SQL + ' LIMIT 200').all(),
@@ -251,7 +282,9 @@ async function adminPage(url, env) {
     ).all(),
   ]);
   const n1 = (v) => (v == null ? '' : (Math.round(v * 10) / 10).toString());
-  const stars = (n) => (n ? '★'.repeat(n) : '');
+  // the game's result for a finished board: Perfect! (no hints), N Hints, or Loser (solution viewed)
+  const result = (r) =>
+    r.outcome === 'revealed' ? 'Loser' : r.hints ? `${r.hints} Hint${r.hints === 1 ? '' : 's'}` : 'Perfect!';
   const device = (d) => {
     try {
       const j = JSON.parse(d || '{}');
@@ -285,6 +318,7 @@ async function adminPage(url, env) {
   .solved{color:#2bff88} .revealed{color:#ff8aa0}
 </style>
 <h1>Parcels playtest data</h1>
+<div class="totals">You're visiting from <b>${esc(clientIP(req))}</b> (${ignored(req, env) ? 'ignored: data from here is dropped' : 'not ignored'}). To ignore it: <code>npx wrangler secret put IGNORE_IPS</code></div>
 <div class="totals">${totals.players} players · ${totals.sessions} sessions · ${totals.games} finished boards · ${totals.feedback} feedback</div>
 <div class="csv">Download: ${['games', 'sessions', 'feedback', 'events'].map(csv).join('')}</div>
 
@@ -325,7 +359,8 @@ ${table(summary.results, [
   ['Avg hints', (r) => esc(n1(r.hints))],
   ['Avg misses', (r) => esc(n1(r.misses))],
   ['Avg pops', (r) => esc(n1(r.pops))],
-  ['Avg score (solved)', (r) => esc(r.score == null ? '' : Math.round(r.score))],
+  ['Perfect!', (r) => esc(`${r.perfect} (${Math.round((100 * r.perfect) / r.n)}%)`)],
+  ['Loser', (r) => esc(r.losers)],
 ])}
 
 <h2>Finished boards (latest 300)</h2>
@@ -337,8 +372,7 @@ ${table(summary.results, [
     ['Hints', (r) => esc(r.hints)],
     ['Misses', (r) => esc(r.misses)],
     ['Pops', (r) => esc(r.pops)],
-    ['Score', (r) => esc(r.score)],
-    ['Stars', (r) => esc(stars(r.stars))],
+    ['Result', (r) => esc(result(r))],
     ['Best?', (r) => (r.new_best ? '🏁' : '')],
     ['Player', (r) => esc((r.player || '').slice(0, 8))],
   ])}</div>

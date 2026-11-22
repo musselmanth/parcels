@@ -2,6 +2,7 @@ import { $, fmt } from './core/dom.js';
 import { CATS } from './data/puzzles.js';
 import { CAT, PUZZLES, loadBest, store } from './storage.js';
 import { loadAllProgress } from './progress.js';
+import { resultOf } from './scoring.js';
 
 // The puzzle picker (#menu screen): level tabs and a grid of boards with their status.
 // Switching to it is done by showScreen('menu') in screens.js; this module only fills it in.
@@ -27,16 +28,15 @@ export function renderMenu(onPick, current) {
       (r ? (r.revealed ? ' revealed' : ' solved') : w ? ' wip' : '') +
       (i + 1 === current ? ' current' : '');
     if (r && !r.revealed) solved++;
+    // finished: Perfect!, N Hints or Loser; in progress: parcels placed so far
     const status = r
-      ? r.revealed
-        ? '🫠 0'
-        : r.stars
-          ? '★'.repeat(r.stars) + '<span style="opacity:.3">' + '★'.repeat(5 - r.stars) + '</span>'
-          : fmt(r.time)
+      ? `<span class="res-${resultOf(r).kind}">${resultOf(r).short}</span>`
       : w
         ? `${(w.groups || []).length}/${p.c.length / 6}`
         : '';
-    b.innerHTML = `<div class="n">${i + 1}</div><div class="st">${status}</div>`;
+    // finished boards (any result) get a check mark next to their number
+    const tick = r ? '<span class="tick" aria-label="finished">✓</span>' : '';
+    b.innerHTML = `<div class="n">${i + 1}${tick}</div><div class="st">${status}</div>`;
     b.onclick = () => onPick(i + 1);
     g.appendChild(b);
   });

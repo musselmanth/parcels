@@ -69,29 +69,42 @@
   font-family: 'Orbitron', sans-serif;
   font-size: 14px;
 }
+/* the check mark after a finished board's number */
+.pz .n .tick {
+  margin-left: 3px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85em;
+  color: #2bff88;
+  text-shadow: 0 0 6px rgba(43, 255, 136, 0.6);
+}
 .pz .st {
   font-size: 11px;
   color: var(--muted);
   margin-top: 2px;
   min-height: 13px;
 }
-.pz.solved {
+/* finished boards (solved, or solution viewed): green outline and glow */
+.pz.solved,
+.pz.revealed {
   background: rgba(43, 255, 136, 0.1);
   border-color: #2bff88;
   color: #efedff;
   box-shadow: 0 0 12px rgba(43, 255, 136, 0.25);
 }
-.pz.solved,
-.pz.revealed {
-  color: #2b2a27;
+/* the result under each finished board's number: Perfect! green, hints yellow, Loser red */
+.pz .st .res-perfect,
+.pz .st .res-hints,
+.pz .st .res-loser {
+  font-weight: 600;
 }
-.pz.solved .st {
-  color: #7dffb0;
+.pz .st .res-perfect {
+  color: #2bff88;
 }
-.pz.revealed {
-  background: rgba(255, 255, 255, 0.02);
-  border-color: rgba(255, 255, 255, 0.08);
-  color: #7d78a8;
+.pz .st .res-hints {
+  color: #ffd43b;
+}
+.pz .st .res-loser {
+  color: #ff5a7a;
 }
 /* in progress: dashed border, parcels placed shown under the number */
 .pz.wip {
@@ -111,18 +124,4 @@
   color: var(--muted);
   margin: 12px 2px 0;
   line-height: 1.5;
-}
-#share {
-  color: #2b2a27;
-  white-space: pre;
-  font-family: ui-monospace, Menlo, monospace;
-  font-size: 12px;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 10px;
-  margin: 10px 0;
-  overflow: auto;
-  max-height: 200px;
-  display: none;
 }

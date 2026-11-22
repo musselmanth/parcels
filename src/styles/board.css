@@ -1,6 +1,6 @@
 /*
  * The puzzle board (SVG). Classes are set by render.js: .tile (.sel .paired .shake .release),
- * .parcel (.pinned .enter .pinning .nudge .holding), .pair, .badge, .holdring, #trail, #hole.
+ * .parcel (.pinned .enter .pinning .nudge .holding), .pair, .seal, .holdring, #trail, #hole.
  * Most game feel lives in the animations here.
  */
 .tile {
@@ -189,20 +189,25 @@
     transform: rotate(2.5deg);
   }
 }
-.badge {
-  transform-box: fill-box;
-  transform-origin: center;
+/* a locked parcel's seal: a thin second line inside its outline; draws itself in when it locks */
+.seal {
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.9;
+  pointer-events: none;
 }
-.parcel.pinning .badge,
-.badge.enter {
-  animation: badgeIn 0.45s cubic-bezier(0.3, 1.8, 0.5, 1) both;
+.seal.enter {
+  stroke-dasharray: 1;
+  animation: sealIn 0.45s ease-out both;
 }
-@keyframes badgeIn {
+@keyframes sealIn {
   from {
-    transform: scale(0) rotate(-40deg);
+    stroke-dashoffset: 1;
   }
   to {
-    transform: scale(1) rotate(0);
+    stroke-dashoffset: 0;
   }
 }
 /* press-and-hold ring */

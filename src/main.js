@@ -207,3 +207,8 @@ startTelemetry({ sound: prefs.sound, showTimer: prefs.showTimer }); // playtest 
 setCat(prefs.cat || 'easy');
 showScreen('intro', { animate: false }); // the site opens on the start screen
 paintHelpHint(); // first visit: How to play shimmers instead of opening by itself
+// Everything's set up: fade the page in (see the <style> in index.html). Wait for the fonts too, but
+// no more than 0.8s, so the text doesn't visibly switch fonts as they arrive.
+Promise.race([document.fonts ? document.fonts.ready : null, new Promise((r) => setTimeout(r, 800))]).then(
+  () => document.documentElement.classList.add('ready'),
+);

@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS games (
   hints INTEGER,
   pairs INTEGER,
   locks INTEGER,
-  score INTEGER,
-  stars INTEGER,
+  score INTEGER,          -- from the old points system; no longer sent (the result is outcome + hints)
+  stars INTEGER,          -- likewise
   new_best INTEGER,      -- 1 if it set the player's best time for the level
   data TEXT              -- the full report as JSON
 );

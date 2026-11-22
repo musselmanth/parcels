@@ -2,6 +2,7 @@ import { $ } from './core/dom.js';
 import { CATS } from './data/puzzles.js';
 import { setMsg } from './render.js';
 import { loadBest, loadStore, saveBest } from './storage.js';
+import { resultRank } from './scoring.js';
 
 // Settings > Play history: export all saved results (and best times) to a JSON file, and import one (merging).
 // The export file: {app, version, exported, progress: {easy: {...}, medium: {...}, ...}}.
@@ -75,7 +76,8 @@ $('#importFile').onchange = (e) => {
   rd.readAsText(f);
   e.target.value = '';
 };
-// Importing merges: for each board, keep whichever result is better (a real solve beats a peek; higher score wins).
+// Importing merges: for each board, keep whichever result is better (a solve beats a viewed solution,
+// then fewer hints, then the faster time; see resultRank in scoring.js).
 function importHistory(text) {
   let data;
   try {
@@ -101,7 +103,7 @@ function importHistory(text) {
       theirs = incoming[k] || {};
     for (const [n, r] of Object.entries(theirs)) {
       const m = mine[n],
-        sc = (x) => (x.revealed ? -1 : (x.score ?? 0));
+        sc = resultRank;
       if (!m || sc(r) > sc(m)) {
         mine[n] = r;
         added++;

@@ -109,6 +109,13 @@ export function celebrate() {
         ],
         { duration: 500, delay: k * 25, fill: 'forwards', easing: 'ease-out' },
       );
+      // a locked parcel's seal line turns gold with its outline
+      const seal = w.inner.querySelector('.seal');
+      if (seal)
+        seal.animate(
+          [{ stroke: seal.getAttribute('stroke') }, { stroke: (TH.merge || {}).stroke || '#c99a1c' }],
+          { duration: 500, delay: k * 25, fill: 'forwards', easing: 'ease-out' },
+        );
       w.inner.animate(
         [{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1.02)' }],
         { duration: 600, delay: k * 25, fill: 'forwards', easing: 'cubic-bezier(.3,1.5,.5,1)' },

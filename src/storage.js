@@ -2,8 +2,9 @@ import { CATS } from './data/puzzles.js';
 
 // Everything saved in the browser (localStorage).
 //   - Results per level, under that level's key in CATS (src/data/puzzles.js): {[boardNumber]: record}.
-//     A solve record: {time, misses, pops, best, trail, pairs, locks, score, stars, at}.
-//     A peek record: {revealed: true, score: 0, stars: 0, at}.
+//     A solve record: {time, misses, pops, hints, best, trail, pairs, locks, at}. Older ones may also
+//     have score and stars (from the old points system); they're ignored, and a missing hints means 0.
+//     A viewed-solution record: {revealed: true, at}.
 //   - Best time per level under '<level key>-best' (see loadBest below).
 //   - Preferences under 'parcels-playtest-v1-prefs': {sound, seenHelp, cat, showTimer}.
 //     seenHelp: How to play has been opened (until then its start-screen button shimmers).

@@ -1,10 +1,13 @@
 import { $, fmt, rafs } from './core/dom.js';
 import { CATS } from './data/puzzles.js';
-import { COMPLIMENTS, LEVEL_EMOJI, awardFor, scoreFor, shareText, starsFor, statText } from './scoring.js';
+import { awardFor, praiseFor, resultOf, shareText, statText } from './scoring.js';
 import { G } from './state.js';
-import { CAT, loadBest, store } from './storage.js';
+import { loadBest, store } from './storage.js';
 
-// The results card (#mWin): shown after a win, or via the Results button on a finished board.
+// The results card (#mWin): shown after a board is finished, or via the Results button when a
+// finished board is opened again (each board is played once, so that's the same result).
+// The headline is the result: Perfect!, Solved with N Hints, or Loser. Under it: a line of praise,
+// a badge if one fits, the level's best time, and the stats (time, hints, mistakes, pops).
 
 // Animate a number from 0 up to `to`, formatting each step with fmtFn.
 function countUp(el, to, fmtFn, delay) {
@@ -18,45 +21,19 @@ function countUp(el, to, fmtFn, delay) {
   };
   rafs.push(requestAnimationFrame(f));
 }
-// Fill in the results card for a run {time, misses, pops, hints, best, trail}. note is extra text for the
-// breakdown line. Returns {score, stars}.
-export function showResults(r, note) {
-  const sc = scoreFor(r.hints || 0, r.misses, r.pops),
-    stars = starsFor(sc.total);
-  $('#stars').innerHTML = [0, 1, 2, 3, 4]
-    .map(
-      (k) =>
-        `<i class="${k < stars ? '' : 'off'}" style="animation-delay:${300 + k * 120}ms">${stars === 5 ? '🌟' : '⭐'}</i>`,
-    )
-    .join('');
-  const sEl = $('#score');
-  sEl.textContent = '0';
-  countUp(sEl, sc.total, (v) => Math.round(v), 250);
-  const pool = COMPLIMENTS[CAT][stars];
-  $('#compliment').textContent = pool[G.cur % pool.length];
-  $('#breakdown').innerHTML =
-    `Hints <b>${sc.hint}</b> · Accuracy <b>${sc.acc}</b> · Tidiness <b>${sc.tidy}</b>` +
-    (note ? ` · ${note}` : '');
-  const aw = awardFor(r),
-    box = $('#award');
-  box.style.display = aw ? '' : 'none';
-  if (aw) box.innerHTML = `<span class="em">${aw[0]}</span><span>${aw[1]}<small>${aw[2]}</small></span>`;
-  const items = [
-    ['⏱', 'Time', r.time, (v) => fmt(v)],
-    ['💡', 'Hints', r.hints || 0, (v) => Math.round(v)],
-    ['❌', 'Mistakes', r.misses, (v) => Math.round(v)],
-    ['🫧', 'Popped', r.pops, (v) => Math.round(v)],
-  ];
-  const g = $('#statgrid');
-  g.innerHTML = items
-    .map(
-      ([ic, lbl], k) =>
-        `<div class="stat" style="animation-delay:${200 + k * 70}ms"><span class="ico">${ic}</span><b>0</b><span>${lbl}</span></div>`,
-    )
-    .join('');
-  [...g.querySelectorAll('.stat b')].forEach((el, k) => countUp(el, items[k][2], items[k][3], 250 + k * 70));
-  $('#diag').textContent = statText(G.P);
-  const txt = shareText(r, sc, stars),
+
+// The headline and the line of praise under it.
+function headline(rec) {
+  const res = resultOf(rec);
+  $('#winTitle').textContent = res.title;
+  $('#winTitle').className = 'big ' + res.kind;
+  $('#compliment').textContent = praiseFor(rec);
+  return res;
+}
+
+// The Share result button: copies shareText(rec), and shows it in case copying isn't allowed.
+function shareButton(rec) {
+  const txt = shareText(rec),
     sb = $('#shareBox');
   sb.textContent = txt;
   sb.style.display = 'none';
@@ -71,8 +48,40 @@ export function showResults(r, note) {
     }
     setTimeout(() => ($('#bShare').textContent = 'Share result'), 2400);
   };
-  return { score: sc.total, stars };
 }
+
+// Fill in the results card for a finished board. rec: a just-finished run or a saved record
+// ({time, misses, pops, hints, best, trail} for a solve, {revealed: true} if the solution was viewed).
+export function showResults(rec) {
+  const res = headline(rec);
+  const aw = res.kind === 'loser' ? null : awardFor(rec),
+    box = $('#award');
+  box.style.display = aw ? '' : 'none';
+  if (aw) box.innerHTML = `<span class="em">${aw[0]}</span><span>${aw[1]}<small>${aw[2]}</small></span>`;
+  const g = $('#statgrid');
+  if (res.kind === 'loser') g.innerHTML = '';
+  else {
+    const items = [
+      ['⏱', 'Time', rec.time || 0, (v) => fmt(v)],
+      ['💡', 'Hints', rec.hints || 0, (v) => Math.round(v)],
+      ['❌', 'Mistakes', rec.misses || 0, (v) => Math.round(v)],
+      ['🫧', 'Popped', rec.pops || 0, (v) => Math.round(v)],
+    ];
+    g.innerHTML = items
+      .map(
+        ([ic, lbl], k) =>
+          `<div class="stat" style="animation-delay:${200 + k * 70}ms"><span class="ico">${ic}</span><b>0</b><span>${lbl}</span></div>`,
+      )
+      .join('');
+    [...g.querySelectorAll('.stat b')].forEach((el, k) =>
+      countUp(el, items[k][2], items[k][3], 250 + k * 70),
+    );
+  }
+  $('#diag').textContent = statText(G.P);
+  shareButton(rec);
+  return res;
+}
+
 // The best-time line on the results card. outcome (after a win): {kind: 'new', time, was} when this
 // solve set a new best for the level, {kind: 'hinted'} when it used hints (those don't count).
 // Without an outcome it just shows the level's current best.
@@ -94,63 +103,12 @@ export function showBestTime(level, outcome = null) {
   el.innerHTML = html;
   el.style.display = html ? '' : 'none';
 }
-// "Results" on a solved board: the best run saved for it
-// Results card for a board whose solution was viewed.
-function showLoser() {
-  $('#winTitle').textContent = 'Peeked!';
-  showBestTime(G.level);
-  $('#stars').innerHTML = [0, 1, 2, 3, 4]
-    .map((k) => `<i class="off" style="animation-delay:${300 + k * 120}ms">⭐</i>`)
-    .join('');
-  $('#score').textContent = '0';
-  $('#compliment').textContent = [
-    'No points for peeking. The next one’s yours.',
-    'Peeked! It happens to the best of us.',
-    'Sometimes you just need to see it. Onward!',
-  ][G.cur % 3];
-  $('#breakdown').textContent = 'Solution viewed · no points';
-  const box = $('#award');
-  box.style.display = '';
-  box.innerHTML = '<span class="em">🫠</span><span>Loser<small>Looked at the solution</small></span>';
-  $('#statgrid').innerHTML = '';
-  $('#diag').textContent = statText(G.P);
-  const txt = `Parcels ${LEVEL_EMOJI[CAT]} ${CATS[CAT].name} #${G.cur}\n☆☆☆☆☆  0\n🫠 Peeked at the solution`,
-    sb = $('#shareBox');
-  sb.textContent = txt;
-  sb.style.display = 'none';
-  $('#bShare').textContent = 'Share result';
-  $('#bShare').onclick = async () => {
-    sb.style.display = 'block';
-    try {
-      await navigator.clipboard.writeText(txt);
-      $('#bShare').textContent = 'Copied! Paste anywhere';
-    } catch (e) {
-      $('#bShare').textContent = 'Select the text below to copy';
-    }
-    setTimeout(() => ($('#bShare').textContent = 'Share result'), 2400);
-  };
-}
-// Show the saved result for the current board.
+
+// Show the saved result for the current board (the Results button on a finished board).
 export function openResults() {
   const rec = store[G.cur];
   if (!rec) return;
-  if (rec.revealed) {
-    showLoser();
-    $('#mWin').classList.add('open');
-    return;
-  }
-  $('#winTitle').textContent = 'Best result';
-  showResults(
-    {
-      time: rec.time,
-      misses: rec.misses || 0,
-      pops: rec.pops || 0,
-      best: rec.best || 0,
-      hints: rec.hints || 0,
-      trail: rec.trail || [],
-    },
-    '',
-  );
+  showResults(rec);
   showBestTime(G.level);
   $('#mWin').classList.add('open');
 }

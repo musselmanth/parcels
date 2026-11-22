@@ -1,7 +1,8 @@
 import { $ } from './core/dom.js';
 import { currentScreen } from './screens.js';
 import { G } from './state.js';
-import { enabled, sendFeedback, track } from './telemetry.js';
+import { PLAYTEST_API } from './config.js';
+import { enabled, isMe, sendFeedback, track } from './telemetry.js';
 
 // The playtest note (start screen and Settings) and the feedback form (#mFeedback). Entries go to the
 // playtest collector (worker/), along with where the player was and their screen size. If no
@@ -17,6 +18,9 @@ export function initFeedback() {
 
   document.querySelectorAll('.feedback-link').forEach((el) => (el.hidden = !enabled));
   document.querySelectorAll('.data-note').forEach((el) => (el.hidden = !enabled));
+  // a browser marked as yours (?me): say so in Settings, so it's clear why there's no data or feedback
+  const mine = $('#meNote');
+  if (mine) mine.hidden = !(PLAYTEST_API && isMe);
 
   const paintRating = () =>
     modal.querySelectorAll('.fb-rating button').forEach((b) => {

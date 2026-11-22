@@ -4,8 +4,8 @@ import { CATS } from './data/puzzles.js';
 import { G } from './state.js';
 import { CAT } from './storage.js';
 
-// Scoring and everything on the results card that's calculated rather than drawn: par time, the
-// 1000-point score, stars, compliments, awards and the share text. Tune the game's scoring here.
+// Results: what a finished board counts as (Perfect!, Solved with N Hints, or Loser), the line of
+// praise under it, the badges, and the share text. There are no points or stars.
 
 // Words for a board's logic level (the `l` field).
 const LEVELS = ['', 'gentle', 'tricky', 'chain reasoning', 'needs a guess'];
@@ -30,74 +30,132 @@ export const newStats = () => ({
   fast: null,
   hints: 0,
 });
-// Mistakes and pops cost less on bigger boards, where some are expected.
-const ALLOW = {
-  easy: { miss: 4, pop: 4 },
-  medium: { miss: 6, pop: 6 },
-  hard: { miss: 8, pop: 8 },
-  extreme: { miss: 10, pop: 12 },
-};
-// Hints that use up the whole hints part of the score: half the board's parcels (at least 3).
-// So a hint costs about 167 points on a 6-parcel board and about 56 on an 18-parcel one.
-const hintAllowance = () => Math.max(3, Math.ceil(GROUPS / 2));
-// Score out of 1000: hints (500) + accuracy (300) + tidiness (200). Time isn't scored; it's
-// shown on the results card and kept as each level's best time instead.
-export function scoreFor(hints, mistakes, pops) {
-  const hint = Math.max(0, 500 - (500 * hints) / hintAllowance());
-  const acc = Math.max(0, 300 - (300 * mistakes) / ALLOW[CAT].miss);
-  const tidy = Math.max(0, 200 - (200 * pops) / ALLOW[CAT].pop);
-  const r = (v) => Math.round(v);
-  return { hint: r(hint), acc: r(acc), tidy: r(tidy), total: r(hint) + r(acc) + r(tidy) };
+// What a finished board counts as, from a saved record or a just-finished run:
+//   Perfect!             solved with no hints
+//   Solved with N Hints  solved, with hints
+//   Loser                the solution was viewed
+// Nothing else (time, misses, pops) affects it; those show up as stats and badges instead.
+// Older saved records (from before hints existed, or with points and stars) work too: their hint
+// count is read if present, and missing means none.
+export function resultOf(rec) {
+  if (rec.revealed) return { kind: 'loser', title: 'Loser', short: 'Loser', emoji: '🫠' };
+  const h = rec.hints || 0;
+  if (!h) return { kind: 'perfect', title: 'Perfect!', short: 'Perfect!', emoji: '🌟' };
+  const n = `${h} Hint${h === 1 ? '' : 's'}`;
+  return { kind: 'hints', title: `Solved with ${n}`, short: n, emoji: '💡' };
 }
-// Star thresholds ease off a little as the levels get harder.
-const TIERS = {
-  easy: [930, 800, 620, 400],
-  medium: [900, 770, 590, 380],
-  hard: [870, 740, 560, 360],
-  extreme: [840, 700, 520, 340],
+// Which of two records for the same board is better (for importing history): a solve beats a
+// viewed solution, fewer hints beat more, then the faster time. Returns a number to compare.
+export const resultRank = (rec) => (rec.revealed ? -1e12 : -(rec.hints || 0) * 1e9 - (rec.time || 0));
+
+// ---------- praise: one line under the result, about how the solve went ----------
+// The result (Perfect!, hints, Loser) never depends on speed or slips; the praise does. Two things
+// are judged against the level, since bigger boards take longer and invite more wrong turns:
+//   speed: seconds per parcel (fast at or under `fast`, slow at or over `slow`)
+//   slips: mistakes + pops (clean = none, many = at or over `many`)
+// Tune the feel of the praise here.
+const PACE = {
+  easy: { fast: 5, slow: 20, many: 5 },
+  medium: { fast: 7, slow: 28, many: 7 },
+  hard: { fast: 10, slow: 40, many: 9 },
+  extreme: { fast: 13, slow: 55, many: 12 },
 };
-export const starsFor = (total) => {
-  const t = TIERS[CAT];
-  return total >= t[0] ? 5 : total >= t[1] ? 4 : total >= t[2] ? 3 : total >= t[3] ? 2 : 1;
-};
-// One line under the score, by level and stars. Picked by board number.
-export const COMPLIMENTS = {
-  easy: {
-    5: ['Perfect warm-up. You make it look effortless.', 'Not a single wasted move. Beautiful.'],
-    4: ['Smooth and tidy. Nicely done.', 'Quick work. You’re ready for Medium.'],
-    3: ['Solid solve. You found your rhythm.', 'Good going. A few detours, but you got there.'],
-    2: ['Done and dusted. Next one will be quicker.', 'Every solve counts. Nice job sticking with it.'],
-    1: ['You finished it, and that’s what matters.', 'Warm-up complete. Onward!'],
-  },
-  medium: {
-    5: ['Masterful. That board never stood a chance.', 'Clean, fast, and clever. Superb.'],
-    4: ['Sharp thinking. That was a great solve.', 'Really nice work. Hard is calling your name.'],
-    3: [
-      'Nicely reasoned. You’re getting the hang of this.',
-      'Good solve. A couple of wobbles, nothing more.',
+// How a solve went: { speed: 'fast'|'normal'|'slow', slips: 'clean'|'few'|'many' }.
+export function paceOf(rec) {
+  const t = PACE[CAT] || PACE.easy;
+  const perParcel = (rec.time || 0) / 1000 / Math.max(1, GROUPS);
+  const slips = (rec.misses || 0) + (rec.pops || 0);
+  return {
+    speed: perParcel <= t.fast ? 'fast' : perParcel >= t.slow ? 'slow' : 'normal',
+    slips: slips === 0 ? 'clean' : slips >= t.many ? 'many' : 'few',
+  };
+}
+// Lines for each result and how it went; the first matching group is used. A few variations each,
+// picked by board number (so reopening a board shows the same line).
+const PRAISE = {
+  perfect: [
+    [
+      (p) => p.slips === 'clean' && p.speed === 'fast',
+      [
+        'Lightning fast and not a single wasted move.',
+        'Quick, clean, no hints. That’s how it’s done.',
+        'Didn’t even break a sweat. Flawless.',
+      ],
     ],
-    2: ['You worked it out. That’s real progress.', 'Tricky one, and you cracked it.'],
-    1: ['Persistence pays off. Board solved!', 'A win is a win. Well played.'],
-  },
-  hard: {
-    5: ['Elite solve. Genuinely impressive.', 'That was surgical. Wow.'],
-    4: ['Excellent. Hard boards bow to you.', 'Strong, steady, and smart. Great solve.'],
-    3: ['Good solve on a tough board. Respect.', 'You untangled a hard one. Nicely done.'],
-    2: ['Hard won and well earned.', 'That board fought back, and you still won.'],
-    1: ['You beat a Hard board. Take the victory lap.', 'Grit over speed. Solved!'],
-  },
-  extreme: {
-    5: ['Legendary. That was an Extreme board, flawlessly.', 'Untouchable. Take a bow.'],
-    4: ['Outstanding. Few people solve these this well.', 'Brilliant work on a brutal board.'],
-    3: ['Great solve. Extreme is no joke.', 'You stayed cool under pressure. Excellent.'],
-    2: ['You conquered an Extreme board. Huge.', 'Long haul, big reward. Well done.'],
-    1: ['Extreme board: defeated. Seriously.', 'That took real determination. Solved!'],
-  },
+    [
+      (p) => p.slips === 'clean',
+      [
+        'Clean as can be: no hints, no mistakes, nothing popped.',
+        'Every parcel right the first time. Beautiful.',
+        'Not one wrong turn. Lovely solve.',
+      ],
+    ],
+    [
+      (p) => p.slips === 'many',
+      [
+        'That one fought back, but you got there on your own.',
+        'Plenty of wrong turns, and still no hints. Stubborn in the best way.',
+        'A real battle, and you won it without any help.',
+      ],
+    ],
+    [(p) => p.speed === 'fast', ['Quick and confident. Nicely done.', 'Fast work, all on your own.']],
+    [
+      (p) => p.speed === 'slow',
+      [
+        'Slow and steady, and every parcel was yours.',
+        'You took your time and cracked it alone.',
+        'Patience paid off. No hints needed.',
+      ],
+    ],
+    [
+      () => true,
+      [
+        'Not a single hint. Beautifully done.',
+        'All you. That was a solid solve.',
+        'Worked it out on your own. Brilliant.',
+      ],
+    ],
+  ],
+  hints: [
+    [
+      (p) => p.slips === 'clean',
+      ['A nudge or two, then smooth sailing.', 'Hints in hand, not a single slip after that.'],
+    ],
+    [
+      (p) => p.slips === 'many',
+      [
+        'That one put up a fight. Solved is solved!',
+        'A tricky board, and you saw it through.',
+        'It took some untangling, but you got there.',
+      ],
+    ],
+    [(p) => p.speed === 'fast', ['Quick work with a little help.', 'In and out. Nicely done.']],
+    [() => true, ['Got there. Nicely done.', 'Every solve counts. Well played.', 'Board cleared. Onward!']],
+  ],
+  loser: [
+    [
+      () => true,
+      [
+        'Sometimes you just need to see it. Onward!',
+        'It happens to the best of us. The next one’s yours.',
+        'Now you know the trick for next time.',
+      ],
+    ],
+  ],
 };
+export function praiseFor(rec) {
+  const res = resultOf(rec),
+    pace = paceOf(rec);
+  const lines = PRAISE[res.kind].find(([test]) => test(pace))[1];
+  return lines[G.cur % lines.length];
+}
+
+// Badges and how many mistakes count as a lot (more on bigger boards, where some are expected).
+const MANY_MISSES = { easy: 8, medium: 12, hard: 16, extreme: 20 };
+// Hints for the "Guided Tour" badge: half the board's parcels (at least 3).
+const manyHints = () => Math.max(3, Math.ceil(GROUPS / 2));
 // Used in the share text.
 export const LEVEL_EMOJI = { easy: '🟢', medium: '🟡', hard: '🟠', extreme: '🔴' };
-// n stars as emoji, e.g. "⭐⭐⭐☆☆".
-const starRow = (n) => (n === 5 ? '🌟🌟🌟🌟🌟' : '⭐'.repeat(n) + '☆'.repeat(5 - n));
 
 // A fun title for how the board was solved: first match wins.
 // r = one run: {time, misses, pops, hints, best, trail}
@@ -106,7 +164,7 @@ export function awardFor(r) {
   const A = [
     [r.misses === 0 && r.pops === 0 && !hints, '💎', 'Flawless', 'No hints, no mistakes, nothing popped'],
     [r.pops >= Math.max(8, GROUPS), '🫧', 'Bubble Wrap Enthusiast', `${r.pops} parcels popped`],
-    [hints >= hintAllowance(), '🧭', 'Guided Tour', `${hints} hints along the way`],
+    [hints >= manyHints(), '🧭', 'Guided Tour', `${hints} hints along the way`],
     [
       r.best >= Math.max(6, Math.round(GROUPS * 0.75)),
       '🔥',
@@ -114,21 +172,22 @@ export function awardFor(r) {
       `${r.best} parcels in a row without a slip`,
     ],
     [r.misses === 0, '🎯', 'Sharpshooter', 'Zero mistakes'],
-    [r.misses >= ALLOW[CAT].miss * 2, '🧗', 'Never Gave Up', `${r.misses} mistakes and still solved it`],
+    [r.misses >= MANY_MISSES[CAT], '🧗', 'Never Gave Up', `${r.misses} mistakes and still solved it`],
   ];
   const a = A.find((a) => a[0]);
   return a ? a.slice(1) : null;
 }
-// The text copied by "Share result".
-export function shareText(r, sc, stars) {
+// The text copied by "Share result". r = a run or a saved record.
+export function shareText(r) {
+  const res = resultOf(r);
+  let text = `Parcels ${LEVEL_EMOJI[CAT]} ${CATS[CAT].name} #${G.cur}\n${res.emoji} ${res.title}`;
+  if (r.revealed) return text;
+  text += `  ⏱ ${fmt(r.time)}`;
   // the move-by-move trail, 10 per line: 🟩 parcel made, 🟥 mistake, 🫧 pop, 💡 hint
   const tr = r.trail || [],
     t = tr.slice(0, 40),
     rows = [];
   for (let i = 0; i < t.length; i += 10) rows.push(t.slice(i, i + 10).join(''));
   if (tr.length > 40) rows[rows.length - 1] += '…';
-  return (
-    `Parcels ${LEVEL_EMOJI[CAT]} ${CATS[CAT].name} #${G.cur}\n${starRow(stars)}  ${sc.total}\n⏱ ${fmt(r.time)}  💡 ${r.hints || 0}  ❌ ${r.misses}  🫧 ${r.pops}` +
-    (rows.length ? `\n${rows.join('\n')}` : '')
-  );
+  return text + (rows.length ? `\n${rows.join('\n')}` : '');
 }

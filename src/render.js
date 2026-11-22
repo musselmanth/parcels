@@ -17,24 +17,52 @@ import { saveProgress } from './progress.js';
 import { POS, STAR, TINTS, glyph, tileLabel } from './themes.js';
 
 // Drawing. The board is one <svg> rebuilt from G by render() after every move. Layers, bottom to top:
-// pencilled pairs, parcels (outline + their tiles + lock badge), the swipe trail, loose tiles, and the
+// pencilled pairs, parcels (outline + their tiles + the seal on locked ones), the swipe trail, loose tiles, and the
 // star shown when the board is solved. CSS classes drive the animations (see styles/board.css).
 // Also the tip message under the stats and the timer.
-
-// load a board's shape: cells come stored as a flat list q0,r0,q1,r1,...
-export function loadShape(raw) {
-  const c = [];
-  for (let i = 0; i < raw.c.length; i += 2) c.push([raw.c[i], raw.c[i + 1]]);
-  setCells(c);
-  CARD = CELLS.map((_, i) => blobPath([i], 6, 9));
-  svgFrame();
-}
 
 // Pre-computed rounded-hexagon path for each cell (rebuilt per board).
 let CARD = [];
 const GK = S / 68; // glyph scale: keeps every symbol well inside its hexagon
 
-// Fit the SVG viewBox around the board.
+// Load a board's shape: cells come stored as a flat list q0,r0,q1,r1,...
+// The board is drawn turned to whichever of its orientations fits the screen best (see bestTurn).
+export function loadShape(raw) {
+  const c = [];
+  for (let i = 0; i < raw.c.length; i += 2) c.push([raw.c[i], raw.c[i + 1]]);
+  setCells(bestTurn(c));
+  CARD = CELLS.map((_, i) => blobPath([i], 6, 9));
+  svgFrame();
+}
+
+// A hex grid can be turned by 60° and still line up exactly (every neighbor stays a neighbor), so a
+// board can be drawn in three orientations: as stored, turned 60°, or 120° (180° looks the same size
+// as 0°). Pick the one whose tiles come out biggest in the board's space on screen, e.g. a long, flat
+// board on an upright phone is drawn on a diagonal. Only positions change: cell ids (and so the
+// solution, saved progress and hints) are untouched, and the tiles' symbols stay upright.
+const turn60 = ([q, r]) => [-r, q + r];
+function bestTurn(cells) {
+  const stage = $('#stage');
+  const W = stage.clientWidth,
+    H = stage.clientHeight;
+  if (!W || !H) return cells;
+  const size = (cs) => {
+    const xs = cs.map(([q, r]) => W3 * S * (q + r / 2)),
+      ys = cs.map(([, r]) => 1.5 * S * r);
+    const w = Math.max(...xs) - Math.min(...xs) + W3 * S + 16,
+      h = Math.max(...ys) - Math.min(...ys) + 2 * S + 16;
+    return Math.min(W / w, H / h); // how big the board can be drawn
+  };
+  let best = cells,
+    bestSize = size(cells),
+    cs = cells;
+  for (let k = 1; k <= 2; k++) {
+    cs = cs.map(turn60);
+    const sz = size(cs);
+    if (sz > bestSize * 1.05) [best, bestSize] = [cs, sz]; // only turn for a real gain
+  }
+  return best;
+}
 function svgFrame() {
   const xs = CELLS.map((_, i) => center(i)[0]),
     ys = CELLS.map((_, i) => center(i)[1]);
@@ -59,19 +87,11 @@ function tileSVG(i, k) {
     `<g transform="translate(${(x - 50 * GK).toFixed(2)},${(y - 50 * GK).toFixed(2)}) scale(${GK.toFixed(4)})"><g class="gl">${POS[t.n].map(([gx, gy]) => glyph(t.s, gx, gy, t.c)).join('')}</g></g></g></g>`
   );
 }
-// The padlock badge on a locked parcel.
-function badgeSVG(g) {
-  // Triangle (all three touch): center of the parcel. Line or bend: center of the middle tile.
-  const [a, b, c] = g.cells,
-    tri = adj(a, b) && adj(b, c) && adj(a, c);
-  const mid = g.cells.find((m) => g.cells.every((o) => o === m || adj(m, o)));
-  const [x, y] = tri ? centroid(g.cells) : center(mid);
+// A locked parcel's seal: a second thin line in the parcel's color, traced just inside its outline
+// (along the tiles' outer edges, clear of their symbols). It draws itself in when the parcel locks.
+function sealSVG(g) {
   const dark = TINTS[g.color][1];
-  // position lives on the outer group; the pop-in animation runs on the inner one so it can't override the position
-  return (
-    `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})"><g class="badge${g.badgeFresh ? ' enter' : ''}"><circle r="11" fill="${dark}" stroke="#fffaf0" stroke-width="2.5"/>` +
-    `<rect x="-5" y="-1.5" width="10" height="8" rx="1.5" fill="#fffaf0"/><path d="M-3,-1.5 V-4 a3,3 0 0 1 6,0 V-1.5" fill="none" stroke="#fffaf0" stroke-width="2"/></g></g>`
-  );
+  return `<path class="seal${g.sealFresh ? ' enter' : ''}" pathLength="1" d="${blobPath(g.cells, 8, 9)}" stroke="${dark}"/>`;
 }
 // Dotted and dashed outlines (hints, pencilled pairs): an outline's length is rarely a whole number
 // of dash repeats, which leaves a bunched-up or gappy spot where the path starts and ends. Stretching
@@ -88,7 +108,7 @@ export function fitDashes(root) {
       if (cls === 'hint') p.style.animationDelay = `-${(performance.now() % HINT_SPIN_MS) / 1000}s`;
     });
 }
-// Rebuild the whole board from G and update the Misses / Parcels counters and progress bar.
+// Rebuild the whole board from G and update the Hints / Parcels counters and progress bar.
 export function render() {
   const inGroup = new Set();
   Object.values(G.groups).forEach((g) => g.cells.forEach((i) => inGroup.add(i)));
@@ -106,7 +126,7 @@ export function render() {
         `<g class="pwrap" data-g="${g.id}"><g class="parcel${g.pinned ? ' pinned' : ''}${g.fresh ? ' enter' : ''}">` +
         `<path class="outline" pathLength="1" d="${blobPath(g.cells, 1.5, 13)}" fill="${tint}" stroke="${dark}"/>` +
         g.cells.map((i, k) => tileSVG(i, k)).join('') +
-        (g.pinned ? badgeSVG(g) : '') +
+        (g.pinned ? sealSVG(g) : '') +
         `</g></g>`
       );
     })
@@ -120,10 +140,10 @@ export function render() {
   fitDashes(board);
   Object.values(G.groups).forEach((g) => {
     g.fresh = false;
-    g.badgeFresh = false;
+    g.sealFresh = false;
   });
   G.pairs.forEach((p) => (p.fresh = false));
-  $('#misses').textContent = G.misses;
+  $('#hintCount').textContent = (G.st && G.st.hints) || 0;
   $('#prog').textContent = Object.keys(G.groups).length;
   $('#progBar').style.width = (Object.keys(G.groups).length / GROUPS) * 100 + '%';
   saveProgress(); // every change to the board goes through here, so this keeps the save current
