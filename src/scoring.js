@@ -92,6 +92,11 @@ const PRAISE = {
         'Speed and precision. A textbook solve.',
         'Blink and you’d miss it. Perfect.',
         'That was a masterclass.',
+        'Wow. Showing off, are we?',
+        'Okay, now you’re just bragging.',
+        'Save some for the rest of us.',
+        'Did you write this puzzle? Be honest.',
+        'Sure, make it look easy. We’ll wait.',
       ],
     ],
     [
@@ -104,6 +109,9 @@ const PRAISE = {
         'You read that board like a book.',
         'Spotless. Every move counted.',
         'Calm and exact. A joy to watch.',
+        'Not one mistake? Show-off.',
+        'Ugh, perfect again. How annoying for everyone else.',
+        'Fine, you’re good at this. We get it.',
       ],
     ],
     [
