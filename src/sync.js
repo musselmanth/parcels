@@ -232,19 +232,33 @@ export function initSync() {
   $('#bSyncJoinGo').onclick = join;
   input.addEventListener('keydown', (e) => e.key === 'Enter' && join());
   $('#bSyncNow').onclick = () => syncNow(true);
-  // Copy the sync code, so it can be pasted on another device or saved somewhere safe.
-  $('#bSyncCopy').onclick = async () => {
-    const s = loadSync(),
-      btn = $('#bSyncCopy');
+  // Tap the code field to copy the code (to paste on another device or save somewhere safe).
+  // Its copy icon turns into a checkmark for a moment.
+  const field = $('#syncField');
+  let copiedTimer = null;
+  const copyCode = async () => {
+    const s = loadSync();
     if (!s) return;
     try {
       await navigator.clipboard.writeText(pretty(s.code));
-      btn.textContent = 'Copied!';
+      field.classList.add('copied');
+      field.setAttribute('aria-label', 'Sync code copied');
+      clearTimeout(copiedTimer);
+      copiedTimer = setTimeout(() => {
+        field.classList.remove('copied');
+        field.setAttribute('aria-label', 'Copy sync code');
+      }, 1800);
     } catch (e) {
-      btn.textContent = 'Press and hold the code to copy it';
+      historyStatus('Couldn’t copy here. Write the code down instead.', 'bad');
     }
-    setTimeout(() => (btn.textContent = 'Copy code'), 2000);
   };
+  field.onclick = copyCode;
+  field.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      copyCode();
+    }
+  });
   $('#bSyncStop').onclick = () => {
     stopSync();
     historyStatus('This device has stopped syncing. Its results stay here.', 'ok');

@@ -465,20 +465,78 @@ button.danger {
   letter-spacing: 0.08em;
   color: var(--muted);
 }
+/* the sync code shown as a read-only field with a copy icon on its right */
+.sync-field {
+  display: flex;
+  align-items: stretch;
+  margin: 8px auto 4px;
+  max-width: 300px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.sync-field:active,
+.sync-field:focus-visible {
+  border-color: rgba(255, 212, 59, 0.6);
+  outline: none;
+}
+.sync-field.copied {
+  border-color: rgba(43, 255, 136, 0.6);
+  box-shadow: 0 0 14px rgba(43, 255, 136, 0.25);
+}
 .sync-code {
+  flex: 1;
+  padding: 10px 12px;
   font-family: 'Orbitron', ui-monospace, monospace;
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 800;
   letter-spacing: 0.12em;
   color: #ffd43b;
   text-shadow: 0 0 14px rgba(255, 212, 59, 0.45);
-  -webkit-user-select: all;
-  user-select: all;
+  text-align: center;
+  -webkit-user-select: none;
+  user-select: none;
 }
-.sync-copy {
-  margin: 6px 0 2px;
-  padding: 6px 14px;
-  font-size: 13px;
+.sync-copy-ic {
+  flex: none;
+  width: 50px;
+  display: grid;
+  place-items: center;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--ink);
+}
+.sync-copy-ic svg {
+  grid-area: 1 / 1;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition:
+    opacity 0.2s,
+    transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.sync-copy-ic .ic-check {
+  opacity: 0;
+  transform: scale(0.5);
+  color: #2bff88;
+  stroke-width: 2.6;
+}
+.sync-field.copied .ic-copy {
+  opacity: 0;
+  transform: scale(0.5);
+}
+.sync-field.copied .ic-check {
+  opacity: 1;
+  transform: scale(1);
 }
 .sync-when {
   margin: 0 0 8px;
