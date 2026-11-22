@@ -50,3 +50,11 @@ CREATE TABLE IF NOT EXISTS feedback (
   contact TEXT,          -- optional name or email they typed
   context TEXT           -- JSON: screen, level, board, device
 );
+
+-- Moving a player's results to another device: one row per transfer code, deleted when the code is
+-- used or after it expires (10 minutes).
+CREATE TABLE IF NOT EXISTS transfers (
+  code TEXT PRIMARY KEY,
+  data TEXT NOT NULL,     -- the results being moved (JSON)
+  expires_at INTEGER NOT NULL  -- ms since 1970
+);

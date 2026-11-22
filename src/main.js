@@ -24,7 +24,7 @@ import { G } from './state.js';
 import { clearAllProgress, saveProgress } from './progress.js';
 import { CAT, clearBests, loadStore, prefs, savePrefs, setCat } from './storage.js';
 import './input.js'; // attaches the board's pointer handlers
-import { historyStatus } from './history.js'; // also attaches the Export / Import history buttons
+import { historyStatus, initHistory } from './history.js';
 
 // Entry point (loaded by index.html). Loads the CSS, wires every button and dialog to its action,
 // then starts the game on the first unsolved board with the puzzle menu open.
@@ -201,6 +201,7 @@ document.querySelectorAll('#catSeg button').forEach((b) => (b.onclick = () => pi
 trackTopbarHeight(); // screens leave the floating top bar's height free
 initIntro(pickLevel);
 initInstall(); // the start screen's Install as an app button
+initHistory(); // Settings: send / receive results with a transfer code
 initFeedback(); // the playtest note and feedback form
 startTelemetry({ sound: prefs.sound, showTimer: prefs.showTimer }); // playtest data (if PLAYTEST_API is set)
 setCat(prefs.cat || 'easy');

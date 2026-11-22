@@ -40,6 +40,16 @@ npx wrangler d1 create parcels-playtest   # prints a database_id
 
 Optional: to use `https://api.parcelsgame.com` instead of the workers.dev address, go to Cloudflare → Workers & Pages → parcels-playtest → Settings → Domains & Routes → Add a custom domain. Then use that address in `src/config.js`.
 
+## Moving results between devices
+
+Players can move their results to another device without an account: Settings > Play history > **Send to another device** shows a 6-character code (e.g. `K7Q 4MX`), and **Receive from another device** on the other device takes it. The Worker keeps the results under that code for 10 minutes in the `transfers` table and deletes them as soon as the code is used (or once it expires). Codes use letters and digits that can't be confused (no 0/O, 1/I), so there are about 900 million of them.
+
+If your database was created before this was added, create the new table once (it leaves your existing data alone):
+
+```bash
+npm run db:init
+```
+
 ## Leaving out your own play
 
 Two ways, and you can use both:
@@ -77,8 +87,8 @@ npx wrangler d1 execute parcels-playtest --remote --command "DELETE FROM events 
 
 ## Files
 
-- `src/index.js`: the Worker (receiving data, the admin page, CSV export). Commented at the top.
-- `schema.sql`: the tables (`events`, `games`, `feedback`).
+- `src/index.js`: the Worker (receiving data, transfer codes, the admin page, CSV export). Commented at the top.
+- `schema.sql`: the tables (`events`, `games`, `feedback`, `transfers`).
 - `wrangler.toml`: the Worker's name, the database binding, and `ALLOWED_ORIGINS` (the sites allowed to send data; add any address you serve the game from).
 
 ## Testing locally

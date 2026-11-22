@@ -5,6 +5,8 @@
 //                         when the tab is hidden or closed, and right away when a board is finished)
 //   POST /api/feedback    a feedback form entry
 //   (both are silently dropped when they come from an address in the IGNORE_IPS secret)
+//   POST /api/transfer    store a player's results for 10 minutes and return a short code for them
+//   POST /api/transfer/claim  trade that code for the results (once; the code is then deleted)
 //   POST /api/forget      delete everything from one player (the game sends it when a browser is
 //                         marked as yours with ?me; only that browser knows its random player id)
 //   GET  /admin?key=...   private page: feedback, finished games, sessions, per-level summary
@@ -25,6 +27,10 @@ export default {
     try {
       if (req.method === 'POST' && url.pathname === '/api/events')
         return json(await postEvents(req, env), cors);
+      if (req.method === 'POST' && url.pathname === '/api/transfer')
+        return json(await sendTransfer(req, env), cors);
+      if (req.method === 'POST' && url.pathname === '/api/transfer/claim')
+        return json(await claimTransfer(req, env), cors);
       if (req.method === 'POST' && url.pathname === '/api/forget') return json(await forget(req, env), cors);
       if (req.method === 'POST' && url.pathname === '/api/feedback')
         return json(await postFeedback(req, env), cors);
@@ -159,6 +165,55 @@ async function postEvents(req, env) {
   }
   if (stmts.length) await env.DB.batch(stmts);
   return { ok: true, stored: stmts.length };
+}
+
+// ---- moving results to another device (no accounts: a short code that works once, for 10 minutes)
+
+const TRANSFER_MS = 10 * 60 * 1000;
+const MAX_TRANSFER = 512 * 1024; // bytes of results
+// letters and digits that can't be mixed up (no 0/O, 1/I/L): 31^6 ≈ 900 million codes
+const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+const newCode = () => {
+  const bytes = crypto.getRandomValues(new Uint8Array(6));
+  return [...bytes].map((b) => CODE_CHARS[b % CODE_CHARS.length]).join('');
+};
+// Codes are typed by people: ignore spaces, dashes and case.
+const cleanCode = (c) => (typeof c === 'string' ? c.toUpperCase().replace(/[^A-Z0-9]/g, '') : '');
+
+async function sendTransfer(req, env) {
+  const text = await req.text();
+  if (text.length > MAX_TRANSFER) throw fail(413, 'too big');
+  let body;
+  try {
+    body = JSON.parse(text);
+  } catch (e) {
+    throw fail(400, 'not JSON');
+  }
+  if (!body || typeof body.data !== 'object') throw fail(400, 'needs data');
+  const now = Date.now();
+  await env.DB.prepare('DELETE FROM transfers WHERE expires_at < ?').bind(now).run(); // tidy up old ones
+  for (let tries = 0; tries < 5; tries++) {
+    const code = newCode();
+    const res = await env.DB.prepare(
+      'INSERT OR IGNORE INTO transfers (code, data, expires_at) VALUES (?, ?, ?)',
+    )
+      .bind(code, JSON.stringify(body.data), now + TRANSFER_MS)
+      .run();
+    if (res.meta.changes) return { ok: true, code, expiresAt: now + TRANSFER_MS };
+  }
+  throw fail(503, 'try again');
+}
+
+async function claimTransfer(req, env) {
+  const code = cleanCode((await readBody(req)).code);
+  if (code.length !== 6) throw fail(400, 'That code should be 6 characters.');
+  const row = await env.DB.prepare('SELECT data, expires_at FROM transfers WHERE code = ?')
+    .bind(code)
+    .first();
+  if (!row || row.expires_at < Date.now())
+    throw fail(404, 'That code didn’t work. It may have expired or been used.');
+  await env.DB.prepare('DELETE FROM transfers WHERE code = ?').bind(code).run(); // works once
+  return { ok: true, data: JSON.parse(row.data) };
 }
 
 async function forget(req, env) {

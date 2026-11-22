@@ -381,18 +381,36 @@
         </p>
         <div class="setbtns"><button class="feedback-link" hidden>Leave feedback</button></div>
         <h3>Play history</h3>
-        <p class="setnote">
-          Your results are saved in this browser only. Export them to a file to move to another device, then
-          import that file there.
+        <p class="setnote" id="transferNote">
+          Your results are saved in this browser. To move them to another device, send them with a code.
         </p>
-        <div class="setbtns">
-          <button id="bExportJson">Export history</button
-          ><label class="filebtn" id="bImportLbl"
-            >Import history<input type="file" id="importFile" accept=".json,application/json"
-          /></label>
+        <!-- transfer codes (src/history.js) -->
+        <div class="setbtns" id="transferBtns">
+          <button id="bSendHistory">Send to another device</button
+          ><button id="bReceiveHistory">Receive from another device</button>
         </div>
-        <div class="setbtns"><button id="bClear" class="danger">Clear all history</button></div>
+        <div class="transfer-box" id="sendBox" hidden>
+          <div class="transfer-code" id="sendCode"></div>
+          <p class="setnote">
+            On your other device, open Settings, tap <b>Receive from another device</b> and enter this code.
+            It works once.
+          </p>
+          <p class="setnote transfer-expiry" id="sendExpiry"></p>
+        </div>
+        <div class="transfer-box" id="receiveBox" hidden>
+          <input
+            id="claimCode"
+            maxlength="9"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            placeholder="Code, e.g. K7Q 4MX"
+            aria-label="Transfer code"
+          />
+          <button class="primary" id="bClaim">Get my results</button>
+        </div>
         <p class="setnote" id="historyStatus" role="status"></p>
+        <div class="setbtns"><button id="bClear" class="danger">Clear all history</button></div>
         <div id="confirmClear" class="setnote" style="display: none; text-align: center">
           Delete every saved result on this device?
           <div class="setbtns">
