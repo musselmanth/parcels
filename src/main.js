@@ -9,10 +9,11 @@ import './styles/responsive.css'; // keep last: adapts the layout for tablets, d
 import { $ } from './core/dom.js';
 import { CATS } from './data/puzzles.js';
 import { openPuzzle, reveal } from './game.js';
-import { giveHint } from './actions.js';
+import { giveHint, popAll } from './actions.js';
 import { initHelp } from './help.js';
 import { nextUnsolved, renderMenu } from './menu.js';
 import { initIntro, renderIntro } from './intro.js';
+import { initInstall } from './install.js';
 import { currentScreen, onScreen, previousScreen, showScreen } from './screens.js';
 import { setMsg, tick } from './render.js';
 import { openResults } from './results.js';
@@ -61,7 +62,6 @@ document.addEventListener('historychange', () => {
 });
 // The title goes back to the start screen from anywhere.
 $('#bHome').onclick = () => showScreen('intro');
-$('#bIntroHelp').onclick = () => $('#mHelp').classList.add('open');
 onScreen((name) => {
   $('#bNav').setAttribute('aria-label', name === 'menu' ? 'Back' : 'All puzzles');
   // the timer pauses while you're off the game screen, and the board is saved as you leave
@@ -78,12 +78,20 @@ document.addEventListener('visibilitychange', () => document.hidden && saveProgr
 addEventListener('pagehide', saveProgress);
 
 // ---- top bar, help and settings dialogs ----
-$('#bHelp').onclick = () => $('#mHelp').classList.add('open');
-$('#bHelpClose').onclick = () => {
-  $('#mHelp').classList.remove('open');
-  prefs.seenHelp = true;
-  savePrefs();
-};
+// How to play: until it's been opened once, the start screen's button shimmers to draw the eye.
+function paintHelpHint() {
+  $('#bIntroHelp').classList.toggle('shimmer', !prefs.seenHelp);
+}
+function openHelp() {
+  $('#mHelp').classList.add('open');
+  if (!prefs.seenHelp) {
+    prefs.seenHelp = true;
+    savePrefs();
+    paintHelpHint();
+  }
+}
+$('#bHelp').onclick = $('#bIntroHelp').onclick = openHelp;
+$('#bHelpClose').onclick = () => $('#mHelp').classList.remove('open');
 $('#mHelp').onclick = (e) => {
   if (e.target.id === 'mHelp') $('#bHelpClose').onclick();
 };
@@ -118,8 +126,10 @@ $('#mSettings').addEventListener('click', (e) => {
 // ---- board controls and the results / reveal dialogs ----
 $('#bPrev').onclick = () => openPuzzle(G.cur - 1);
 $('#bNext').onclick = () => openPuzzle(G.cur + 1);
+// Start over: everything on the board pops, then it resets
 $('#bReset').onclick = () => {
-  if (!G.done) openPuzzle(G.cur, true);
+  if (G.done || G.busy || G.celebrating) return;
+  popAll(() => openPuzzle(G.cur, true));
 };
 $('#bHint').onclick = giveHint;
 $('#bReveal').onclick = () => {
@@ -183,6 +193,7 @@ paintTimer();
 setInterval(tick, 500);
 document.querySelectorAll('#catSeg button').forEach((b) => (b.onclick = () => pickLevel(b.dataset.c)));
 initIntro(pickLevel);
+initInstall(); // the start screen's Install as an app button
 setCat(prefs.cat || 'easy');
 showScreen('intro', { animate: false }); // the site opens on the start screen
-if (!prefs.seenHelp) $('#mHelp').classList.add('open');
+paintHelpHint(); // first visit: How to play shimmers instead of opening by itself

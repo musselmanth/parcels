@@ -231,6 +231,8 @@
 }
 /* hint: gold dots circling a parcel from the solution until the player makes it */
 .hint {
+  transform-box: fill-box; /* so it can fade out from its own center (Start over) */
+  transform-origin: center;
   fill: none;
   stroke: #ffd43b;
   stroke-width: 4.5;

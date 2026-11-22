@@ -155,30 +155,15 @@ export function submit(cells) {
   if (n === GROUPS) win();
 }
 
-// Clearing a parcel: it swells, the outline bursts outward, confetti puffs, and the tiles spring back loose.
-function breakGroup(g) {
-  G.st.pops++;
-  G.st.streak = 0;
-  G.st.trail.push('🫧');
+// The pop itself, just the look and sound: the parcel swells, its outline bursts outward and confetti
+// puffs. Returns false if the parcel isn't on screen. Used by breakGroup and popAll.
+function popEffect(g, quiet = false) {
   const el = board.querySelector(`.pwrap[data-g="${g.id}"] .parcel`);
   const [cx, cy] = centroid(g.cells),
     [sx, sy] = toScreen(cx, cy);
-  sfx.pop();
-  buzz(10);
-  setMsg('');
-  burst(sx, sy, groupColors(g), 16, 4.2);
-  const finish = () => {
-    delete G.groups[g.id];
-    G.released = new Set(g.cells);
-    render();
-    G.released = null;
-    G.busy = false;
-  };
-  if (!el) {
-    finish();
-    return;
-  }
-  G.busy = true;
+  sfx.pop(quiet);
+  burst(sx, sy, groupColors(g), quiet ? 10 : 16, 4.2);
+  if (!el) return false;
   el.querySelector('.outline').animate(
     [
       { transform: 'scale(1)', opacity: 1 },
@@ -193,7 +178,57 @@ function breakGroup(g) {
       { duration: 210, easing: 'ease-out', fill: 'forwards' },
     ),
   );
+  return true;
+}
+
+// Clearing a parcel (a player's pop, counted in the stats): it pops, and the tiles spring back loose.
+function breakGroup(g) {
+  G.st.pops++;
+  G.st.streak = 0;
+  G.st.trail.push('🫧');
+  buzz(10);
+  setMsg('');
+  const finish = () => {
+    delete G.groups[g.id];
+    G.released = new Set(g.cells);
+    render();
+    G.released = null;
+    G.busy = false;
+  };
+  if (!popEffect(g)) {
+    finish();
+    return;
+  }
+  G.busy = true;
   later(finish, 215);
+}
+
+// Start over: pop every parcel in a quick ripple and fade out pairs and hints, then call done()
+// (which resets the board). Not counted as pops: the stats are reset anyway.
+export function popAll(done) {
+  const groups = Object.values(G.groups);
+  if (!groups.length && !G.pairs.length && !G.hints.length) return done();
+  G.busy = true;
+  G.sel = [];
+  paintSel(); // drop any half-made selection's highlight
+  setMsg('');
+  buzz(groups.length ? [10, 30, 10] : 8);
+  const STEP = 70; // ms between pops
+  groups.forEach((g, k) => later(() => popEffect(g, k > 0), k * STEP));
+  board.querySelectorAll('.pair, .hint').forEach((el) =>
+    el.animate(
+      [
+        { opacity: 1, transform: 'scale(1)' },
+        { opacity: 0, transform: 'scale(1.15)' },
+      ],
+      {
+        duration: 200,
+        easing: 'ease-out',
+        fill: 'forwards',
+      },
+    ),
+  );
+  later(done, Math.max(0, groups.length - 1) * STEP + 260);
 }
 // Erasing a pencilled pair gets a smaller version of the same pop.
 function erasePair(p) {

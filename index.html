@@ -60,6 +60,10 @@
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#0b0a1a" />
     <meta name="apple-mobile-web-app-title" content="Parcels" />
+    <!-- iPhone/iPad home-screen app: full screen, content under the status bar (safe areas handled in CSS) -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -150,6 +154,27 @@
             </div>
             <div class="intro-pick">Choose a level</div>
             <div class="intro-levels" id="introLevels"></div>
+            <!-- install as an app (src/install.js shows it when the browser allows it, or on iPhone/iPad) -->
+            <div class="intro-install" id="introInstall" hidden>
+              <button id="bInstall" class="intro-installbtn">Install as an app</button>
+              <button id="bInstallX" class="intro-installx" aria-label="Don't offer this again">✕</button>
+              <p id="installTip" class="install-tip" hidden>
+                In Safari, tap <b>Share</b>
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 3v12M8 7l4-4 4 4" />
+                  <path d="M6 11v9h12v-9" />
+                </svg>
+                then <b>Add to Home Screen</b>.
+              </p>
+            </div>
           </div>
         </section>
         <!-- Puzzle picker. -->

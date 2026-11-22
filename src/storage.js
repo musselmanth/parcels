@@ -6,6 +6,8 @@ import { CATS } from './data/puzzles.js';
 //     A peek record: {revealed: true, score: 0, stars: 0, at}.
 //   - Best time per level under '<level key>-best' (see loadBest below).
 //   - Preferences under 'parcels-playtest-v1-prefs': {sound, seenHelp, cat, showTimer}.
+//     seenHelp: How to play has been opened (until then its start-screen button shimmers).
+//     installDismissed: the player tapped ✕ on the start screen's Install as an app.
 // Every localStorage call is wrapped in try/catch: storage can be blocked (private mode), and the game should still run.
 
 // The level being played and its list of boards.
