@@ -11,6 +11,7 @@ import { CATS } from './data/puzzles.js';
 import { openPuzzle, reveal } from './game.js';
 import { giveHint, popAll } from './actions.js';
 import { initHelp } from './help.js';
+import { initTutorial } from './tutorial.js';
 import { nextUnsolved, renderMenu } from './menu.js';
 import { initIntro, renderIntro } from './intro.js';
 import { initInstall } from './install.js';
@@ -204,6 +205,13 @@ $('#bClearYes').onclick = () => {
 
 // ---- start up ----
 initHelp(); // runs the help sheet's examples while it's open
+// the tutorial's "Play an Easy board": the next unsolved Easy board
+initTutorial(() => {
+  prefs.cat = 'easy';
+  savePrefs();
+  setCat('easy');
+  playBoard(nextUnsolved(0) || 1);
+});
 paintSound();
 paintTimer();
 setInterval(tick, 500);

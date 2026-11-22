@@ -50,6 +50,7 @@ npm run check-puzzles               # verify every puzzle has exactly one soluti
 | `src/fx.js`         | Confetti                                                                                                                                               |
 | `src/sound.js`      | Sound effects, synthesized with Web Audio (no audio files)                                                                                             |
 | `src/help.js`       | The How to play sheet: animated examples the player can also try                                                                                       |
+| `src/tutorial.js`   | The tutorial: a guided practice board, opened from the bottom of How to play                                                                           |
 | `src/menu.js`       | Fills in the puzzle menu (the grid of boards for a level)                                                                                              |
 | `src/sync.js`       | Syncing results across a player's devices with a sync code (Settings > Play history)                                                                   |
 | `src/styles/`       | CSS: color tokens and theme, page layout, board and animations, dialogs, menu, help; `responsive.css` adapts it all for tablets, desktop and landscape |
@@ -81,7 +82,7 @@ Every module starts with a comment saying what it's for, and functions have a li
 
 ## Making common changes
 
-- **The rules text and help:** the help sheet's text is in `index.html` (`#mHelp`). Its animated, playable examples (boards, tiles and what the pretend finger does) are `DEMOS` in `src/help.js`, styled by `src/styles/help.css`. Rule-break messages are `whyInvalid()` in `src/core/rules.js`.
+- **The rules text and help:** the help sheet's text is in `index.html` (`#mHelp`). Its animated, playable examples (boards, tiles and what the pretend finger does) are `DEMOS` in `src/help.js`, styled by `src/styles/help.css`. Rule-break messages are `whyInvalid()` in `src/core/rules.js`. The tutorial's board and steps are `TILES` and `STEPS` in `src/tutorial.js`.
 - **Results:** a finished board is **Perfect!** (no hints), **Solved with N Hints**, or **Loser** (solution viewed); see `resultOf` in `src/scoring.js`. There are no points or stars. Time, mistakes and pops are shown on the results card and feed the badges (`awardFor`), but never change the result. The line of praise under the result does react to how it went: speed (seconds per parcel) and slips (mistakes + pops), judged per level; see `PACE` and `PRAISE` in `src/scoring.js`.
 - **Colors:** tile colors, parcel tints and the win animation's gold are in `src/tiles.js`; page colors are the CSS tokens in `src/styles/theme-neon.css`. How strongly parcels are tinted is `.parcel .card` in `src/styles/board.css`.
 - **A new look:** the tiles' symbols and colors are `src/tiles.js` and the page's colors are the tokens at the top of `src/styles/theme-neon.css`; change those to restyle the game.

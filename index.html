@@ -331,9 +331,34 @@
           <li><b>Solution</b> shows the answer, but that board ends there.</li>
         </ul>
 
+        <h3>Practice</h3>
+        <p>New to Parcels? Play a small guided board that walks you through every move.</p>
+        <div class="row hpractice"><button class="primary" id="bTutorial">Play the tutorial</button></div>
+
         <!-- holds the "More below" hint, pinned to the bottom edge -->
         <div class="row sticky hbottom">
           <button class="hmore" id="bHelpMore" aria-label="Scroll down for more">More below ↓</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- The tutorial: a guided practice board (src/tutorial.js), opened from the bottom of How to play. -->
+    <div class="modal" id="mTutorial">
+      <div class="sheet help tut">
+        <div class="hhead">
+          <h2>Tutorial</h2>
+          <button class="xclose" id="bTutClose" aria-label="Close">✕</button>
+        </div>
+        <div class="tut-progress">
+          <span id="tutCount"></span>
+          <div class="tut-track"><div id="tutBar"></div></div>
+        </div>
+        <div class="tut-card" id="tutCard" aria-live="polite"></div>
+        <svg id="tutBoard" class="hboard tut-board"></svg>
+        <div class="hmsg" id="tutMsg" role="status"></div>
+        <div class="row" id="tutEnd" hidden>
+          <button class="primary" id="bTutPlay">Play an Easy board</button
+          ><button id="bTutAgain">Do it again</button>
         </div>
       </div>
     </div>

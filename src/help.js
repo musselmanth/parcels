@@ -12,13 +12,13 @@ import { COLOR_NAMES, GOLD, POS, SHAPE_NAMES, TINTS, glyph } from './tiles.js';
 // To change an example, edit its cells / tiles / script in DEMOS below. Tiles are T(shape, color, count):
 // shapes 0 circle, 1 square, 2 triangle, 3 bolt; colors 0 violet, 1 red, 2 yellow, 3 green; count 1-3.
 
-const T = (s, c, n) => ({ s, c, n });
+export const T = (s, c, n) => ({ s, c, n });
 const GK = S / 68; // glyph scale, same as render.js
 const STOP = Symbol('stop'); // thrown out of a script when its demo is stopped
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // ---------------------------------------------------------------- a small board that can act out moves
-class Mini {
+export class Mini {
   // svg: the <svg> to draw into. cells: [[q, r], ...] axial coordinates. tiles: one per cell (null = blank card).
   constructor(svg, cells, tiles) {
     this.svg = svg;
@@ -41,6 +41,10 @@ class Mini {
     this.msgEl = null; // where say() writes (set by the controller below)
     this.onTry = null; // called when the player taps the example while it's in 'auto' mode (null: watch-only)
     this.g = null; // the gesture in progress (see down())
+    // For the tutorial (src/tutorial.js), in play mode:
+    this.glow = null; // cells circled with the hint's gold dots, to show where to play
+    this.guard = null; // (kind, cells) -> '' to allow a move, or a message to refuse it; kind: make | pair | pop
+    this.onEvent = null; // (kind, cells) after a move; kind: make | reject | pair | pop | lock
     for (const [ev, fn] of [
       ['pointerdown', (e) => this.down(e)],
       ['pointermove', (e) => this.move(e)],
@@ -122,7 +126,14 @@ class Mini {
     this.tiles.forEach((_, i) => {
       if (!inParcel.has(i)) loose += tile(i, 0);
     });
-    this.world.innerHTML = `<g>${pair}</g><g>${parcels}</g><path class="htrail" d="${trail}"/><g>${loose}</g>`;
+    const glow = this.glow
+      ? `<path class="hint" d="${outlinePath(
+          this.glow.map((i) => this.c[i]),
+          -3,
+          15,
+        )}"/>`
+      : '';
+    this.world.innerHTML = `<g>${pair}</g><g>${parcels}</g><path class="htrail" d="${trail}"/><g>${loose}</g>${glow}`;
     fitDashes(this.world);
     this.parcels.forEach((p) => (p.fresh = p.sealFresh = false));
     if (this.pair) this.pair.fresh = false;
@@ -509,14 +520,17 @@ class Mini {
   // with only one tile that fits between them it becomes that parcel; anything else isn't a pair.
   pencil(cells) {
     const [a, b] = cells;
+    if (this.refused('pair', cells)) return;
     if (this.adj(a, b)) {
       this.makePair([a, b]);
-      return this.say('Pair pencilled in. Add a third tile when you’re sure.');
+      this.say('Pair pencilled in. Add a third tile when you’re sure.');
+      return this.emit('pair', [a, b]);
     }
     const mid = this.c.map((_, k) => k).filter((k) => k !== a && k !== b && this.adj(k, a) && this.adj(k, b));
     if (mid.length === 2) {
       this.makePair([a, b]);
-      return this.say('Pair pencilled in. One of the two tiles between them makes the parcel.');
+      this.say('Pair pencilled in. One of the two tiles between them makes the parcel.');
+      return this.emit('pair', [a, b]);
     }
     if (mid.length === 1 && this.parcelOf(mid[0]) < 0) return this.submit([a, mid[0], b]);
     this.sel = [];
@@ -526,9 +540,22 @@ class Mini {
       'bad',
     );
   }
+  // The tutorial's say on a move: true (and the move is dropped) if it refuses it.
+  refused(kind, cells) {
+    const why = this.guard && this.guard(kind, cells);
+    if (!why) return false;
+    this.sel = [];
+    this.render();
+    this.say(why, 'bad');
+    return true;
+  }
+  emit(kind, cells) {
+    if (this.onEvent) this.onEvent(kind, cells);
+  }
   // Same checks as submit() in actions.js.
   submit(cells) {
     cells = cells.slice();
+    if (this.refused('make', cells)) return;
     const links = [
       [0, 1],
       [1, 2],
@@ -541,6 +568,7 @@ class Mini {
       this.reject(cells)
         .catch(() => {})
         .finally(() => (this.busy = false));
+      this.emit('reject', cells);
       return;
     }
     const used = this.parcels.map((p) => p.color);
@@ -553,6 +581,7 @@ class Mini {
         this.parcels.length === 1 ? 'Nice! Tap a parcel to pop it, or hold to lock it.' : 'Nice!',
         'ok',
       );
+    this.emit('make', cells);
   }
   // Press and hold on a parcel, for real: after 450ms it locks (or pops if locked). Released
   // sooner, it's a tap: pops a loose parcel, wiggles a locked one.
@@ -566,6 +595,7 @@ class Mini {
       else {
         this.lock(k);
         this.say('Locked in. Taps won’t pop it now; hold again to pop it.', 'ok');
+        this.emit('lock', h.p.cells);
       }
     }, 450);
     return h;
@@ -586,11 +616,16 @@ class Mini {
     this.say('Locked. Press and hold to pop it.');
   }
   popNow(k) {
+    const cells = this.parcels[k].cells;
+    if (this.refused('pop', cells)) return;
     this.busy = true;
     this.say('Popped.');
     this.pop(k)
       .catch(() => {})
-      .finally(() => (this.busy = false));
+      .finally(() => {
+        this.busy = false;
+        this.emit('pop', cells);
+      });
   }
 
   // Run a script on a loop until stop(). With reduced motion, run it once instantly (final frame only).
