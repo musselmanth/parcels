@@ -35,6 +35,7 @@ export function save() {
   try {
     localStorage.setItem(CATS[CAT].key, JSON.stringify(store));
   } catch (e) {}
+  document.dispatchEvent(new Event('resultsaved')); // sync.js sends it to your other devices
 }
 // Switch level: load its boards and results, and highlight its tab in the menu.
 export function setCat(k) {

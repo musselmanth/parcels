@@ -40,14 +40,15 @@ npx wrangler d1 create parcels-playtest   # prints a database_id
 
 Optional: to use `https://api.parcelsgame.com` instead of the workers.dev address, go to Cloudflare → Workers & Pages → parcels-playtest → Settings → Domains & Routes → Add a custom domain. Then use that address in `src/config.js`.
 
-## Moving results between devices
+## Syncing results across devices
 
-Players can move their results to another device without an account: Settings > Play history > **Send to another device** shows a 6-character code (e.g. `K7Q 4MX`), and **Receive from another device** on the other device takes it. The Worker keeps the results under that code for 10 minutes in the `transfers` table and deletes them as soon as the code is used (or once it expires). Codes use letters and digits that can't be confused (no 0/O, 1/I), so there are about 900 million of them.
+Players can keep their results the same on all their devices without an account: Settings > Play history > **Start syncing** gives an 8-character sync code (e.g. `K7Q4 MX2P`), and **I have a sync code** on each other device joins it. The Worker keeps one row per code in the `sync` table. Each device sends its results when it opens, when it comes back into view, when Settings opens and after a finished board; the Worker merges them with what it has (per board the better result wins, the faster best time wins) and sends the merged set back, so nothing is ever lost. Boards in progress aren't synced. Codes use letters and digits that can't be confused (no 0/O, 1/I/L), so there are about 850 billion of them. The code is the only key: anyone with it can see and add to those results.
 
-If your database was created before this was added, create the new table once (it leaves your existing data alone):
+If your database was created before this was added, create the new table once (it leaves your existing data alone), then deploy:
 
 ```bash
 npm run db:init
+npm run deploy
 ```
 
 ## Leaving out your own play
@@ -87,8 +88,8 @@ npx wrangler d1 execute parcels-playtest --remote --command "DELETE FROM events 
 
 ## Files
 
-- `src/index.js`: the Worker (receiving data, transfer codes, the admin page, CSV export). Commented at the top.
-- `schema.sql`: the tables (`events`, `games`, `feedback`, `transfers`).
+- `src/index.js`: the Worker (receiving data, sync codes, the admin page, CSV export). Commented at the top.
+- `schema.sql`: the tables (`events`, `games`, `feedback`, `sync`).
 - `wrangler.toml`: the Worker's name, the database binding, and `ALLOWED_ORIGINS` (the sites allowed to send data; add any address you serve the game from).
 
 ## Testing locally

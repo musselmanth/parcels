@@ -440,11 +440,12 @@ button.danger {
   color: var(--bad);
 }
 
-/* ---- moving results to another device (transfer codes) ---- */
-.setbtns[hidden] {
+/* ---- syncing results across devices (sync.js) ---- */
+.setbtns[hidden],
+#syncOff[hidden] {
   display: none;
 }
-.transfer-box {
+.sync-box {
   margin: 4px 0 10px;
   padding: 12px;
   border-radius: 14px;
@@ -452,12 +453,21 @@ button.danger {
   border: 1px solid var(--line);
   text-align: center;
 }
-.transfer-box[hidden] {
+.sync-box[hidden] {
   display: none;
 }
-.transfer-code {
+.sync-box .setbtns {
+  margin-bottom: 0;
+}
+.sync-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.sync-code {
   font-family: 'Orbitron', ui-monospace, monospace;
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 800;
   letter-spacing: 0.12em;
   color: #ffd43b;
@@ -465,22 +475,17 @@ button.danger {
   -webkit-user-select: all;
   user-select: all;
 }
-.transfer-code.expired {
-  opacity: 0.35;
-  text-decoration: line-through;
+.sync-when {
+  margin: 0 0 8px;
 }
-.transfer-expiry {
-  margin: 0;
-  font-variant-numeric: tabular-nums;
-}
-#receiveBox {
+#joinBox {
   display: flex;
   gap: 8px;
 }
-#receiveBox[hidden] {
+#joinBox[hidden] {
   display: none;
 }
-#claimCode {
+#syncInput {
   flex: 1;
   min-width: 0;
   padding: 10px 12px;
@@ -497,7 +502,7 @@ button.danger {
   -webkit-user-select: text;
   user-select: text;
 }
-#claimCode::placeholder {
+#syncInput::placeholder {
   font:
     400 13px 'Space Grotesk',
     sans-serif;
@@ -505,7 +510,7 @@ button.danger {
   text-transform: none;
   color: var(--muted);
 }
-#claimCode:focus {
+#syncInput:focus {
   outline: none;
   border-color: rgba(154, 140, 255, 0.7);
 }

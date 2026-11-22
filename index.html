@@ -218,7 +218,7 @@
             <p class="legend">
               Each finished board shows its result: Perfect! (no hints), the number of hints used, or Loser
               (solution viewed). Dashed = in progress, with parcels placed so far. Finished boards are final.
-              Export or clear your history in Settings on the start screen.
+              Sync or clear your history in Settings on the start screen.
             </p>
           </div>
         </section>
@@ -381,33 +381,38 @@
         </p>
         <div class="setbtns"><button class="feedback-link" hidden>Leave feedback</button></div>
         <h3>Play history</h3>
-        <p class="setnote" id="transferNote">
-          Your results are saved in this browser. To move them to another device, send them with a code.
+        <p class="setnote" id="syncNote">
+          Your results are saved in this browser. Sync them to keep them the same on all your devices.
         </p>
-        <!-- transfer codes (src/history.js) -->
-        <div class="setbtns" id="transferBtns">
-          <button id="bSendHistory">Send to another device</button
-          ><button id="bReceiveHistory">Receive from another device</button>
+        <!-- syncing across devices (src/sync.js) -->
+        <div id="syncOff">
+          <div class="setbtns">
+            <button id="bSyncStart">Start syncing</button><button id="bSyncJoin">I have a sync code</button>
+          </div>
+          <div class="sync-box" id="joinBox" hidden>
+            <input
+              id="syncInput"
+              maxlength="10"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              placeholder="Code, e.g. K7Q4 MX2P"
+              aria-label="Sync code"
+            />
+            <button class="primary" id="bSyncJoinGo">Sync</button>
+          </div>
         </div>
-        <div class="transfer-box" id="sendBox" hidden>
-          <div class="transfer-code" id="sendCode"></div>
+        <div class="sync-box" id="syncOn" hidden>
+          <div class="sync-label">Your sync code</div>
+          <div class="sync-code" id="syncCode"></div>
           <p class="setnote">
-            On your other device, open Settings, tap <b>Receive from another device</b> and enter this code.
-            It works once.
+            On your other devices, open Settings, tap <b>I have a sync code</b> and enter it. Keep it
+            somewhere safe: there's no account, so this code is the only key to your results.
           </p>
-          <p class="setnote transfer-expiry" id="sendExpiry"></p>
-        </div>
-        <div class="transfer-box" id="receiveBox" hidden>
-          <input
-            id="claimCode"
-            maxlength="9"
-            autocomplete="off"
-            autocapitalize="characters"
-            spellcheck="false"
-            placeholder="Code, e.g. K7Q 4MX"
-            aria-label="Transfer code"
-          />
-          <button class="primary" id="bClaim">Get my results</button>
+          <p class="setnote sync-when" id="syncWhen"></p>
+          <div class="setbtns">
+            <button id="bSyncNow">Sync now</button><button id="bSyncStop">Stop syncing here</button>
+          </div>
         </div>
         <p class="setnote" id="historyStatus" role="status"></p>
         <div class="setbtns"><button id="bClear" class="danger">Clear all history</button></div>

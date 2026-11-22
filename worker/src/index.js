@@ -5,8 +5,8 @@
 //                         when the tab is hidden or closed, and right away when a board is finished)
 //   POST /api/feedback    a feedback form entry
 //   (both are silently dropped when they come from an address in the IGNORE_IPS secret)
-//   POST /api/transfer    store a player's results for 10 minutes and return a short code for them
-//   POST /api/transfer/claim  trade that code for the results (once; the code is then deleted)
+//   POST /api/sync/start  start syncing a player's results across devices; returns a new sync code
+//   POST /api/sync        merge a device's results into its sync code's, and return the merged set
 //   POST /api/forget      delete everything from one player (the game sends it when a browser is
 //                         marked as yours with ?me; only that browser knows its random player id)
 //   GET  /admin?key=...   private page: feedback, finished games, sessions, per-level summary
@@ -27,10 +27,10 @@ export default {
     try {
       if (req.method === 'POST' && url.pathname === '/api/events')
         return json(await postEvents(req, env), cors);
-      if (req.method === 'POST' && url.pathname === '/api/transfer')
-        return json(await sendTransfer(req, env), cors);
-      if (req.method === 'POST' && url.pathname === '/api/transfer/claim')
-        return json(await claimTransfer(req, env), cors);
+      if (req.method === 'POST' && url.pathname === '/api/sync/start')
+        return json(await startSync(req, env), cors);
+      if (req.method === 'POST' && url.pathname === '/api/sync')
+        return json(await syncResults(req, env), cors);
       if (req.method === 'POST' && url.pathname === '/api/forget') return json(await forget(req, env), cors);
       if (req.method === 'POST' && url.pathname === '/api/feedback')
         return json(await postFeedback(req, env), cors);
@@ -167,53 +167,73 @@ async function postEvents(req, env) {
   return { ok: true, stored: stmts.length };
 }
 
-// ---- moving results to another device (no accounts: a short code that works once, for 10 minutes)
+// ---- syncing results across a player's devices (no accounts: a sync code is the key)
+// Every device sends its results; the Worker merges them with what it has (the same rules as the
+// game: per board the better result wins, the faster best time wins) and sends the merged set back.
+// Merging means nothing is ever lost, and devices syncing at the same moment can't undo each other.
 
-const TRANSFER_MS = 10 * 60 * 1000;
-const MAX_TRANSFER = 512 * 1024; // bytes of results
-// letters and digits that can't be mixed up (no 0/O, 1/I/L): 31^6 ≈ 900 million codes
+const MAX_SYNC = 512 * 1024; // bytes of results
+// letters and digits that can't be mixed up (no 0/O, 1/I/L): 31^8 ≈ 850 billion codes
 const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-const newCode = () => {
-  const bytes = crypto.getRandomValues(new Uint8Array(6));
-  return [...bytes].map((b) => CODE_CHARS[b % CODE_CHARS.length]).join('');
-};
+const newCode = () =>
+  [...crypto.getRandomValues(new Uint8Array(8))].map((b) => CODE_CHARS[b % CODE_CHARS.length]).join('');
 // Codes are typed by people: ignore spaces, dashes and case.
 const cleanCode = (c) => (typeof c === 'string' ? c.toUpperCase().replace(/[^A-Z0-9]/g, '') : '');
 
-async function sendTransfer(req, env) {
+// Which of two results for a board is better: a solve beats a viewed solution, then fewer hints,
+// then the faster time (the same as resultRank in the game's scoring.js).
+const rank = (r) => (r.revealed ? -1e12 : -(r.hints || 0) * 1e9 - (r.time || 0));
+function mergeData(a, b) {
+  const out = { progress: {}, bests: {} };
+  for (const src of [a, b]) {
+    for (const [level, boards] of Object.entries((src && src.progress) || {})) {
+      if (!boards || typeof boards !== 'object') continue;
+      const mine = (out.progress[level] ||= {});
+      for (const [n, r] of Object.entries(boards))
+        if (r && typeof r === 'object' && (!mine[n] || rank(r) > rank(mine[n]))) mine[n] = r;
+    }
+    for (const [level, best] of Object.entries((src && src.bests) || {}))
+      if (best && best.time > 0 && (!out.bests[level] || best.time < out.bests[level].time))
+        out.bests[level] = best;
+  }
+  return out;
+}
+async function readSyncBody(req) {
   const text = await req.text();
-  if (text.length > MAX_TRANSFER) throw fail(413, 'too big');
-  let body;
+  if (text.length > MAX_SYNC) throw fail(413, 'too big');
   try {
-    body = JSON.parse(text);
+    return JSON.parse(text);
   } catch (e) {
     throw fail(400, 'not JSON');
   }
-  if (!body || typeof body.data !== 'object') throw fail(400, 'needs data');
-  const now = Date.now();
-  await env.DB.prepare('DELETE FROM transfers WHERE expires_at < ?').bind(now).run(); // tidy up old ones
+}
+
+// Start syncing: store this device's results under a new code.
+async function startSync(req, env) {
+  const body = await readSyncBody(req);
+  const data = JSON.stringify(mergeData(body.data, null));
   for (let tries = 0; tries < 5; tries++) {
     const code = newCode();
-    const res = await env.DB.prepare(
-      'INSERT OR IGNORE INTO transfers (code, data, expires_at) VALUES (?, ?, ?)',
-    )
-      .bind(code, JSON.stringify(body.data), now + TRANSFER_MS)
+    const res = await env.DB.prepare('INSERT OR IGNORE INTO sync (code, data, updated_at) VALUES (?, ?, ?)')
+      .bind(code, data, Date.now())
       .run();
-    if (res.meta.changes) return { ok: true, code, expiresAt: now + TRANSFER_MS };
+    if (res.meta.changes) return { ok: true, code };
   }
   throw fail(503, 'try again');
 }
 
-async function claimTransfer(req, env) {
-  const code = cleanCode((await readBody(req)).code);
-  if (code.length !== 6) throw fail(400, 'That code should be 6 characters.');
-  const row = await env.DB.prepare('SELECT data, expires_at FROM transfers WHERE code = ?')
-    .bind(code)
-    .first();
-  if (!row || row.expires_at < Date.now())
-    throw fail(404, 'That code didn’t work. It may have expired or been used.');
-  await env.DB.prepare('DELETE FROM transfers WHERE code = ?').bind(code).run(); // works once
-  return { ok: true, data: JSON.parse(row.data) };
+// Sync: merge this device's results into the code's and return the merged set.
+async function syncResults(req, env) {
+  const body = await readSyncBody(req);
+  const code = cleanCode(body.code);
+  if (code.length !== 8) throw fail(400, 'A sync code is 8 characters.');
+  const row = await env.DB.prepare('SELECT data FROM sync WHERE code = ?').bind(code).first();
+  if (!row) throw fail(404, 'That sync code wasn’t found. Check it and try again.');
+  const merged = mergeData(JSON.parse(row.data), body.data);
+  await env.DB.prepare('UPDATE sync SET data = ?, updated_at = ? WHERE code = ?')
+    .bind(JSON.stringify(merged), Date.now(), code)
+    .run();
+  return { ok: true, data: merged };
 }
 
 async function forget(req, env) {

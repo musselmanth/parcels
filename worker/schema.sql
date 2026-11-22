@@ -51,10 +51,10 @@ CREATE TABLE IF NOT EXISTS feedback (
   context TEXT           -- JSON: screen, level, board, device
 );
 
--- Moving a player's results to another device: one row per transfer code, deleted when the code is
--- used or after it expires (10 minutes).
-CREATE TABLE IF NOT EXISTS transfers (
+-- Syncing a player's results across their devices: one row per sync code (no accounts; the code is
+-- the key). data holds the merged results and best times from every device using that code.
+CREATE TABLE IF NOT EXISTS sync (
   code TEXT PRIMARY KEY,
-  data TEXT NOT NULL,     -- the results being moved (JSON)
-  expires_at INTEGER NOT NULL  -- ms since 1970
+  data TEXT NOT NULL,          -- {progress: {level: {board: result}}, bests: {level: {time, board, at}}}
+  updated_at INTEGER NOT NULL  -- ms since 1970
 );

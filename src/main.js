@@ -24,7 +24,7 @@ import { G } from './state.js';
 import { clearAllProgress, saveProgress } from './progress.js';
 import { CAT, clearBests, loadStore, prefs, savePrefs, setCat } from './storage.js';
 import './input.js'; // attaches the board's pointer handlers
-import { historyStatus, initHistory } from './history.js';
+import { historyStatus, initSync, stopSync } from './sync.js';
 
 // Entry point (loaded by index.html). Loads the CSS, wires every button and dialog to its action,
 // then starts the game on the first unsolved board with the puzzle menu open.
@@ -56,9 +56,13 @@ $('#bNav').onclick = () => {
   // back to the puzzle you came from, unless the menu has since switched level
   showScreen(previousScreen() === 'game' && gameLevel === CAT ? 'game' : 'intro');
 };
-// Saved results were imported or cleared: redraw whatever shows them.
-document.addEventListener('historychange', () => {
-  if (gameLevel === CAT && G.cur) openPuzzle(G.cur);
+// Saved results were synced or cleared: redraw whatever shows them. A sync lists the boards it
+// changed; the board being played is only reopened if its own result changed (and it isn't
+// finished, so a sync never closes the results card).
+document.addEventListener('historychange', (e) => {
+  const changed = e.detail && e.detail.changed;
+  if (gameLevel === CAT && G.cur && (!changed || (changed.includes(CAT + ':' + G.cur) && !G.done)))
+    openPuzzle(G.cur);
   if (currentScreen() === 'menu') renderMenu(playBoard, gameLevel === CAT ? G.cur : null);
   if (currentScreen() === 'intro') renderIntro(pickLevel);
 });
@@ -189,7 +193,13 @@ $('#bClearYes').onclick = () => {
   loadStore();
   $('#confirmClear').style.display = 'none';
   document.dispatchEvent(new Event('historychange'));
-  historyStatus('History cleared.', 'ok');
+  // syncing would just bring everything back, so a cleared device stops syncing
+  historyStatus(
+    stopSync()
+      ? 'History cleared. This device has stopped syncing; your other devices keep their results.'
+      : 'History cleared.',
+    'ok',
+  );
 };
 
 // ---- start up ----
@@ -201,7 +211,7 @@ document.querySelectorAll('#catSeg button').forEach((b) => (b.onclick = () => pi
 trackTopbarHeight(); // screens leave the floating top bar's height free
 initIntro(pickLevel);
 initInstall(); // the start screen's Install as an app button
-initHistory(); // Settings: send / receive results with a transfer code
+initSync(); // Settings: sync results across devices with a sync code
 initFeedback(); // the playtest note and feedback form
 startTelemetry({ sound: prefs.sound, showTimer: prefs.showTimer }); // playtest data (if PLAYTEST_API is set)
 setCat(prefs.cat || 'easy');
