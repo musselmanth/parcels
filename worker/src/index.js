@@ -74,6 +74,19 @@ const blob = (v, max = MAX_DATA) => {
   return s.length > max ? JSON.stringify({ truncated: true }) : s;
 };
 
+// Rough location of the player, as Cloudflare works it out from their connection: country, region,
+// city and timezone. City-level at best, never precise, and the IP address itself isn't stored.
+function locationOf(req) {
+  const cf = req.cf || {};
+  const loc = {
+    country: str(cf.country, 8),
+    region: str(cf.region, 64),
+    city: str(cf.city, 64),
+    timezone: str(cf.timezone, 64),
+  };
+  return Object.values(loc).some(Boolean) ? loc : null;
+}
+
 async function postEvents(req, env) {
   const body = await readBody(req);
   const player = str(body.player),
@@ -87,7 +100,17 @@ async function postEvents(req, env) {
     stmts.push(
       env.DB.prepare(
         'INSERT INTO events (received_at, player, session, type, t, level, board, data) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      ).bind(now, player, session, type, int(e.t), str(e.level, 16), int(e.board), blob(e.data)),
+      ).bind(
+        now,
+        player,
+        session,
+        type,
+        int(e.t),
+        str(e.level, 16),
+        int(e.board),
+        // the session's first event also records where the player is (roughly)
+        blob(type === 'session_start' ? { ...(e.data || {}), location: locationOf(req) } : e.data),
+      ),
     );
     // finished boards also go in their own table, for easy reading
     if (type === 'game_finished' && e.data) {
@@ -136,7 +159,7 @@ async function postFeedback(req, env) {
       rating >= 1 && rating <= 5 ? rating : null,
       message,
       str(b.contact, 200),
-      blob(b.context),
+      blob({ ...(b.context || {}), location: locationOf(req) }),
     )
     .run();
   return { ok: true };
@@ -208,7 +231,7 @@ function table(rows, cols) {
 async function adminPage(url, env) {
   checkKey(url, env);
   const key = encodeURIComponent(url.searchParams.get('key'));
-  const [feedback, games, summary, sessions, totals] = await Promise.all([
+  const [feedback, games, summary, sessions, totals, countries] = await Promise.all([
     env.DB.prepare('SELECT * FROM feedback ORDER BY id DESC LIMIT 200').all(),
     env.DB.prepare('SELECT * FROM games ORDER BY id DESC LIMIT 300').all(),
     env.DB.prepare(
@@ -221,6 +244,11 @@ async function adminPage(url, env) {
       `SELECT (SELECT COUNT(DISTINCT player) FROM events) AS players, (SELECT COUNT(DISTINCT session) FROM events) AS sessions,
         (SELECT COUNT(*) FROM games) AS games, (SELECT COUNT(*) FROM feedback) AS feedback`,
     ).first(),
+    env.DB.prepare(
+      `SELECT COALESCE(json_extract(data, '$.location.country'), '?') AS country,
+        COUNT(DISTINCT player) AS players, COUNT(*) AS sessions
+       FROM events WHERE type = 'session_start' GROUP BY country ORDER BY players DESC, sessions DESC`,
+    ).all(),
   ]);
   const n1 = (v) => (v == null ? '' : (Math.round(v * 10) / 10).toString());
   const stars = (n) => (n ? '★'.repeat(n) : '');
@@ -232,6 +260,14 @@ async function adminPage(url, env) {
           .filter(Boolean)
           .join(' · '),
       );
+    } catch (e) {
+      return '';
+    }
+  };
+  const place = (d) => {
+    try {
+      const l = JSON.parse(d || '{}').location || {};
+      return esc([l.city, l.region, l.country].filter(Boolean).join(', '));
     } catch (e) {
       return '';
     }
@@ -269,8 +305,16 @@ async function adminPage(url, env) {
         }
       },
     ],
+    ['Location', (r) => place(r.context)],
     ['Player', (r) => esc((r.player || '').slice(0, 8))],
   ])}</div>
+
+<h2>Players by country</h2>
+${table(countries.results, [
+  ['Country', (r) => esc(r.country)],
+  ['Players', (r) => esc(r.players)],
+  ['Sessions', (r) => esc(r.sessions)],
+])}
 
 <h2>By level</h2>
 ${table(summary.results, [
@@ -308,6 +352,7 @@ ${table(summary.results, [
     ['Parcels', (r) => esc(r.parcels_made)],
     ['Misses', (r) => esc(r.misses)],
     ['Hints', (r) => esc(r.hints)],
+    ['Location', (r) => place(r.device)],
     ['Device', (r) => device(r.device)],
     ['Player', (r) => esc((r.player || '').slice(0, 8))],
   ])}</div>

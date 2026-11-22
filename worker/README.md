@@ -13,8 +13,9 @@ A Cloudflare Worker with a D1 (SQLite) database. The game sends it play data and
   - pops, pairs, locks, hints and Start over
   - opening How to play, settings changes and installing
 - **Feedback:** the in-game form, with a 1–5 rating, a message, an optional name or email, and where the player was.
+- **Rough location:** each session and feedback entry records the player's country, region, city and timezone, as Cloudflare works it out from their connection. It's never their precise position, there's no permission prompt, and the IP address isn't stored.
 
-Players are anonymous: a random id kept in their browser. The game's start screen and Settings say that play data is collected.
+Players are anonymous: a random id kept in their browser. The game's start screen and Settings say that play data, including rough location, is collected.
 
 ## Set it up (once)
 

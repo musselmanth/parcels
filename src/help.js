@@ -807,7 +807,7 @@ const DEMOS = {
   hdPair: {
     cells: SIX,
     tiles: SIX_TILES,
-    intro: 'Swipe across 2 tiles, or tap 2 and then tap one again, to pencil in a pair.',
+    intro: 'Swipe 2 tiles, or tap 2 then one again, to pencil a pair.',
     ways: ['Swipe', 'Tap'],
     script: async (m) => {
       await m.wait(400);
