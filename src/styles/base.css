@@ -367,6 +367,9 @@ button {
 }
 button.primary {
   background: linear-gradient(90deg, #7a6cff, #ff3b8f);
+  /* start the gradient under the (transparent) border too; otherwise it repeats into the border
+     and a sliver of pink shows along the left edge */
+  background-origin: border-box;
   border-color: transparent;
   color: #fff;
   box-shadow: 0 0 22px rgba(255, 59, 143, 0.4);

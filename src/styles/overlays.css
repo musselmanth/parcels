@@ -265,6 +265,7 @@
 }
 .sheet .switch.on {
   background: linear-gradient(90deg, #7a6cff, #ff3b8f);
+  background-origin: border-box; /* no pink sliver at the left edge (see button.primary) */
   border-color: transparent;
   box-shadow: 0 0 14px rgba(255, 59, 143, 0.35);
 }
