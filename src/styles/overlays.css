@@ -475,6 +475,11 @@ button.danger {
   -webkit-user-select: all;
   user-select: all;
 }
+.sync-copy {
+  margin: 6px 0 2px;
+  padding: 6px 14px;
+  font-size: 13px;
+}
 .sync-when {
   margin: 0 0 8px;
 }

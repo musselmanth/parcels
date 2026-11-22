@@ -232,6 +232,19 @@ export function initSync() {
   $('#bSyncJoinGo').onclick = join;
   input.addEventListener('keydown', (e) => e.key === 'Enter' && join());
   $('#bSyncNow').onclick = () => syncNow(true);
+  // Copy the sync code, so it can be pasted on another device or saved somewhere safe.
+  $('#bSyncCopy').onclick = async () => {
+    const s = loadSync(),
+      btn = $('#bSyncCopy');
+    if (!s) return;
+    try {
+      await navigator.clipboard.writeText(pretty(s.code));
+      btn.textContent = 'Copied!';
+    } catch (e) {
+      btn.textContent = 'Press and hold the code to copy it';
+    }
+    setTimeout(() => (btn.textContent = 'Copy code'), 2000);
+  };
   $('#bSyncStop').onclick = () => {
     stopSync();
     historyStatus('This device has stopped syncing. Its results stay here.', 'ok');
