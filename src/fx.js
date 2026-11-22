@@ -1,6 +1,6 @@
 import { $, board } from './core/dom.js';
 import { G } from './state.js';
-import { COLORS, TINTS } from './themes.js';
+import { COLORS, TINTS } from './tiles.js';
 
 // Confetti. A full-screen <canvas> over the page; burst() adds particles, and an animation loop
 // runs only while any are alive.

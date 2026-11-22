@@ -24,7 +24,6 @@ import { G } from './state.js';
 import { clearAllProgress, saveProgress } from './progress.js';
 import { CAT, clearBests, loadStore, prefs, savePrefs, setCat } from './storage.js';
 import './input.js'; // attaches the board's pointer handlers
-import { setTheme } from './themes.js';
 
 // Entry point (loaded by index.html). Loads the CSS, wires every button and dialog to its action,
 // then starts the game on the first unsolved board with the puzzle menu open.
@@ -193,7 +192,6 @@ $('#bClearYes').onclick = () => {
 };
 
 // ---- start up ----
-setTheme('neon');
 initHelp(); // runs the help sheet's examples while it's open
 paintSound();
 paintTimer();

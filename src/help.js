@@ -1,7 +1,7 @@
 import { S, W3, axialCenter, outlinePath, pairOutline } from './core/hex.js';
 import { whyInvalid } from './core/rules.js';
 import { fitDashes } from './render.js';
-import { POS, TH, TINTS, glyph } from './themes.js';
+import { COLOR_NAMES, GOLD, POS, SHAPE_NAMES, TINTS, glyph } from './tiles.js';
 
 // The "How to play" sheet (#mHelp) and its animated examples. Each example is a small board drawn
 // with the same markup and CSS classes as the real board (so it looks and animates the same), plus
@@ -647,8 +647,8 @@ const RULE_EXAMPLES = [
 // The three rows of the rule check for some tiles: [{label, values, verdict, ok}].
 function ruleChecks(tiles) {
   const rows = [
-    ['Shape', (t) => TH.shapes[t.s]],
-    ['Color', (t) => TH.colorNames[t.c]],
+    ['Shape', (t) => SHAPE_NAMES[t.s]],
+    ['Color', (t) => COLOR_NAMES[t.c]],
     ['Count', (t) => t.n],
   ];
   return rows.map(([label, f]) => {
@@ -999,7 +999,7 @@ function moreHint(sheet) {
 }
 
 // Run the examples whenever the help sheet is open, however it was opened or closed.
-// Call once at startup, after setTheme() (the examples use the theme's colors).
+// Call once at startup.
 export function initHelp() {
   const modal = $h('mHelp'),
     sheet = modal.querySelector('.sheet');
@@ -1025,7 +1025,7 @@ export function initHelp() {
 //      symbols twirl
 //   2. as the spin slows to a stop, the board drops down to sit just above the title and the
 //      outlines fade to gold
-// Returns {start, stop}; call start() only after setTheme() (it uses the theme's colors).
+// Returns {start, stop}.
 const INTRO_PARCELS = [
   { cells: [0, 1, 2], color: 0 },
   { cells: [3, 6, 4], color: 2 },
@@ -1038,7 +1038,7 @@ export function introArt(svg) {
     running = false,
     dropY = 0, // how far the board drops at the end (board units)
     drop = null; // <g> wrapped around the board that does the drop
-  const gold = () => (TH.merge || { stroke: '#c99a1c' }).stroke;
+  const gold = () => GOLD.stroke;
 
   function build() {
     m = new Mini(svg, d.cells, d.tiles.slice());

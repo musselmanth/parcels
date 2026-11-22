@@ -14,7 +14,7 @@ import {
 } from './core/hex.js';
 import { G, pairOf } from './state.js';
 import { saveProgress } from './progress.js';
-import { POS, STAR, TINTS, glyph, tileLabel } from './themes.js';
+import { POS, STAR, TINTS, glyph, tileLabel } from './tiles.js';
 
 // Drawing. The board is one <svg> rebuilt from G by render() after every move. Layers, bottom to top:
 // pencilled pairs, parcels (outline + their tiles + the seal on locked ones), the swipe trail, loose tiles, and the

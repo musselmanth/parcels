@@ -5,7 +5,7 @@ import { setReset } from './game.js';
 import { render } from './render.js';
 import { sfx } from './sound.js';
 import { G } from './state.js';
-import { COLORS, TH, TINTS } from './themes.js';
+import { COLORS, GOLD, TINTS } from './tiles.js';
 
 // The win animation. Runs in four timed steps (all via later(), so switching boards cancels it),
 // then opens the results card.
@@ -105,17 +105,19 @@ export function celebrate() {
       o.animate(
         [
           { fill: o.getAttribute('fill'), stroke: o.getAttribute('stroke') },
-          { fill: (TH.merge || {}).fill || '#f8e3a0', stroke: (TH.merge || {}).stroke || '#c99a1c' },
+          { fill: GOLD.fill, stroke: GOLD.stroke },
         ],
         { duration: 500, delay: k * 25, fill: 'forwards', easing: 'ease-out' },
       );
       // a locked parcel's seal line turns gold with its outline
       const seal = w.inner.querySelector('.seal');
       if (seal)
-        seal.animate(
-          [{ stroke: seal.getAttribute('stroke') }, { stroke: (TH.merge || {}).stroke || '#c99a1c' }],
-          { duration: 500, delay: k * 25, fill: 'forwards', easing: 'ease-out' },
-        );
+        seal.animate([{ stroke: seal.getAttribute('stroke') }, { stroke: GOLD.stroke }], {
+          duration: 500,
+          delay: k * 25,
+          fill: 'forwards',
+          easing: 'ease-out',
+        });
       w.inner.animate(
         [{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1.02)' }],
         { duration: 600, delay: k * 25, fill: 'forwards', easing: 'cubic-bezier(.3,1.5,.5,1)' },

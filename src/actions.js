@@ -7,7 +7,7 @@ import { paintSel, render, setMsg } from './render.js';
 import { sfx } from './sound.js';
 import { G, groupOf, pairOf } from './state.js';
 import { track } from './telemetry.js';
-import { TINTS } from './themes.js';
+import { TINTS } from './tiles.js';
 
 // What the player's moves do: making parcels, pencilling pairs, popping and locking parcels.
 // input.js turns pointer events into these calls; each one updates G and calls render().
