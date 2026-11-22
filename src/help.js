@@ -334,6 +334,10 @@ export class Mini {
     const p = this.parcels[n];
     const wrap = this.world.querySelector(`.pwrap[data-n="${n}"]`);
     this.top = p; // the pressed parcel comes to the top, ring and animations included
+    // moving it restarts CSS animations, so drop the one-shot ones first (no redrawn outline or seal)
+    wrap
+      .querySelectorAll('.enter, .pinning, .nudge')
+      .forEach((el) => el.classList.remove('enter', 'pinning', 'nudge'));
     wrap.parentNode.appendChild(wrap);
     const ring = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     ring.setAttribute('class', 'holdring' + (p.pinned ? ' popping' : ''));

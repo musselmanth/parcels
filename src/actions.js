@@ -334,7 +334,12 @@ export function startHold(g) {
     inner = wrap && wrap.querySelector('.parcel');
   // the pressed parcel comes to the top, so its ring and animations show over its neighbors
   G.top = g.id;
-  if (wrap) wrap.parentNode.appendChild(wrap);
+  if (wrap) {
+    // Moving an element in the DOM restarts its CSS animations. Drop the one-shot classes
+    // first, or a parcel that was made or locked earlier redraws its outline and seal.
+    settle(wrap);
+    wrap.parentNode.appendChild(wrap);
+  }
   const h = { g, done: false, ring: null };
   if (wrap) {
     const ns = 'http://www.w3.org/2000/svg',
@@ -355,6 +360,12 @@ export function startHold(g) {
     else togglePin(g);
   }, HOLD);
   return h;
+}
+// Remove the classes that play an animation once (enter, pinning, nudge) from a parcel's elements.
+function settle(wrap) {
+  wrap
+    .querySelectorAll('.enter, .pinning, .nudge')
+    .forEach((el) => el.classList.remove('enter', 'pinning', 'nudge'));
 }
 // Cancel a hold: stop the timer and remove the ring.
 export function clearHold(h) {
