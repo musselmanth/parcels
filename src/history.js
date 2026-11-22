@@ -1,6 +1,5 @@
 import { $ } from './core/dom.js';
 import { CATS } from './data/puzzles.js';
-import { setMsg } from './render.js';
 import { loadBest, loadStore, saveBest } from './storage.js';
 import { resultRank } from './scoring.js';
 
@@ -47,8 +46,15 @@ async function saveFile(filename, text, btn) {
     btn.textContent = 'Saved';
     setTimeout(() => (btn.textContent = label), 2000);
   } catch (e) {
-    setMsg('Couldn’t save the file here.', 'bad');
+    historyStatus('Couldn’t save the file here.', 'bad');
   }
+}
+// A message under the Play history buttons in Settings (import, export and clear report here, since
+// Settings can be open on any screen). cls: '' | 'ok' | 'bad'.
+export function historyStatus(text, cls = '') {
+  const el = $('#historyStatus');
+  el.textContent = text;
+  el.className = 'setnote' + (cls ? ' ' + cls : '');
 }
 // Today's date as YYYY-MM-DD, for file names.
 const stamp = () => new Date().toISOString().slice(0, 10);
@@ -83,12 +89,12 @@ function importHistory(text) {
   try {
     data = JSON.parse(text);
   } catch (e) {
-    setMsg('That doesn’t look like exported history.', 'bad');
+    historyStatus('That doesn’t look like exported history.', 'bad');
     return;
   }
   const incoming = data && data.progress;
   if (!incoming || typeof incoming !== 'object') {
-    setMsg('That doesn’t look like exported history.', 'bad');
+    historyStatus('That doesn’t look like exported history.', 'bad');
     return;
   }
   let added = 0;
@@ -114,7 +120,11 @@ function importHistory(text) {
     } catch (e) {}
   }
   loadStore();
-  $('#mSettings').classList.remove('open');
   document.dispatchEvent(new Event('historychange')); // main.js refreshes what's on screen
-  setMsg(`Imported ${added} result${added === 1 ? '' : 's'}.`, 'ok');
+  historyStatus(
+    added
+      ? `Imported ${added} result${added === 1 ? '' : 's'}.`
+      : 'Nothing new: your results were already as good.',
+    'ok',
+  );
 }

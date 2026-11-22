@@ -24,6 +24,7 @@ import { G } from './state.js';
 import { clearAllProgress, saveProgress } from './progress.js';
 import { CAT, clearBests, loadStore, prefs, savePrefs, setCat } from './storage.js';
 import './input.js'; // attaches the board's pointer handlers
+import { historyStatus } from './history.js'; // also attaches the Export / Import history buttons
 
 // Entry point (loaded by index.html). Loads the CSS, wires every button and dialog to its action,
 // then starts the game on the first unsolved board with the puzzle menu open.
@@ -121,6 +122,7 @@ $('#bTimer').onclick = () => {
 // Settings opens from the top bar (game screen) or the start screen's button.
 $('#bSettings').onclick = $('#bIntroSettings').onclick = () => {
   $('#confirmClear').style.display = 'none';
+  historyStatus(''); // clear any old message
   $('#mSettings').classList.add('open');
 };
 $('#bSettingsClose').onclick = () => $('#mSettings').classList.remove('open');
@@ -186,9 +188,8 @@ $('#bClearYes').onclick = () => {
   G.startT = null;
   loadStore();
   $('#confirmClear').style.display = 'none';
-  $('#mSettings').classList.remove('open');
   document.dispatchEvent(new Event('historychange'));
-  setMsg('History cleared.', 'ok');
+  historyStatus('History cleared.', 'ok');
 };
 
 // ---- start up ----
