@@ -12,18 +12,17 @@
   transition: transform 0.14s ease;
 }
 .card {
-  fill: var(--card);
-  stroke: var(--line);
   stroke-width: 1.5;
   transition:
     fill 0.2s,
     stroke 0.2s;
+  fill: #1a1634;
+  stroke: rgba(255, 255, 255, 0.07);
 }
-/* tiles in a parcel get a see-through wash of the parcel's color, so loose tiles stand out */
+/* tiles in a parcel turn see-through, so the parcel's tint shows through them and loose tiles
+   (solid dark cards) stand out */
 .parcel .card {
-  fill: var(--pc, var(--cardIn));
   fill-opacity: 0.24;
-  stroke: none;
 }
 .parcel.pinned .card {
   fill-opacity: 0.32;
@@ -32,8 +31,8 @@
   transform: scale(0.9);
 }
 .tile.sel .card {
-  stroke: var(--ink);
-  stroke-width: 4;
+  stroke: #fff;
+  stroke-width: 3.5;
 }
 .tile.paired .card {
   stroke: var(--paired);

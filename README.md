@@ -90,10 +90,10 @@ Every module starts with a comment saying what it's for, and functions have a li
   - awards (`awardFor`)
   - compliments
 - **Colors:** tile colors and parcel tints are in `THEMES` in `src/themes.js`; page colors are the CSS tokens in `src/styles/theme-neon.css`. How strongly parcels are tinted is `.parcel .card` in `src/styles/board.css`.
-- **A new theme:**
-  1. Add an entry to `THEMES` in `src/themes.js`.
-  2. Add a `body.theme-<name>` block of tokens in the CSS.
-  3. Call `setTheme('<name>')` in `src/main.js`.
+- **A new theme:** Neon is the only one, and its CSS is the base styles (so the page never flashes an
+  unstyled look while loading). For another theme:
+  1. Add an entry to `THEMES` in `src/themes.js` (tile shapes and colors) and call `setTheme('<name>')` in `src/main.js`.
+  2. Give it its own color tokens in the CSS, e.g. a `body.theme-<name>` block that redefines the `:root` tokens, and set that class on `<body>` in `index.html`.
 - **Sounds:** `sfx` in `src/sound.js`. Notes are MIDI numbers (60 = middle C).
 - **Layout on other screens:** phones held upright are the base styles. `src/styles/responsive.css` (loaded last) enlarges things on tablets and desktop and, in landscape, moves the top bar, stats, tip and buttons into a left sidebar so the board gets the rest of the screen (a CSS grid on `#app`).
 - **Feel and animation timing:** `styles/board.css` (tile and parcel animations), `HOLD` in `src/actions.js` (press-and-hold time), `celebrate()` in `src/celebrate.js`.

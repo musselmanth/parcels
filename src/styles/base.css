@@ -10,9 +10,7 @@ body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
-  background: var(--bg);
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
   user-select: none;
@@ -26,6 +24,8 @@ body {
   height: 100dvh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 /* The top bar floats over the screens (it's empty on the start screen, which then gets the full
    height). The game and menu screens leave its height free at the top: --topbar-h, kept up to date
@@ -109,14 +109,22 @@ body {
   gap: 8px;
 }
 h1 {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 24px;
   margin: 0;
   flex: 1;
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 21px;
+  font-weight: 800;
+  background: linear-gradient(90deg, #9a8cff, #ff4fa8 60%, #ffb347);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 10px rgba(255, 79, 168, 0.45));
 }
 .titles {
   flex: 1;
@@ -134,26 +142,34 @@ h1 {
   margin-top: 1px;
 }
 h1 small {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px;
   color: var(--muted);
-  font-weight: 500;
   margin-left: 4px;
+  -webkit-text-fill-color: #958fc4;
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-weight: 500;
+  filter: none;
 }
 .icon {
   width: 38px;
   height: 38px;
   border-radius: 50%;
   border: 1px solid var(--line);
-  background: var(--card);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 17px;
   padding: 0;
-  color: var(--ink);
   cursor: pointer;
   flex: none;
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #e6e2ff;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
 }
 .icon svg {
   width: 18px;
@@ -188,10 +204,12 @@ h1 small {
   font-weight: 600;
 }
 .chip b {
-  font-size: 17px;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
   font-family: var(--numFont);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 10px rgba(154, 140, 255, 0.5);
 }
 .chip .of {
   color: var(--muted);
@@ -199,11 +217,11 @@ h1 small {
   font-size: 13px;
 }
 .progress {
-  height: 4px;
   border-radius: 4px;
-  background: var(--line);
   margin: 8px 2px 0;
   overflow: hidden;
+  background: rgba(255, 255, 255, 0.07);
+  height: 3px;
 }
 .progress i {
   display: block;
@@ -212,6 +230,7 @@ h1 small {
   border-radius: 4px;
   background: var(--accent);
   transition: width 0.5s cubic-bezier(0.3, 1.4, 0.5, 1);
+  box-shadow: 0 0 10px rgba(255, 59, 110, 0.7);
 }
 #stage {
   flex: 1;
@@ -337,17 +356,22 @@ button {
   font: inherit;
   font-size: 14px;
   border: 1px solid var(--ink);
-  background: transparent;
-  color: var(--ink);
   border-radius: 999px;
   padding: 9px 14px;
   cursor: pointer;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #efedff;
+  background: rgba(255, 255, 255, 0.03);
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.02em;
 }
 button.primary {
-  background: var(--ink);
-  color: var(--bg);
+  background: linear-gradient(90deg, #7a6cff, #ff3b8f);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 0 22px rgba(255, 59, 143, 0.4);
 }
 button:disabled {
-  opacity: 0.35;
   cursor: default;
+  opacity: 0.3;
 }

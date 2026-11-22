@@ -69,7 +69,7 @@ function neon(s, x, y, c) {
   );
 }
 
-// glyph: draws one shape. colors: the four tile colors. body: class put on <body> (CSS themes key off it).
+// glyph: draws one shape. colors: the four tile colors.
 // tints: parcel colors as [fill, outline] pairs. merge: parcel colors during the win animation.
 // shapes / colorNames: words for screen-reader labels.
 const THEMES = {
@@ -77,7 +77,6 @@ const THEMES = {
     name: 'Neon',
     glyph: neon,
     colors: NEON,
-    body: 'theme-neon',
     tints: [
       ['#221d55', '#8f80ff'],
       ['#123844', '#2ee6ff'],
@@ -98,10 +97,9 @@ export function glyph(s, x, y, c) {
 }
 // Screen-reader label for a tile, e.g. "2 red squares".
 export const tileLabel = (t) => `${t.n} ${TH.colorNames[t.c]} ${TH.shapes[t.s]}${t.n > 1 ? 's' : ''}`;
-// Switch theme.
+// Switch theme (the tile shapes and colors; the page's CSS colors are in styles/theme-neon.css).
 export function setTheme(key) {
   TH = THEMES[key] || THEMES.neon;
   COLORS = TH.colors;
   TINTS = TH.tints;
-  document.body.className = TH.body;
 }

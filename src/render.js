@@ -88,7 +88,7 @@ export function render() {
     .map((g) => {
       const [tint, dark] = TINTS[g.color];
       return (
-        `<g class="pwrap" data-g="${g.id}"><g class="parcel${g.pinned ? ' pinned' : ''}${g.fresh ? ' enter' : ''}" style="--pc:${dark}">` +
+        `<g class="pwrap" data-g="${g.id}"><g class="parcel${g.pinned ? ' pinned' : ''}${g.fresh ? ' enter' : ''}">` +
         `<path class="outline" pathLength="1" d="${blobPath(g.cells, 1.5, 13)}" fill="${tint}" stroke="${dark}"/>` +
         g.cells.map((i, k) => tileSVG(i, k)).join('') +
         (g.pinned ? badgeSVG(g) : '') +

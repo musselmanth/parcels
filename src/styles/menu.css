@@ -30,15 +30,9 @@
   padding: 8px 6px;
   font-size: 13px;
   border-radius: 999px;
-  background: transparent;
-  color: var(--muted);
 }
 .seg button.on {
-  background: var(--ink);
-  color: var(--bg);
   font-weight: 600;
-}
-body.theme-neon .seg button.on {
   background: linear-gradient(90deg, #7a6cff, #ff3b8f);
   color: #fff;
   border: none;
@@ -61,17 +55,19 @@ body.theme-neon .seg button.on {
 }
 .pz {
   border: 1px solid var(--line);
-  background: var(--card);
   border-radius: 10px;
   padding: 8px 4px 6px;
   text-align: center;
   font: inherit;
-  color: var(--ink);
   line-height: 1.2;
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #efedff;
 }
 .pz .n {
   font-weight: 600;
-  font-size: 16px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
 }
 .pz .st {
   font-size: 11px;
@@ -80,23 +76,25 @@ body.theme-neon .seg button.on {
   min-height: 13px;
 }
 .pz.solved {
-  background: #d3ead6;
-  border-color: #4f8f5b;
+  background: rgba(43, 255, 136, 0.1);
+  border-color: #2bff88;
+  color: #efedff;
+  box-shadow: 0 0 12px rgba(43, 255, 136, 0.25);
 }
 .pz.solved,
 .pz.revealed {
   color: #2b2a27;
 }
 .pz.solved .st {
-  color: #2f6b3c;
+  color: #7dffb0;
 }
 .pz.revealed {
-  background: #ece6da;
-  border-color: #b9ad97;
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #7d78a8;
 }
 /* in progress: dashed border, parcels placed shown under the number */
-.pz.wip,
-body.theme-neon .pz.wip {
+.pz.wip {
   border-style: dashed;
   border-color: rgba(154, 140, 255, 0.7);
 }
@@ -104,7 +102,9 @@ body.theme-neon .pz.wip {
   color: #c8c0ff;
 }
 .pz.current {
-  box-shadow: 0 0 0 2px var(--ink);
+  box-shadow:
+    0 0 0 2px #9a8cff,
+    0 0 14px rgba(154, 140, 255, 0.5);
 }
 .legend {
   font-size: 12px;

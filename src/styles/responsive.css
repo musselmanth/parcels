@@ -28,12 +28,10 @@
     width: 21px;
     height: 21px;
   }
-  h1,
-  body.theme-neon h1 {
+  h1 {
     font-size: 27px;
   }
-  h1 small,
-  body.theme-neon h1 small {
+  h1 small {
     font-size: 16px;
   }
   .subtitle {
@@ -50,8 +48,7 @@
   .chip .lbl {
     font-size: 11px;
   }
-  .chip b,
-  body.theme-neon .chip b {
+  .chip b {
     font-size: 21px;
   }
   #msgSlot {
@@ -116,8 +113,7 @@
     padding: 12px 4px 9px;
     border-radius: 12px;
   }
-  .pz .n,
-  body.theme-neon .pz .n {
+  .pz .n {
     font-size: 18px;
   }
   .pz .st {
@@ -230,8 +226,7 @@
   #topbar {
     padding-top: calc(4px + env(safe-area-inset-top));
   }
-  h1,
-  body.theme-neon h1 {
+  h1 {
     font-size: 18px;
     letter-spacing: 0.08em;
   }

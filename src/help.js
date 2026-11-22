@@ -109,7 +109,7 @@ class Mini {
       .map(([p, n]) => {
         const [tint, dark] = TINTS[p.color];
         return (
-          `<g class="pwrap" data-n="${n}"><g class="parcel${p.pinned ? ' pinned' : ''}${p.fresh ? ' enter' : ''}" style="--pc:${dark}">` +
+          `<g class="pwrap" data-n="${n}"><g class="parcel${p.pinned ? ' pinned' : ''}${p.fresh ? ' enter' : ''}">` +
           `<path class="outline" pathLength="1" d="${outlinePath(pts(p.cells), 1.5, 13)}" fill="${tint}" stroke="${dark}"/>` +
           p.cells.map((i, k) => tile(i, k)).join('') +
           (p.pinned ? this.badge(p, dark) : '') +
