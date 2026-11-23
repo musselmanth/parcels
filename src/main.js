@@ -18,7 +18,7 @@ import { initFullscreen } from './fullscreen.js';
 import { initInstall } from './install.js';
 import { initFeedback } from './feedback.js';
 import { startTelemetry, track } from './telemetry.js';
-import { currentScreen, onScreen, previousScreen, showScreen, trackTopbarHeight } from './screens.js';
+import { currentScreen, onScreen, showScreen, trackTopbarHeight } from './screens.js';
 import { render, setMsg, tick } from './render.js';
 import { openResults } from './results.js';
 import { paintSound, sfx } from './sound.js';
@@ -52,11 +52,10 @@ function pickLevel(k) {
   setCat(k);
   toMenu();
 }
-// Left top-bar button: "All puzzles" on the game screen, "Back" on the menu.
+// Left top-bar button (a back arrow): the game goes to the puzzle selector, the selector to the start screen.
 $('#bNav').onclick = () => {
   if (currentScreen() === 'game') return toMenu();
-  // back to the puzzle you came from, unless the menu has since switched level
-  showScreen(previousScreen() === 'game' && gameLevel === CAT ? 'game' : 'intro');
+  showScreen('intro');
 };
 // Saved results were synced or cleared: redraw whatever shows them. A sync lists the boards it
 // changed; the board being played is only reopened if its own result changed (and it isn't
@@ -72,7 +71,7 @@ document.addEventListener('historychange', (e) => {
 $('#bHome').onclick = () => showScreen('intro');
 onScreen((name) => {
   track('screen', { name });
-  $('#bNav').setAttribute('aria-label', name === 'menu' ? 'Back' : 'Back to all puzzles');
+  $('#bNav').setAttribute('aria-label', name === 'menu' ? 'Back to the start screen' : 'Back to all puzzles');
   // the timer pauses while you're off the game screen, and the board is saved as you leave
   setAway('screen', name !== 'game');
 });
