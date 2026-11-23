@@ -326,37 +326,63 @@ h1 small {
 }
 .controls button {
   flex: 1;
-  padding: 10px 6px;
-}
-.controls button {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 60px;
+  padding: 9px 4px 8px;
+  border-radius: 16px;
+  border-color: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015));
+  font-size: 12.5px;
   white-space: nowrap; /* four labels share the row; keep each on one line */
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
-/* narrow phones: slightly smaller labels so Start over / Hint / Solution fit */
-@media (max-width: 430px) {
+/* the icon: line art in the button's accent color, with a soft glow */
+.controls .ci {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  fill: none;
+  stroke: var(--ac, #9a8cff);
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px var(--ac, #9a8cff));
+}
+.controls .cl {
+  line-height: 1.1;
+}
+/* Solution / Results: one icon or the other */
+#bReveal .ci-results,
+#bReveal.results .ci-solution {
+  display: none;
+}
+#bReveal.results .ci-results {
+  display: block;
+}
+/* Results is the main button on a finished board: white icon on the gradient */
+.controls button.primary .ci {
+  stroke: #fff;
+  filter: none;
+}
+@media (hover: hover) {
+  .controls button:not(:disabled):not(.primary):hover {
+    border-color: var(--ac);
+  }
+}
+@media (max-width: 360px) {
   .controls {
     gap: 6px;
   }
   .controls button {
-    font-size: 13.5px;
-    padding-left: 4px;
-    padding-right: 4px;
+    font-size: 11.5px;
   }
-}
-.controls #bUndo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-.ic-undo {
-  width: 15px;
-  height: 15px;
-  flex: none;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 button {
   font: inherit;

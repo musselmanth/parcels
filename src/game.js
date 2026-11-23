@@ -81,7 +81,8 @@ export function setReset(finished) {
   $('#bUndo').style.display = finished ? 'none' : '';
   $('#bHint').style.display = finished ? 'none' : '';
   const r = $('#bReveal');
-  r.textContent = finished ? 'Results' : 'Solution';
+  r.querySelector('.cl').textContent = finished ? 'Results' : 'Solution';
+  r.classList.toggle('results', finished); // swaps the eye icon for a trophy
   r.classList.toggle('primary', finished);
   r.disabled = G.celebrating;
 }
