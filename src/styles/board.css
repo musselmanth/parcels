@@ -106,6 +106,14 @@
   stroke-dasharray: 8 6; /* keep in step with DASH_PERIOD in render.js */
   animation: march 1.2s linear infinite;
 }
+.pair {
+  transition: stroke 0.2s;
+}
+/* Third-tile helper: a pencilled pair the one selected tile would complete */
+.pair.fit {
+  stroke: #ffd43b;
+  filter: drop-shadow(0 0 4px rgba(255, 212, 59, 0.55));
+}
 .pair.enter {
   animation:
     pairIn 0.35s cubic-bezier(0.3, 1.5, 0.5, 1) both,

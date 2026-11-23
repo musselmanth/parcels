@@ -43,6 +43,7 @@ export function openPuzzle(n, fresh = false) {
   G.pairs = [];
   G.hints = [];
   G.history = [];
+  G.checkpoint = null;
   G.top = null;
   G.nextId = 0;
   G.sel = [];
@@ -78,7 +79,7 @@ export function openPuzzle(n, fresh = false) {
 // Finished boards (solved or peeked) are final: Start over disappears and Solution becomes Results.
 export function setReset(finished) {
   $('#bReset').style.display = finished ? 'none' : '';
-  $('#bUndo').style.display = finished ? 'none' : '';
+  $('#histRow').style.display = finished ? 'none' : '';
   $('#bHint').style.display = finished ? 'none' : '';
   const r = $('#bReveal');
   r.querySelector('.cl').textContent = finished ? 'Results' : 'Solution';

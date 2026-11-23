@@ -113,7 +113,16 @@ function record() {
 // already given still count; a hint that was used up by making its parcel comes back.
 export function undo() {
   if (G.done || G.busy || G.celebrating || !G.history.length) return;
-  const s = G.history.pop();
+  restore(G.history.pop());
+  G.st.undos = (G.st.undos || 0) + 1;
+  track('undo', { left: G.history.length });
+  sfx.tap();
+  setMsg(G.history.length ? 'Undone.' : 'Back to the start.');
+  render();
+  G.released = null;
+}
+// Put the board back to snapshot s (parcels and pairs; hints as described at undo()).
+function restore(s) {
   const before = new Set(Object.values(G.groups).flatMap((g) => g.cells));
   G.groups = {};
   for (const g of s.groups) {
@@ -127,11 +136,51 @@ export function undo() {
   const hints = [...G.hints, ...s.hints.filter((h) => !G.hints.some((x) => cellKey(x) === cellKey(h)))];
   G.hints = hints.filter((h) => !made.has(cellKey(h)));
   G.sel = [];
-  G.st.undos = (G.st.undos || 0) + 1;
-  track('undo', { left: G.history.length });
+  G.released = new Set([...before].filter((c) => !now.has(c))); // tiles freed spring back (on render)
+}
+
+// ---- checkpoint
+// One saved position the player can come back to in a single tap. Setting it again replaces it.
+// Going back to it counts as a move, so Undo takes you back to where you were.
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+// True if the board is anything other than the checkpoint (parcels and pairs; hints don't count).
+export function awayFromCheckpoint() {
+  if (!G.checkpoint) return false;
+  const now = snapshot();
+  const key = (s) => ({
+    g: s.groups.map((g) => [cellKey(g.cells), g.pinned]).sort(),
+    p: s.pairs.map(cellKey).sort(),
+  });
+  return !same(key(now), key(G.checkpoint));
+}
+export function setCheckpoint() {
+  if (G.done || G.busy || G.celebrating) return;
+  const replacing = !!G.checkpoint;
+  G.checkpoint = snapshot();
+  G.st.checkpoints = (G.st.checkpoints || 0) + 1;
+  track('checkpoint', { parcels: Object.keys(G.groups).length, replacing });
+  sfx.pair();
+  buzz(8);
+  setMsg(
+    replacing ? 'Checkpoint moved here.' : 'Checkpoint set. Try an idea; Return brings the board back here.',
+    'ok',
+  );
+  render();
+  const b = document.getElementById('bMark');
+  if (b) {
+    b.classList.remove('flash');
+    void b.offsetWidth;
+    b.classList.add('flash');
+  }
+}
+export function toCheckpoint() {
+  if (G.done || G.busy || G.celebrating || !awayFromCheckpoint()) return;
+  record();
+  restore(G.checkpoint);
+  G.st.returns = (G.st.returns || 0) + 1;
+  track('checkpoint_return', { parcels: G.checkpoint.groups.length });
   sfx.tap();
-  setMsg(G.history.length ? 'Undone.' : 'Back to the start.');
-  G.released = new Set([...before].filter((c) => !now.has(c))); // tiles freed spring back
+  setMsg('Back at your checkpoint. Undo takes you back to where you were.');
   render();
   G.released = null;
 }

@@ -9,7 +9,7 @@ import './styles/responsive.css'; // keep last: adapts the layout for tablets, d
 import { $ } from './core/dom.js';
 import { CATS } from './data/puzzles.js';
 import { openPuzzle, reveal } from './game.js';
-import { giveHint, popAll, undo } from './actions.js';
+import { giveHint, popAll, setCheckpoint, toCheckpoint, undo } from './actions.js';
 import { initHelp } from './help.js';
 import { initTutorial } from './tutorial.js';
 import { nextUnsolved, renderMenu } from './menu.js';
@@ -153,6 +153,8 @@ $('#mSettings').addEventListener('click', (e) => {
 
 // ---- board controls and the results / reveal dialogs ----
 $('#bUndo').onclick = undo;
+$('#bMark').onclick = setCheckpoint;
+$('#bToMark').onclick = toCheckpoint;
 // Start over: everything on the board pops, then it resets
 $('#bReset').onclick = () => {
   if (G.done || G.busy || G.celebrating) return;

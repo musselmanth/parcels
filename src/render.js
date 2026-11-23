@@ -13,6 +13,7 @@ import {
   pairOutline,
   setCells,
 } from './core/hex.js';
+import { awayFromCheckpoint } from './actions.js';
 import { G, pairOf } from './state.js';
 import { elapsed, saveProgress } from './progress.js';
 import { POS, STAR, TINTS, glyph, tileLabel } from './tiles.js';
@@ -38,6 +39,18 @@ export function fitsFor(sel) {
     const three = [...sel, k];
     if (connected(three) && validTiles(...three.map((i) => G.P.tiles[i]))) out.add(k);
   }
+  return out;
+}
+// ...and the other way round: with one tile selected, the pencilled pairs it would complete. Their
+// dashed outlines turn gold. Returns a Set of indexes into G.pairs.
+let PAIRFIT = new Set();
+export function pairsFor(sel) {
+  const out = new Set();
+  if (!prefs.easyMode || sel.length !== 1 || G.done || !G.P || pairOf(sel[0])) return out;
+  G.pairs.forEach((p, k) => {
+    const three = [sel[0], ...p.cells];
+    if (connected(three) && validTiles(...three.map((i) => G.P.tiles[i]))) out.add(k);
+  });
   return out;
 }
 let fitShownFor = ''; // the two tiles the "nothing fits" note was last shown for
@@ -215,13 +228,14 @@ export function unwindLock(wrap) {
 // Rebuild the whole board from G and update the Hints / Parcels counters and progress bar.
 export function render() {
   FIT = fitsFor(G.sel);
+  PAIRFIT = pairsFor(G.sel);
   noteNoFit();
   const inGroup = new Set();
   Object.values(G.groups).forEach((g) => g.cells.forEach((i) => inGroup.add(i)));
   const pairSVG = G.pairs
     .map(
-      (p) =>
-        `<path class="pair${p.fresh ? ' enter' : ''}" d="${pairOutline(center(p.cells[0]), center(p.cells[1]), 2, 13)}"/>`,
+      (p, k) =>
+        `<path class="pair${p.fresh ? ' enter' : ''}${PAIRFIT.has(k) ? ' fit' : ''}" d="${pairOutline(center(p.cells[0]), center(p.cells[1]), 2, 13)}"/>`,
     )
     .join('');
   const parcelSVG = Object.values(G.groups)
@@ -251,6 +265,9 @@ export function render() {
   G.pairs.forEach((p) => (p.fresh = false));
   $('#hintCount').textContent = (G.st && G.st.hints) || 0;
   $('#bUndo').disabled = !G.history.length || G.done;
+  // checkpoint: Return works when the board has moved on from it; the flag shows one is set
+  $('#bToMark').disabled = !awayFromCheckpoint();
+  $('#bMark').classList.toggle('set', !!G.checkpoint);
   $('#prog').textContent = Object.keys(G.groups).length;
   $('#progBar').style.width = (Object.keys(G.groups).length / GROUPS) * 100 + '%';
   saveProgress(); // every change to the board goes through here, so this keeps the save current
@@ -267,6 +284,10 @@ function holeSVG() {
 // Light update while a finger is moving: classes and the trail only, no rebuild.
 export function paintSel(path) {
   FIT = fitsFor(G.sel);
+  PAIRFIT = pairsFor(G.sel);
+  board
+    .querySelectorAll('#world > g:first-child > .pair')
+    .forEach((el, k) => el.classList.toggle('fit', PAIRFIT.has(k)));
   if (!path) noteNoFit(); // taps (swipes pass their path, and get no note mid-gesture)
   board.querySelectorAll('.tile').forEach((el) => {
     const i = +el.dataset.i;

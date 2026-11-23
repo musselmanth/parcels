@@ -7,7 +7,7 @@ import { G } from './state.js';
 // leave a board; cleared when the board is solved, revealed or started over.
 //
 // Stored per level under '<level key>-progress' (see CATS in src/data/puzzles.js):
-//   {[boardNumber]: {groups: [{cells, color, pinned}], pairs: [[a, b]], hints: [[a, b, c]], history, misses, elapsed, st, at}}
+//   {[boardNumber]: {groups: [{cells, color, pinned}], pairs: [[a, b]], hints: [[a, b, c]], history, checkpoint, misses, elapsed, st, at}}
 // history is the undo history (G.history), so undo still reaches the start after leaving and coming back.
 // elapsed is the time played so far (ms); st is the stats object used for scoring (G.st).
 
@@ -62,6 +62,7 @@ export function saveProgress() {
       pairs: G.pairs.map((p) => p.cells),
       hints: G.hints,
       history: G.history,
+      checkpoint: G.checkpoint,
       misses: G.misses,
       elapsed: elapsed(),
       st: { ...G.st, lastT: null },
@@ -107,6 +108,11 @@ export function restoreProgress(level, n) {
         (s) => s && (s.groups || []).every((g) => fits(g.cells)) && (s.pairs || []).every(fits),
       )
     : [];
+  const cp = p.checkpoint;
+  G.checkpoint =
+    cp && (cp.groups || []).every((g) => fits(g.cells)) && (cp.pairs || []).every(fits)
+      ? { groups: cp.groups || [], pairs: cp.pairs || [], hints: (cp.hints || []).filter(fits) }
+      : null;
   G.history.forEach((s) => {
     s.groups = s.groups || [];
     s.pairs = s.pairs || [];

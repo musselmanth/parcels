@@ -16,6 +16,8 @@ export const G = {
   // Undo history: the board before each move (parcels, pairs, hints), oldest first. See record() and
   // undo() in actions.js.
   history: [],
+  // The player's checkpoint: a snapshot like the history's, or null. See setCheckpoint() in actions.js.
+  checkpoint: null,
   // Next parcel id.
   nextId: 0,
   // Cells currently selected by taps or a swipe in progress.
