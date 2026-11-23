@@ -329,6 +329,10 @@
         <ul>
           <li><b>Hint</b> circles a real parcel with a dotted line until you make it.</li>
           <li><b>Solution</b> shows the answer, but that board ends there.</li>
+          <li>
+            <b>Easy mode</b> (in Settings): select two tiles, or tap a pencilled pair, and every tile that
+            would complete a parcel with them lights up gold. Nothing lit means those two aren't a parcel.
+          </li>
         </ul>
 
         <h3>Practice</h3>
@@ -386,15 +390,30 @@
       <div class="sheet">
         <button class="xclose" id="bSettingsClose" aria-label="Close">✕</button>
         <h2>Settings</h2>
-        <h3>Sound</h3>
-        <div class="setrow">
-          <span>Sound effects</span
-          ><button class="switch" id="bSound" role="switch" aria-label="Sound effects"></button>
-        </div>
-        <h3>Display</h3>
-        <div class="setrow">
-          <span>Show timer</span
-          ><button class="switch" id="bTimer" role="switch" aria-label="Show timer"></button>
+        <!-- the three switches, evenly spaced; a switch's explanation (if any) sits under its name -->
+        <div class="setlist">
+          <div class="setrow">
+            <span class="setlabel">Sound effects</span
+            ><button class="switch" id="bSound" role="switch" aria-label="Sound effects"></button>
+          </div>
+          <div class="setrow">
+            <span class="setlabel">Show timer</span
+            ><button class="switch" id="bTimer" role="switch" aria-label="Show timer"></button>
+          </div>
+          <div class="setrow">
+            <span class="setlabel"
+              >Easy mode
+              <small id="easyNote"
+                >Pick two tiles and the ones that would complete a parcel light up.</small
+              ></span
+            ><button
+              class="switch"
+              id="bEasy"
+              role="switch"
+              aria-label="Easy mode"
+              aria-describedby="easyNote"
+            ></button>
+          </div>
         </div>
         <p class="setnote" id="meNote" hidden>
           This browser is marked as yours, so it doesn't send playtest data. Visit the site with

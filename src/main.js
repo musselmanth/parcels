@@ -18,7 +18,7 @@ import { initInstall } from './install.js';
 import { initFeedback } from './feedback.js';
 import { startTelemetry, track } from './telemetry.js';
 import { currentScreen, onScreen, previousScreen, showScreen, trackTopbarHeight } from './screens.js';
-import { setMsg, tick } from './render.js';
+import { render, setMsg, tick } from './render.js';
 import { openResults } from './results.js';
 import { paintSound, sfx } from './sound.js';
 import { G } from './state.js';
@@ -124,6 +124,20 @@ $('#bTimer').onclick = () => {
   track('setting', { showTimer: prefs.showTimer });
   paintTimer();
 };
+// Easy mode: with two tiles selected, gold outlines on the tiles that would complete them (fitsFor
+// in render.js). Off by default.
+function paintEasy() {
+  const b = $('#bEasy');
+  b.classList.toggle('on', prefs.easyMode);
+  b.setAttribute('aria-checked', String(prefs.easyMode));
+}
+$('#bEasy').onclick = () => {
+  prefs.easyMode = !prefs.easyMode;
+  savePrefs();
+  track('setting', { easyMode: prefs.easyMode });
+  paintEasy();
+  if (G.P) render();
+};
 // Settings opens from the top bar (game screen) or the start screen's button.
 $('#bSettings').onclick = $('#bIntroSettings').onclick = () => {
   $('#confirmClear').style.display = 'none';
@@ -214,6 +228,7 @@ initTutorial(() => {
 });
 paintSound();
 paintTimer();
+paintEasy();
 setInterval(tick, 500);
 document.querySelectorAll('#catSeg button').forEach((b) => (b.onclick = () => pickLevel(b.dataset.c)));
 trackTopbarHeight(); // screens leave the floating top bar's height free
@@ -221,7 +236,7 @@ initIntro(pickLevel);
 initInstall(); // the start screen's Install as an app button
 initSync(); // Settings: sync results across devices with a sync code
 initFeedback(); // the playtest note and feedback form
-startTelemetry({ sound: prefs.sound, showTimer: prefs.showTimer }); // playtest data (if PLAYTEST_API is set)
+startTelemetry({ sound: prefs.sound, showTimer: prefs.showTimer, easyMode: prefs.easyMode }); // playtest data (if PLAYTEST_API is set)
 setCat(prefs.cat || 'easy');
 showScreen('intro', { animate: false }); // the site opens on the start screen
 paintHelpHint(); // first visit: How to play shimmers instead of opening by itself

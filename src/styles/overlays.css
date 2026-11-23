@@ -240,12 +240,31 @@
   outline: 2px solid #9a8cff;
   outline-offset: 3px;
 }
+/* the switches: one row each, evenly spaced, with a thin line between rows */
+.setlist {
+  margin: 6px 0 10px;
+}
 .setrow {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   font-size: 14.5px;
-  margin: 4px 0;
+  padding: 13px 0;
+}
+.setrow + .setrow {
+  border-top: 1px solid var(--line);
+}
+.setrow .switch {
+  flex-shrink: 0;
+}
+/* a switch's explanation, under its name */
+.setlabel small {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--muted);
 }
 .setnote {
   font-size: 13px;

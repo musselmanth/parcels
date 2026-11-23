@@ -38,6 +38,18 @@
   stroke: var(--paired);
   stroke-width: 2;
 }
+/* Easy mode: a loose tile that would complete the two selected ones (see fitsFor in render.js) */
+.tile.fit .card {
+  stroke: #ffd43b;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 5px rgba(255, 212, 59, 0.55));
+  animation: fitIn 0.2s ease both;
+}
+@keyframes fitIn {
+  from {
+    stroke-opacity: 0;
+  }
+}
 .tile.shake .pop {
   animation: shake 0.38s;
 }

@@ -9,17 +9,45 @@ import {
   blobPath,
   center,
   centroid,
+  connected,
   pairOutline,
   setCells,
 } from './core/hex.js';
 import { G, pairOf } from './state.js';
 import { saveProgress } from './progress.js';
 import { POS, STAR, TINTS, glyph, tileLabel } from './tiles.js';
+import { validTiles } from './core/rules.js';
+import { prefs } from './storage.js';
 
 // Drawing. The board is one <svg> rebuilt from G by render() after every move. Layers, bottom to top:
 // pencilled pairs, parcels (outline + their tiles + the seal on locked ones), the swipe trail, loose tiles, and the
 // star shown when the board is solved. CSS classes drive the animations (see styles/board.css).
 // Also the tip message under the stats and the timer.
+
+// What fits?: with exactly two tiles selected (two taps, partway through a swipe, or a tapped
+// pencilled pair), the loose tiles that would make a valid parcel with them. They're outlined in
+// gold, so the player only has to think about where parcels go, not check the rule in their head.
+// Only with Easy mode on in Settings (off by default).
+let FIT = new Set();
+export function fitsFor(sel) {
+  const out = new Set();
+  if (!prefs.easyMode || sel.length !== 2 || G.done || !G.P) return out;
+  const used = new Set(Object.values(G.groups).flatMap((g) => g.cells));
+  for (let k = 0; k < N; k++) {
+    if (sel.includes(k) || used.has(k)) continue;
+    const three = [...sel, k];
+    if (connected(three) && validTiles(...three.map((i) => G.P.tiles[i]))) out.add(k);
+  }
+  return out;
+}
+let fitShownFor = ''; // the two tiles the "nothing fits" note was last shown for
+// Two tiles picked that nothing completes: say so, once per pair of tiles. Not while swiping.
+function noteNoFit() {
+  const key = G.sel.length === 2 ? [...G.sel].sort((a, b) => a - b).join() : '';
+  if (key && key !== fitShownFor && prefs.easyMode && !FIT.size && !G.done)
+    setMsg('No tile fits with those two.', 'bad');
+  fitShownFor = key;
+}
 
 // Pre-computed rounded-hexagon path for each cell (rebuilt per board).
 let CARD = [];
@@ -80,6 +108,7 @@ function tileSVG(i, k) {
   const cls =
     'tile' +
     (G.sel.includes(i) ? ' sel' : '') +
+    (FIT.has(i) ? ' fit' : '') +
     (pairOf(i) ? ' paired' : '') +
     (G.released && G.released.has(i) ? ' release' : '');
   return (
@@ -110,6 +139,8 @@ export function fitDashes(root) {
 }
 // Rebuild the whole board from G and update the Hints / Parcels counters and progress bar.
 export function render() {
+  FIT = fitsFor(G.sel);
+  noteNoFit();
   const inGroup = new Set();
   Object.values(G.groups).forEach((g) => g.cells.forEach((i) => inGroup.add(i)));
   const pairSVG = G.pairs
@@ -159,7 +190,13 @@ function holeSVG() {
 }
 // Light update while a finger is moving: classes and the trail only, no rebuild.
 export function paintSel(path) {
-  board.querySelectorAll('.tile').forEach((el) => el.classList.toggle('sel', G.sel.includes(+el.dataset.i)));
+  FIT = fitsFor(G.sel);
+  if (!path) noteNoFit(); // taps (swipes pass their path, and get no note mid-gesture)
+  board.querySelectorAll('.tile').forEach((el) => {
+    const i = +el.dataset.i;
+    el.classList.toggle('sel', G.sel.includes(i));
+    el.classList.toggle('fit', FIT.has(i));
+  });
   const tr = $('#trail');
   if (!tr) return;
   tr.setAttribute(

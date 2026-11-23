@@ -45,7 +45,7 @@ export function setCat(k) {
   document.querySelectorAll('#catSeg button').forEach((b) => b.classList.toggle('on', b.dataset.c === CAT));
 }
 // Player preferences, loaded once at startup.
-export let prefs = { sound: true, seenHelp: false, showTimer: true };
+export let prefs = { sound: true, seenHelp: false, showTimer: true, easyMode: false };
 try {
   Object.assign(prefs, JSON.parse(localStorage.getItem(KEY + '-prefs') || '{}'));
 } catch (e) {}
