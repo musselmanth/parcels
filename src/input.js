@@ -1,15 +1,16 @@
-import { begin, clearHold, makePair, releaseHold, startHold, submit, tapCell } from './actions.js';
+import { begin, clearHold, releaseHold, startHold, startTileHold, submit, tapCell } from './actions.js';
 import { board } from './core/dom.js';
 import { N, S, adj, center } from './core/hex.js';
-import { paintSel } from './render.js';
+import { paintSel, setMsg } from './render.js';
 import { audio, sfx } from './sound.js';
 import { G, groupOf, pairOf } from './state.js';
 
 // Pointer input on the board (mouse, touch and pen all arrive as pointer events).
 //   - Down on a parcel: press-and-hold (see startHold in actions.js).
 //   - Down and up without moving: a tap -> tapCell().
+//   - Down and hold on a tile: pencil the selected pair, or erase a pencilled pair (startTileHold).
 //   - Down and drag: a swipe. Each tile (or whole pencilled pair) crossed is added, up to 3 tiles;
-//     sliding back drops the last ones. Releasing on 3 tiles submits a parcel, on 2 pencils a pair.
+//     sliding back drops the last ones. Releasing on 3 tiles submits a parcel; on 2 leaves them selected.
 // Imported by main.js only for these side effects.
 
 // Screen pixels -> board (SVG) coordinates.
@@ -53,7 +54,9 @@ board.addEventListener('pointerdown', (e) => {
     gest = { id: e.pointerId, consumed: true, x0: e.clientX, y0: e.clientY, hold: startHold(groupOf(i)) };
     return;
   }
-  gest = { id: e.pointerId, start: i, x0: e.clientX, y0: e.clientY, moved: false, units: [] };
+  // on a tile, a hold may pencil or erase a pair (startTileHold); moving turns it into a swipe
+  const hold = i >= 0 ? startTileHold(i) : null;
+  gest = { id: e.pointerId, start: i, x0: e.clientX, y0: e.clientY, moved: false, units: [], hold };
 });
 board.addEventListener('pointermove', (e) => {
   if (!gest || e.pointerId !== gest.id) return;
@@ -64,9 +67,15 @@ board.addEventListener('pointermove', (e) => {
     }
     return;
   }
+  if (gest.hold && gest.hold.done) return; // the hold already pencilled or erased a pair
   if (!gest.moved) {
     if (Math.hypot(e.clientX - gest.x0, e.clientY - gest.y0) < 10) return;
     gest.moved = true;
+    if (gest.hold) {
+      clearHold(gest.hold);
+      gest.hold.done = true;
+      gest.hold = null;
+    }
     const s = gest.start;
     if (s < 0 || groupOf(s)) {
       gest.dead = true;
@@ -112,6 +121,11 @@ function endGesture(e, cancel) {
     }
     return;
   }
+  if (g.hold) {
+    if (g.hold.done) return; // the hold already did its thing
+    clearHold(g.hold);
+    g.hold.done = true;
+  }
   if (cancel) {
     G.sel = [];
     paintSel();
@@ -129,8 +143,12 @@ function endGesture(e, cancel) {
     G.viaSwipe = true;
     submit(cells);
     G.viaSwipe = false;
-  } else if (cells.length === 2) makePair(cells);
-  else {
+  } else if (cells.length === 2) {
+    // 2 tiles: selected, the same as tapping them (hold one to pencil them in)
+    G.sel = cells;
+    paintSel();
+    setMsg('Tap a third tile, or hold one of these to pencil them in as a pair.');
+  } else {
     G.sel = [];
     paintSel();
   }

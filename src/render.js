@@ -27,7 +27,7 @@ import { prefs } from './storage.js';
 // What fits?: with exactly two tiles selected (two taps, partway through a swipe, or a tapped
 // pencilled pair), the loose tiles that would make a valid parcel with them. They're outlined in
 // gold, so the player only has to think about where parcels go, not check the rule in their head.
-// Only with Easy mode on in Settings (off by default).
+// Only with Third-tile helper on in Settings (off by default).
 let FIT = new Set();
 export function fitsFor(sel) {
   const out = new Set();
@@ -136,6 +136,81 @@ export function fitDashes(root) {
       if (len > 0) p.setAttribute('pathLength', (Math.max(1, Math.round(len / period)) * period).toFixed(2));
       if (cls === 'hint') p.style.animationDelay = `-${(performance.now() % HINT_SPIN_MS) / 1000}s`;
     });
+}
+// While a tile is held to pencil a pair: the pair's own dashed outline, drawn in around the two tiles
+// over the hold. out: the reverse, for erasing: the outline rewinds the way it was drawn.
+// Drawn frame by frame with a dash pattern that stops partway round (masks don't animate on iPhone).
+// Appended to `world`; returns the element, to remove() when the hold ends.
+// d: the pair's outline (pairOutline(..., 2, 13)).
+const GHOST_DELAY = 100,
+  GHOST_MS = 350; // with the hold's 450 ms, the outline completes just as the hold does
+// like: the pair outline it stands in for (when erasing), to start with its dashes in the same place.
+export function pairGhost(world, d, out = false, like = null) {
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('class', 'pair ghost');
+  path.setAttribute('d', d);
+  world.appendChild(path);
+  const period = DASH_PERIOD.pair,
+    dash = 8, // as in .pair's stroke-dasharray
+    len = path.getTotalLength(),
+    total = Math.max(1, Math.round(len / period)) * period; // same pathLength as fitDashes gives
+  path.setAttribute('pathLength', total.toFixed(2));
+  // where the marching dashes are now (0 for a new pair: its march starts from 0)
+  let phase = 0;
+  if (like) phase = -parseFloat(getComputedStyle(like).strokeDashoffset) || 0;
+  phase = ((phase % period) + period) % period;
+  const show = (t) => {
+    // t: 0..1 of the outline shown, from its start; dashes as the pair's, shifted by phase
+    const v = total * t,
+      parts = [];
+    let pos = 0,
+      ph = phase,
+      on = true; // parts alternate dash, gap, dash, ...
+    if (ph >= dash) (parts.push(0), (on = false));
+    while (pos < v - 1e-6) {
+      const seg = Math.min(on ? dash - ph : period - ph, v - pos);
+      parts.push(seg);
+      pos += seg;
+      ph = (ph + seg) % period;
+      if (ph < 1e-6 || Math.abs(ph - dash) < 1e-6) on = !on;
+      else break;
+    }
+    if (parts.length % 2 === 0) parts.push(0); // end on a dash, then the long gap
+    parts.push(total + period);
+    path.style.strokeDasharray = parts.map((x) => x.toFixed(2)).join(' ');
+    path.style.fillOpacity = t;
+  };
+  show(out ? 1 : 0);
+  const t0 = performance.now() + GHOST_DELAY;
+  const step = (now) => {
+    if (!path.isConnected) return;
+    const f = Math.min(1, Math.max(0, (now - t0) / GHOST_MS));
+    show(out ? 1 - f : f);
+    if (f < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+  return path;
+}
+// Holding a locked parcel to unlock it: its thick outline and its seal unwind themselves, the way
+// they were drawn in reverse (a thick copy of the outline unwinds over the parcel's normal one).
+// wrap: the parcel's .pwrap. Returns a function that puts it back if the hold stops early; once
+// unlocked, the redraw replaces it all anyway.
+export function unwindLock(wrap) {
+  const parcel = wrap.querySelector('.parcel'),
+    outline = parcel && parcel.querySelector('.outline'),
+    seal = parcel && parcel.querySelector('.seal');
+  if (!outline) return () => {};
+  const thick = outline.cloneNode();
+  thick.setAttribute('class', 'outline unwind');
+  thick.setAttribute('fill', 'none');
+  outline.after(thick);
+  parcel.classList.add('unpinning');
+  if (seal) seal.classList.add('unsealing');
+  return () => {
+    thick.remove();
+    parcel.classList.remove('unpinning');
+    if (seal) seal.classList.remove('unsealing');
+  };
 }
 // Rebuild the whole board from G and update the Hints / Parcels counters and progress bar.
 export function render() {

@@ -1,9 +1,19 @@
 import { board, buzz, later } from './core/dom.js';
-import { GROUPS, NEIGH, adj, between, blobPath, centroid, connected } from './core/hex.js';
+import {
+  GROUPS,
+  NEIGH,
+  adj,
+  between,
+  blobPath,
+  center,
+  centroid,
+  connected,
+  pairOutline,
+} from './core/hex.js';
 import { whyInvalid } from './core/rules.js';
 import { burst, groupColors, toScreen } from './fx.js';
 import { win } from './game.js';
-import { paintSel, render, setMsg } from './render.js';
+import { pairGhost, paintSel, render, setMsg, unwindLock } from './render.js';
 import { sfx } from './sound.js';
 import { G, groupOf, pairOf } from './state.js';
 import { track } from './telemetry.js';
@@ -80,10 +90,11 @@ export function freeColor(cells) {
 // Pencil in two touching tiles as a pair (replacing any pair they were in).
 // Pencil in two tiles as a pair (replacing any pair they were in). Usually they touch; they can also
 // be the two ends of a bend, with two possible middle tiles (see pencilPair).
+let calmPair = false; // pencilling from a hold: the outline was already drawn, so no pop-in
 export function makePair(cells, msg = 'Pair pencilled in. Add a third tile when you’re sure.') {
   G.st.pairs++;
   G.pairs = G.pairs.filter((p) => !p.cells.some((c) => cells.includes(c)));
-  G.pairs.push({ cells: cells.slice(), fresh: true });
+  G.pairs.push({ cells: cells.slice(), fresh: !calmPair }); // after a hold it's already drawn in
   G.sel = [];
   track('pair', { cells, gap: !adj(cells[0], cells[1]) });
   sfx.pair();
@@ -265,42 +276,14 @@ export function popAll(done) {
   );
   later(done, Math.max(0, groups.length - 1) * STEP + 260);
 }
-// Erasing a pencilled pair gets a smaller version of the same pop.
+// Erase a pencilled pair. Its outline already undrew itself during the hold (startTileHold), so it
+// just goes: no pop.
 function erasePair(p) {
-  const path = [...board.querySelectorAll('.pair')][G.pairs.indexOf(p)];
-  const [cx, cy] = centroid(p.cells),
-    [sx, sy] = toScreen(cx, cy);
-  sfx.pop(true);
-  burst(
-    sx,
-    sy,
-    [getComputedStyle(document.body).getPropertyValue('--paired').trim() || '#8d846f', '#ddd3c1', '#9c97cc'],
-    8,
-    3,
-  );
   G.sel = [];
   track('pair_erase', { cells: p.cells });
   setMsg('Pair erased.');
-  const finish = () => {
-    G.pairs = G.pairs.filter((x) => x !== p);
-    G.released = new Set(p.cells);
-    render();
-    G.released = null;
-    G.busy = false;
-  };
-  if (!path) {
-    finish();
-    return;
-  }
-  G.busy = true;
-  path.animate(
-    [
-      { transform: 'scale(1)', opacity: 1 },
-      { transform: 'scale(1.2)', opacity: 0 },
-    ],
-    { duration: 180, easing: 'ease-out', fill: 'forwards' },
-  );
-  later(finish, 170);
+  G.pairs = G.pairs.filter((x) => x !== p);
+  render();
 }
 // Lock a parcel so a tap no longer pops it.
 function togglePin(g) {
@@ -310,7 +293,7 @@ function togglePin(g) {
   track('lock', { cells: g.cells, correct: inSolution(g.cells) });
   sfx.pin();
   buzz(12);
-  setMsg('Locked in. Hold it again to pop it.', 'ok');
+  setMsg('Locked in. Hold it again to unlock it.', 'ok');
   render();
   const el = board.querySelector(`.pwrap[data-g="${g.id}"] .parcel`);
   if (el) {
@@ -322,13 +305,21 @@ function togglePin(g) {
     burst(sx, sy, ['#fffaf0', TINTS[g.color][1], '#f2b705'], 10, 3.5);
   }
 }
+// Unlock a locked parcel (its seal already unwound during the hold): taps pop it again.
+function unpin(g) {
+  g.pinned = false;
+  track('unlock', { cells: g.cells });
+  sfx.tap();
+  setMsg('Unlocked. Tap it to pop it.');
+  render();
+}
 
 // Parcels: a quick tap pops an unlocked parcel (on release). Press and hold locks it;
-// press and hold a locked parcel pops it. A quick tap on a locked parcel just wiggles.
+// press and hold a locked parcel unlocks it. A quick tap on a locked parcel just wiggles.
 // How long (ms) a press must last to count as press-and-hold.
 const HOLD = 450;
 // Pointer went down on a parcel: show the hold ring and start the timer. Returns a hold handle
-// that releaseHold() / clearHold() take. After HOLD ms, a loose parcel locks and a locked one pops.
+// that releaseHold() / clearHold() take. After HOLD ms, a loose parcel locks and a locked one unlocks.
 export function startHold(g) {
   const wrap = board.querySelector(`.pwrap[data-g="${g.id}"]`),
     inner = wrap && wrap.querySelector('.parcel');
@@ -340,23 +331,29 @@ export function startHold(g) {
     settle(wrap);
     wrap.parentNode.appendChild(wrap);
   }
-  const h = { g, done: false, ring: null };
+  const h = { g, done: false, ring: null, unwind: null };
   if (wrap) {
-    const ns = 'http://www.w3.org/2000/svg',
-      ring = document.createElementNS(ns, 'path');
-    ring.setAttribute('class', 'holdring' + (g.pinned ? ' popping' : ''));
-    ring.setAttribute('pathLength', '1');
-    ring.setAttribute('d', blobPath(g.cells, -3, 15));
-    wrap.appendChild(ring);
-    h.ring = ring;
+    if (g.pinned) {
+      // locked: its thick outline and seal unwind themselves over the hold
+      h.unwind = unwindLock(wrap);
+    } else {
+      const ns = 'http://www.w3.org/2000/svg',
+        ring = document.createElementNS(ns, 'path');
+      ring.setAttribute('class', 'holdring');
+      ring.setAttribute('pathLength', '1');
+      ring.setAttribute('d', blobPath(g.cells, -3, 15));
+      wrap.appendChild(ring);
+      h.ring = ring;
+    }
     inner.classList.add('holding');
     h.inner = inner;
   }
   h.timer = setTimeout(() => {
     h.done = true;
+    h.unwind = null; // unlocking: stays unwound until the redraw
     clearHold(h);
     if (!G.groups[g.id]) return;
-    if (g.pinned) breakGroup(g);
+    if (g.pinned) unpin(g);
     else togglePin(g);
   }, HOLD);
   return h;
@@ -372,6 +369,8 @@ export function clearHold(h) {
   clearTimeout(h.timer);
   if (h.ring) h.ring.remove();
   if (h.inner) h.inner.classList.remove('holding');
+  if (h.unwind) h.unwind();
+  if (h.hidden) h.hidden.style.visibility = '';
 }
 // Pointer came up before the hold finished: a quick tap. Pops a loose parcel; a locked one just wiggles.
 export function releaseHold(h) {
@@ -384,7 +383,7 @@ export function releaseHold(h) {
     breakGroup(g);
     return;
   }
-  setMsg('Locked. Press and hold to pop it.');
+  setMsg('Locked. Press and hold to unlock it.');
   const el = board.querySelector(`.pwrap[data-g="${g.id}"] .parcel`);
   if (el) {
     el.classList.remove('nudge');
@@ -392,6 +391,54 @@ export function releaseHold(h) {
     el.classList.add('nudge');
   }
   sfx.tap();
+}
+
+// Pointer went down on a loose or pencilled tile. If holding it would do something, show the hold
+// ring and start the timer; returns a hold handle (as startHold does), or null. After HOLD ms:
+//   - on a pencilled pair: erase it.
+//   - on one of 2 selected tiles: pencil them in as a pair.
+//   - with 1 tile selected, on another tile: pencil those two in as a pair.
+// Letting go sooner is an ordinary tap (tapCell).
+export function startTileHold(i) {
+  const p = pairOf(i);
+  let act = null;
+  if (p) act = { erase: p, cells: p.cells };
+  else if (G.sel.length === 2 && G.sel.includes(i)) act = { cells: G.sel.slice() };
+  else if (G.sel.length === 1 && G.sel[0] !== i && !pairOf(G.sel[0])) act = { cells: [G.sel[0], i] };
+  if (!act) return null;
+  const h = { done: false, ring: null };
+  const world = board.querySelector('#world');
+  if (world) {
+    // pencilling: the pair's dashed outline draws itself in around the two tiles; erasing: the
+    // pair's outline undraws itself (the real one hides meanwhile, and comes back if the hold stops)
+    if (act.erase) {
+      h.hidden = [...board.querySelectorAll('.pair')][G.pairs.indexOf(act.erase)] || null;
+      if (h.hidden) h.hidden.style.visibility = 'hidden';
+    }
+    h.ring = pairGhost(
+      world,
+      pairOutline(center(act.cells[0]), center(act.cells[1]), 2, 13),
+      !!act.erase,
+      h.hidden,
+    );
+  }
+  h.timer = setTimeout(() => {
+    h.done = true;
+    h.hidden = null; // erased: the real outline stays hidden until it's gone
+    clearHold(h);
+    if (act.erase) {
+      if (G.pairs.includes(act.erase)) {
+        G.sel = [];
+        paintSel();
+        erasePair(act.erase);
+      }
+    } else {
+      calmPair = true;
+      pencilPair(act.cells[0], act.cells[1], i);
+      calmPair = false;
+    }
+  }, HOLD);
+  return h;
 }
 
 // A tap (not a swipe) on cell i, or i < 0 for empty space (clears the selection).
@@ -410,9 +457,12 @@ export function tapCell(i) {
   }
   const p = pairOf(i);
   if (p) {
+    // tapping a selected pair again deselects it (holding it erases it)
     const same = G.sel.length === 2 && p.cells.every((c) => G.sel.includes(c));
     if (same) {
-      erasePair(p);
+      G.sel = [];
+      sfx.tap();
+      paintSel();
       return;
     }
     const u = [...new Set([...G.sel, ...p.cells])];
@@ -422,17 +472,18 @@ export function tapCell(i) {
       submit(G.sel);
       return;
     }
-    setMsg('Tap a third tile, or tap the pair again to erase it.');
+    setMsg('Tap a third tile, or hold the pair to erase it.');
     paintSel();
     return;
   }
-  // With two tiles picked, tapping either one again pencils them in as a pair.
-  if (G.sel.length === 2 && G.sel.includes(i)) return pencilPair(G.sel[0], G.sel[1], i);
+  // tapping a selected tile deselects it
   G.sel = G.sel.includes(i) ? G.sel.filter((x) => x !== i) : G.sel.concat(i);
   sfx.tap();
   if (G.sel.length === 3) {
     submit(G.sel);
     return;
   }
+  if (G.sel.length === 2) setMsg('Tap a third tile, or hold one of these to pencil them in as a pair.');
+  else setMsg('');
   paintSel();
 }

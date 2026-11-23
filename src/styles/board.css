@@ -38,11 +38,12 @@
   stroke: var(--paired);
   stroke-width: 2;
 }
-/* Easy mode: a loose tile that would complete the two selected ones (see fitsFor in render.js) */
+/* Third-tile helper: a loose tile that would complete the two selected ones (see fitsFor in render.js) */
 .tile.fit .card {
   stroke: #ffd43b;
-  stroke-width: 3;
-  filter: drop-shadow(0 0 5px rgba(255, 212, 59, 0.55));
+  stroke-width: 1.6;
+  stroke-dasharray: 5 4;
+  filter: drop-shadow(0 0 4px rgba(255, 212, 59, 0.5));
   animation: fitIn 0.2s ease both;
 }
 @keyframes fitIn {
@@ -222,6 +223,29 @@
     stroke-dashoffset: 0;
   }
 }
+/* holding a locked parcel (unwindLock): its thick outline and seal unwind, the way they were drawn in
+   reverse, leaving the unlocked parcel's thinner outline */
+.parcel.unpinning .outline {
+  stroke-width: 3.5;
+  transition: none;
+}
+.parcel.unpinning .outline.unwind {
+  stroke-width: 6;
+  stroke-dasharray: 1;
+  animation: sealOut 350ms linear 100ms both;
+}
+.seal.unsealing {
+  stroke-dasharray: 1;
+  animation: sealOut 350ms linear 100ms both;
+}
+@keyframes sealOut {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 1;
+  }
+}
 /* press-and-hold ring */
 .holdring {
   fill: none;
@@ -232,6 +256,10 @@
   stroke-dashoffset: 1;
   pointer-events: none;
   animation: hold 350ms linear 100ms forwards;
+}
+/* holding tiles to pencil or erase a pair: the pair's outline drawing in or rewinding (pairGhost) */
+.pair.ghost {
+  animation: none;
 }
 .holdring.popping {
   stroke: var(--bad);

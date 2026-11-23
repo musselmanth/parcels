@@ -89,7 +89,7 @@ const STEPS = [
     good: 'Popped. Its tiles are loose again.',
   },
   {
-    say: 'Not sure of a parcel yet? <b>Pencil in</b> a pair: swipe across just the 2 glowing tiles.',
+    say: 'Not sure of a parcel yet? <b>Pencil in</b> a pair: select the 2 glowing tiles, then <b>hold</b> one of them.',
     glow: [4, 8],
     want: 'pair',
     good: 'The dashed outline marks a pair you think belong together.',
@@ -104,7 +104,7 @@ const STEPS = [
     say: 'Sure about a parcel? <b>Press and hold</b> it to lock it in.',
     glow: null,
     want: 'lock',
-    good: 'Locked: a tap can’t pop it by accident now. Hold again if you ever need to pop it.',
+    good: 'Locked: a tap can’t pop it by accident now. Hold again if you ever need to unlock it.',
   },
   {
     say: 'One parcel left. Find it yourself.',
@@ -115,7 +115,7 @@ const STEPS = [
 const WRONG = {
   make: 'Use the 3 glowing tiles.',
   reject: 'Try the 3 glowing tiles.',
-  pair: 'Just 2 tiles this time: swipe across the 2 glowing tiles and lift.',
+  pair: 'Just 2 tiles this time: select the 2 glowing tiles, then hold one.',
   pop: 'Tap the glowing parcel to pop it.',
   lock: 'Press and hold a parcel (a quick tap would pop it).',
 };
@@ -129,10 +129,29 @@ let m = null,
   step = 0,
   timer = null;
 
+const cardHTML = (st, good) =>
+  (good ? `<p class="tut-good">✓ ${good}</p>` : '') + `<p class="tut-say">${st.say}</p>`;
+const DONE_HTML =
+  '<p class="tut-good">✓ Solved!</p><p class="tut-say">That’s the whole game. Real boards are bigger, and there’s always exactly one way to split them. If you get stuck, pop a parcel and look again, or ask for a hint.</p>';
+// Make the instruction card as tall as its tallest step at this width, so the board and the
+// message under it never move as the steps change.
+function sizeCard() {
+  const c = $t('tutCard'),
+    keep = c.innerHTML;
+  c.style.minHeight = '';
+  let max = 0;
+  STEPS.forEach((st, k) => {
+    c.innerHTML = cardHTML(st, k ? STEPS[k - 1].good : '');
+    max = Math.max(max, c.offsetHeight);
+  });
+  c.innerHTML = DONE_HTML;
+  max = Math.max(max, c.offsetHeight);
+  c.style.minHeight = max + 'px';
+  c.innerHTML = keep;
+}
 function show(good) {
   const st = STEPS[step];
-  $t('tutCard').innerHTML =
-    (good ? `<p class="tut-good">✓ ${good}</p>` : '') + `<p class="tut-say">${st.say}</p>`;
+  $t('tutCard').innerHTML = cardHTML(st, good);
   $t('tutCount').textContent = `Step ${step + 1} of ${STEPS.length}`;
   $t('tutBar').style.width = (step / STEPS.length) * 100 + '%';
   say('');
@@ -177,8 +196,7 @@ function onEvent(kind, cells) {
 }
 function finish() {
   m.solved = false; // so a tap on the board doesn't count as "play again" (see Mini.down)
-  $t('tutCard').innerHTML =
-    '<p class="tut-good">✓ Solved!</p><p class="tut-say">That’s the whole game. Real boards are bigger, and there’s always exactly one way to split them. If you get stuck, pop a parcel and look again, or ask for a hint.</p>';
+  $t('tutCard').innerHTML = DONE_HTML;
   $t('tutCount').textContent = 'Done';
   $t('tutBar').style.width = '100%';
   say('');
@@ -210,6 +228,7 @@ export function initTutorial(play) {
       m.onEvent = onEvent;
       m.onReplay = () => {};
     }
+    sizeCard();
     restart();
     track('tutorial', { step: 'open' });
   };
@@ -217,6 +236,7 @@ export function initTutorial(play) {
     clearTimeout(timer);
     modal.classList.remove('open');
   };
+  window.addEventListener('resize', () => modal.classList.contains('open') && sizeCard());
   $t('bTutorial').onclick = open;
   $t('bTutClose').onclick = close;
   modal.addEventListener('click', (e) => e.target === modal && close());

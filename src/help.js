@@ -1,6 +1,6 @@
 import { S, W3, axialCenter, outlinePath, pairOutline } from './core/hex.js';
 import { whyInvalid } from './core/rules.js';
-import { fitDashes } from './render.js';
+import { fitDashes, pairGhost, unwindLock } from './render.js';
 import { COLOR_NAMES, GOLD, POS, SHAPE_NAMES, TINTS, glyph } from './tiles.js';
 
 // The "How to play" sheet (#mHelp) and its animated examples. Each example is a small board drawn
@@ -284,7 +284,8 @@ export class Mini {
   }
   makePair(cells) {
     this.sel = [];
-    this.pair = { cells, fresh: true };
+    // after a hold the outline was already drawn in, so no pop-in animation
+    this.pair = { cells, fresh: !this.calm };
     this.render();
   }
   // Tried tiles that don't make a parcel: shake them.
@@ -339,8 +340,12 @@ export class Mini {
       .querySelectorAll('.enter, .pinning, .nudge')
       .forEach((el) => el.classList.remove('enter', 'pinning', 'nudge'));
     wrap.parentNode.appendChild(wrap);
+    const inner = wrap.querySelector('.parcel');
+    inner.classList.add('holding');
+    // locked: its thick outline and seal unwind themselves over the hold
+    if (p.pinned) return { ring: null, unwind: unwindLock(wrap), inner };
     const ring = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    ring.setAttribute('class', 'holdring' + (p.pinned ? ' popping' : ''));
+    ring.setAttribute('class', 'holdring');
     ring.setAttribute('pathLength', '1');
     ring.setAttribute(
       'd',
@@ -351,9 +356,7 @@ export class Mini {
       ),
     );
     wrap.appendChild(ring);
-    const inner = wrap.querySelector('.parcel');
-    inner.classList.add('holding');
-    return { ring, inner };
+    return { ring, unwind: null, inner };
   }
   // Lock parcel n (its seal draws itself in, as in the game).
   lock(n) {
@@ -370,7 +373,7 @@ export class Mini {
     el.classList.add('nudge');
   }
 
-  // Script: press and hold on a parcel. It locks, or pops if it was already locked.
+  // Script: press and hold on a parcel. It locks, or unlocks if it was already locked.
   async hold(n) {
     const p = this.parcels[n];
     await this.point(p.cells[1]);
@@ -378,8 +381,10 @@ export class Mini {
     this.addRing(n);
     await this.wait(470);
     this.press(false);
-    if (p.pinned) await this.pop(n);
-    else this.lock(n);
+    if (p.pinned) {
+      p.pinned = false;
+      this.render();
+    } else this.lock(n);
   }
   // Script: a quick tap on a locked parcel just wiggles it.
   async nudge(n) {
@@ -429,7 +434,8 @@ export class Mini {
     const i = this.cellAt(e),
       n = i >= 0 ? this.parcelOf(i) : -1;
     if (n >= 0) this.g = { ...base, n, hold: this.startHold(n) };
-    else this.g = { ...base, start: i, moved: false, units: [] };
+    else
+      this.g = { ...base, start: i, moved: false, units: [], thold: i >= 0 ? this.startTileHold(i) : null };
   }
   move(e) {
     const g = this.g;
@@ -439,9 +445,12 @@ export class Mini {
       if (!g.hold.done && dist > 18) this.cancelHold(g.hold);
       return;
     }
+    if (g.thold && g.thold.done) return; // the hold already pencilled or erased a pair
     if (!g.moved) {
       if (dist < 10) return;
       g.moved = true;
+      if (g.thold) this.cancelTileHold(g.thold);
+      g.thold = null;
       if (g.start < 0 || this.parcelOf(g.start) >= 0) return void (g.dead = true);
       g.units = [this.pairHas(g.start) ? this.pair.cells.slice() : [g.start]];
       this.showSwipe(g);
@@ -480,6 +489,10 @@ export class Mini {
       return;
     }
     if (g.hold) return cancel ? this.cancelHold(g.hold) : this.releaseHold(g.hold);
+    if (g.thold) {
+      if (g.thold.done) return;
+      this.cancelTileHold(g.thold);
+    }
     this.trail = [];
     if (cancel || g.dead) {
       this.sel = [];
@@ -488,8 +501,11 @@ export class Mini {
     else {
       const cells = g.units.flat();
       if (cells.length === 3) this.submit(cells);
-      else if (cells.length === 2) this.pencil(cells);
-      else {
+      else if (cells.length === 2) {
+        this.sel = cells;
+        this.render();
+        this.say('Tap a third tile, or hold one of these to pencil them in as a pair.');
+      } else {
         this.sel = [];
         this.render();
       }
@@ -504,21 +520,20 @@ export class Mini {
     if (this.pairHas(i)) {
       const p = this.pair.cells;
       if (this.sel.length === 2 && p.every((c) => this.sel.includes(c))) {
-        this.pair = null;
         this.sel = [];
-        this.render();
-        return this.say('Pair erased.');
+        return this.render();
       }
       const u = [...new Set([...this.sel, ...p])];
       this.sel = u.length <= 3 ? u : p.slice();
       if (this.sel.length === 3) return this.submit(this.sel);
       this.render();
-      return this.say('Tap a third tile, or tap the pair again to erase it.');
+      return this.say('Tap a third tile, or hold the pair to erase it.');
     }
-    if (this.sel.length === 2 && this.sel.includes(i)) return this.pencil(this.sel);
     this.sel = this.sel.includes(i) ? this.sel.filter((x) => x !== i) : this.sel.concat(i);
     if (this.sel.length === 3) return this.submit(this.sel);
     this.render();
+    if (this.sel.length === 2)
+      this.say('Tap a third tile, or hold one of these to pencil them in as a pair.');
   }
   // Same rules as pencilPair() in actions.js: touching tiles or the two ends of a bend make a pair;
   // with only one tile that fits between them it becomes that parcel; anything else isn't a pair.
@@ -589,16 +604,75 @@ export class Mini {
   }
   // Press and hold on a parcel, for real: after 450ms it locks (or pops if locked). Released
   // sooner, it's a tap: pops a loose parcel, wiggles a locked one.
+  // Same as startTileHold() in actions.js: holding a pencilled pair erases it; holding one of 2
+  // selected tiles (or another tile with 1 selected) pencils them in as a pair.
+  startTileHold(i) {
+    if (this.parcelOf(i) >= 0) return null;
+    let act = null;
+    if (this.pairHas(i)) act = { erase: true, cells: this.pair.cells.slice() };
+    else if (this.sel.length === 2 && this.sel.includes(i)) act = { cells: this.sel.slice() };
+    else if (this.sel.length === 1 && this.sel[0] !== i && !this.pairHas(this.sel[0]))
+      act = { cells: [this.sel[0], i] };
+    if (!act) return null;
+    const h = { done: false, hidden: null };
+    if (act.erase) {
+      // the pair's outline undraws itself; the real one hides meanwhile
+      h.hidden = this.world.querySelector('.pair');
+      if (h.hidden) h.hidden.style.visibility = 'hidden';
+    }
+    h.ring = this.tileRing(act.cells, act.erase, h.hidden);
+    h.timer = setTimeout(() => {
+      h.hidden = null;
+      this.cancelTileHold(h);
+      if (act.erase) {
+        if (this.refused('erase', act.cells)) return;
+        this.pair = null;
+        this.sel = [];
+        this.render();
+        this.say('Pair erased.');
+        this.emit('erase', act.cells);
+      } else {
+        this.calm = true;
+        this.pencil(act.cells);
+        this.calm = false;
+      }
+    }, 450);
+    return h;
+  }
+  cancelTileHold(h) {
+    clearTimeout(h.timer);
+    h.ring.remove();
+    if (h.hidden) h.hidden.style.visibility = '';
+    h.done = true;
+  }
+  // While holding two tiles: the pair's own dashed outline drawing itself in, or undrawing itself
+  // when the hold will erase the pair.
+  tileRing(cells, erase, like) {
+    return pairGhost(this.world, pairOutline(this.c[cells[0]], this.c[cells[1]], 2, 13), erase, like);
+  }
+  // Script: press and hold on tile i to pencil `cells` in as a pair.
+  async holdPair(i, cells) {
+    await this.point(i);
+    this.press(true);
+    const ring = this.tileRing(cells);
+    await this.wait(470);
+    ring.remove();
+    this.press(false);
+  }
   startHold(n) {
     const h = { p: this.parcels[n], done: false, ...this.addRing(n) };
     h.timer = setTimeout(() => {
+      h.unwind = null; // unlocking: stays unwound until the redraw
       this.cancelHold(h);
       const k = this.parcels.indexOf(h.p);
       if (k < 0) return;
-      if (h.p.pinned) this.popNow(k);
-      else {
+      if (h.p.pinned) {
+        h.p.pinned = false;
+        this.render();
+        this.say('Unlocked. Tap it to pop it.');
+      } else {
         this.lock(k);
-        this.say('Locked in. Taps won’t pop it now; hold again to pop it.', 'ok');
+        this.say('Locked in. Taps won’t pop it now; hold again to unlock it.', 'ok');
         this.emit('lock', h.p.cells);
       }
     }, 450);
@@ -606,7 +680,8 @@ export class Mini {
   }
   cancelHold(h) {
     clearTimeout(h.timer);
-    h.ring.remove();
+    if (h.ring) h.ring.remove();
+    if (h.unwind) h.unwind();
     h.inner.classList.remove('holding');
     h.done = true;
   }
@@ -617,7 +692,7 @@ export class Mini {
     if (k < 0) return;
     if (!h.p.pinned) return this.popNow(k);
     this.wiggle(k);
-    this.say('Locked. Press and hold to pop it.');
+    this.say('Locked. Press and hold to unlock it.');
   }
   popNow(k) {
     const cells = this.parcels[k].cells;
@@ -861,21 +936,22 @@ const DEMOS = {
   },
 
   // Pencil in a pair, then add the third tile later.
-  // Swipe: across 2, then from the pair onto the third. Tap: 2 tiles, one of them again, then the
+  // Swipe or tap 2 tiles and hold one of them; then swipe from the pair onto the third, or tap the
   // pair and the third.
   hdPair: {
     cells: SIX,
     tiles: SIX_TILES,
-    intro: 'Swipe 2 tiles, or tap 2 then one again, to pencil a pair.',
+    intro: 'Tap or swipe 2 tiles, then hold one, to pencil a pair.',
     ways: ['Swipe', 'Tap'],
     script: async (m) => {
       await m.wait(400);
       if (m.way === 'Swipe') await m.swipe([3, 4]);
-      else {
-        await m.tapSelect([3, 4]);
-        await m.tap(4);
-      }
+      else await m.tapSelect([3, 4]);
+      await m.wait(250);
+      await m.holdPair(4, [3, 4]);
+      m.calm = true;
       m.makePair([3, 4]);
+      m.calm = false;
       m.say('Pair pencilled in…');
       await m.lift();
       await m.wait(1000);
@@ -905,7 +981,7 @@ const DEMOS = {
     },
   },
 
-  // Hold to lock, a tap only wiggles it, hold again to pop.
+  // Hold to lock, a tap only wiggles it, hold again to unlock.
   hdLock: {
     cells: SIX,
     tiles: SIX_TILES,

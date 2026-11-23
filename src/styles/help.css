@@ -464,8 +464,13 @@
   touch-action: none; /* drags on it are swipes, not scrolling */
   margin: 4px 0;
 }
-.tut .hmsg {
-  min-height: 2.7em;
+/* the message under the tutorial board: always takes the same room (up to 3 lines), shown or not,
+   so a message never changes the sheet's height */
+.tut .hmsg,
+.tut .hmsg:empty {
+  display: block;
+  height: calc(3 * 1.35em);
+  overflow: hidden;
   text-align: center;
 }
 #tutEnd[hidden] {

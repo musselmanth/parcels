@@ -124,7 +124,7 @@ $('#bTimer').onclick = () => {
   track('setting', { showTimer: prefs.showTimer });
   paintTimer();
 };
-// Easy mode: with two tiles selected, gold outlines on the tiles that would complete them (fitsFor
+// Third-tile helper: with two tiles selected, gold outlines on the tiles that would complete them (fitsFor
 // in render.js). Off by default.
 function paintEasy() {
   const b = $('#bEasy');
