@@ -797,6 +797,10 @@ const DEMOS = {
     pages: RULE_EXAMPLES.length,
     script: async (m) => {
       m.paintPager();
+      // a fixed time per example, so the timer bar under the dots can show when the next one comes
+      const total = 8000,
+        t0 = Date.now();
+      m.paintTimer(m.held || m.fast ? 0 : total);
       const ok = ruleSetup(m, RULE_EXAMPLES[m.page]);
       await m.wait(900);
       for (const row of $h('hdRuleChecks').children) {
@@ -806,7 +810,7 @@ const DEMOS = {
       await ruleVerdict(m, ok);
       if (m.fast) return;
       if (m.held) for (;;) await m.wait(60000); // stay on the example the player picked
-      await m.wait(3000);
+      await m.wait(Math.max(1500, total - (Date.now() - t0)));
       m.page = (m.page + 1) % RULE_EXAMPLES.length;
     },
   },
@@ -1016,6 +1020,21 @@ function build() {
           b.classList.toggle('on', n === m.page);
           b.setAttribute('aria-current', n === m.page);
         });
+      // A thin bar under the dots that fills until the next example appears. It goes away once
+      // the player picks an example (then it stays put), so it also shows that it stopped.
+      const timer = document.createElement('div');
+      timer.className = 'htimer';
+      timer.innerHTML = '<i></i>';
+      const bar = timer.firstChild;
+      m.paintTimer = (ms) => {
+        timer.classList.toggle('off', !ms);
+        bar.style.transition = 'none';
+        bar.style.transform = 'scaleX(0)';
+        if (!ms) return;
+        void bar.offsetWidth; // restart from empty
+        bar.style.transition = `transform ${ms}ms linear`;
+        bar.style.transform = 'scaleX(1)';
+      };
       // swipe the example sideways for the next or previous one
       let x0 = null,
         y0 = 0;
@@ -1028,7 +1047,7 @@ function build() {
         if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(m.page + (dx < 0 ? 1 : -1));
       });
       svg.addEventListener('pointercancel', () => (x0 = null));
-      box.append(pg);
+      box.append(pg, timer);
     }
     return demo;
   });
