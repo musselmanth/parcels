@@ -269,7 +269,10 @@ export function render() {
   $('#bToMark').disabled = !canReturn();
   $('#bMark').classList.toggle('set', G.checkpoints.length > 0);
   // nothing to mark on an empty board (Start over already goes there)
-  $('#bMark').disabled = G.done || (!Object.keys(G.groups).length && !G.pairs.length);
+  const empty = !Object.keys(G.groups).length && !G.pairs.length;
+  $('#bMark').disabled = G.done || empty;
+  // Start over: nothing to clear at the beginning (hints on the board count as something)
+  $('#bReset').disabled = G.done || (empty && !G.hints.length);
   $('#prog').textContent = Object.keys(G.groups).length;
   $('#progBar').style.width = (Object.keys(G.groups).length / GROUPS) * 100 + '%';
   saveProgress(); // every change to the board goes through here, so this keeps the save current
