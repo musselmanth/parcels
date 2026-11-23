@@ -22,7 +22,7 @@ import { render, setMsg, tick } from './render.js';
 import { openResults } from './results.js';
 import { paintSound, sfx } from './sound.js';
 import { G } from './state.js';
-import { clearAllProgress, saveProgress } from './progress.js';
+import { clearAllProgress, saveProgress, setAway } from './progress.js';
 import { CAT, clearBests, loadStore, prefs, savePrefs, setCat } from './storage.js';
 import './input.js'; // attaches the board's pointer handlers
 import { historyStatus, initSync, stopSync } from './sync.js';
@@ -73,17 +73,19 @@ onScreen((name) => {
   track('screen', { name });
   $('#bNav').setAttribute('aria-label', name === 'menu' ? 'Back' : 'Back to all puzzles');
   // the timer pauses while you're off the game screen, and the board is saved as you leave
-  if (name === 'game') {
-    if (G.pauseT && G.startT) G.startT += Date.now() - G.pauseT;
-    G.pauseT = null;
-  } else if (G.P && !G.pauseT) {
-    G.pauseT = Date.now();
-    saveProgress();
-  }
+  setAway('screen', name !== 'game');
 });
-// save the board in progress if the tab is hidden or closed
-document.addEventListener('visibilitychange', () => document.hidden && saveProgress());
-addEventListener('pagehide', saveProgress);
+// ...and while the tab is hidden (or the phone app is in the background) or the window isn't in
+// focus. The board is saved then too, and when the page is closed.
+document.addEventListener('visibilitychange', () => setAway('hidden', document.hidden));
+addEventListener('blur', () => setAway('blur', true));
+addEventListener('focus', () => setAway('blur', false));
+addEventListener('pagehide', () => {
+  setAway('hidden', true);
+  saveProgress();
+});
+addEventListener('pageshow', () => setAway('hidden', document.hidden));
+if (document.hidden) setAway('hidden', true);
 
 // ---- top bar, help and settings dialogs ----
 // How to play: until it's been opened once, the start screen's button shimmers to draw the eye.

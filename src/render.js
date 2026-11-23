@@ -14,7 +14,7 @@ import {
   setCells,
 } from './core/hex.js';
 import { G, pairOf } from './state.js';
-import { saveProgress } from './progress.js';
+import { elapsed, saveProgress } from './progress.js';
 import { POS, STAR, TINTS, glyph, tileLabel } from './tiles.js';
 import { validTiles } from './core/rules.js';
 import { prefs } from './storage.js';
@@ -312,5 +312,5 @@ export function setMsg(t, cls, sticky) {
 }
 // Update the on-screen timer (called twice a second from main.js).
 export function tick() {
-  if (G.startT && !G.done) $('#timer').textContent = fmt(Date.now() - G.startT);
+  if (G.startT && !G.done) $('#timer').textContent = fmt(elapsed()); // stands still while paused
 }

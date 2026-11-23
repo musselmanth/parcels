@@ -28,8 +28,27 @@ function write(level, all) {
   } catch (e) {}
 }
 
-// Time played on the current board so far (not counting time paused off the game screen).
+// Time played on the current board so far (not counting time paused).
 export const elapsed = () => (G.startT ? (G.pauseT || Date.now()) - G.startT : 0);
+
+// The timer pauses while the player is away for any reason: off the game screen ('screen'), the
+// tab hidden or the app in the background ('hidden'), or the window not in focus ('blur'). It runs
+// again once every reason is gone. (A closed page is saved with its time so far, so it resumes
+// from there when the board is opened again.)
+const away = new Set();
+export function setAway(reason, on) {
+  const was = away.size > 0;
+  if (on) away.add(reason);
+  else away.delete(reason);
+  const now = away.size > 0;
+  if (!was && now) {
+    G.pauseT = Date.now();
+    saveProgress();
+  } else if (was && !now) {
+    if (G.pauseT && G.startT) G.startT += Date.now() - G.pauseT;
+    G.pauseT = null;
+  }
+}
 
 // Save the current board (or forget it, if nothing has happened on it yet).
 export function saveProgress() {
