@@ -8,9 +8,14 @@ export function initFullscreen() {
     d = document,
     el = d.documentElement;
   const can = d.fullscreenEnabled || d.webkitFullscreenEnabled;
-  const installed = matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches;
-  if (!can || installed) return;
-  b.hidden = false;
+  // installed as an app (any display mode but a normal browser tab): it already has the whole window
+  const appMode = matchMedia(
+    '(display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui), (display-mode: window-controls-overlay)',
+  );
+  const show = () => (b.hidden = !can || appMode.matches || navigator.standalone === true);
+  show();
+  appMode.addEventListener?.('change', show);
+  if (b.hidden) return;
   const current = () => d.fullscreenElement || d.webkitFullscreenElement;
   const paint = () => {
     const on = !!current();

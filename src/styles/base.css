@@ -75,6 +75,10 @@ body {
   outline-offset: 3px;
 }
 /* on the start screen the big name is the title, so the bar's title and left button hide */
+/* full screen button: hidden where it can't work (.icon's display would otherwise override hidden) */
+#bFull[hidden] {
+  display: none;
+}
 /* full screen button: corners out, or corners in while in full screen */
 #bFull svg {
   fill: none;
