@@ -89,12 +89,8 @@ body {
 [data-screen='menu'] #bSettings {
   display: none;
 }
-/* left button: menu icon on the game screen, back arrow on the menu */
-#bNav .ic-back,
-[data-screen='menu'] #bNav .ic-menu {
-  display: none;
-}
-[data-screen='menu'] #bNav .ic-back {
+/* left button: a back arrow (to the puzzle selector, or back from it) */
+#bNav .ic-back {
   display: block;
 }
 /* label after the title: the board on the game screen, the level on the menu */
@@ -346,11 +342,21 @@ h1 small {
     padding-right: 4px;
   }
 }
-.controls .nav {
-  flex: 0 0 48px;
-  font-size: 20px;
-  line-height: 1;
-  padding: 7px 0;
+.controls #bUndo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.ic-undo {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 button {
   font: inherit;

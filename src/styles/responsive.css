@@ -64,10 +64,6 @@
     padding: 13px 8px;
     font-size: 16px;
   }
-  .controls .nav {
-    flex-basis: 60px;
-    font-size: 24px;
-  }
 
   /* dialogs */
   .sheet {
@@ -171,9 +167,6 @@
     padding: 11px 4px;
     font-size: 15px;
   }
-  .controls .nav {
-    flex-basis: 48px;
-  }
   /* puzzle menu: full width, content centered */
   #menu {
     max-width: none;
@@ -212,9 +205,6 @@
     padding: 13px 8px;
     font-size: 16px;
   }
-  .controls .nav {
-    flex-basis: 60px;
-  }
 }
 
 /* landscape phones: the board is limited by the short screen height, so the sidebar can take a bit
@@ -237,9 +227,6 @@
   .controls button {
     font-size: 13.5px;
     white-space: nowrap;
-  }
-  .controls .nav {
-    flex-basis: 40px;
   }
   .stats {
     margin-top: 8px;

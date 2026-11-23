@@ -91,7 +91,53 @@ export function freeColor(cells) {
 // Pencil in two tiles as a pair (replacing any pair they were in). Usually they touch; they can also
 // be the two ends of a bend, with two possible middle tiles (see pencilPair).
 let calmPair = false; // pencilling from a hold: the outline was already drawn, so no pop-in
+// ---- undo
+// The board as it is now, for the undo history: parcels, pencilled pairs and hints.
+function snapshot() {
+  return {
+    groups: Object.values(G.groups).map((g) => ({
+      cells: g.cells.slice(),
+      color: g.color,
+      pinned: !!g.pinned,
+    })),
+    pairs: G.pairs.map((p) => p.cells.slice()),
+    hints: G.hints.map((h) => h.slice()),
+  };
+}
+// Call just before a move changes the board, so undo() can put it back.
+function record() {
+  G.history.push(snapshot());
+  if (G.history.length > 400) G.history.shift();
+}
+// Take back the last move (as far back as the start of the board). Mistakes, pops and hints
+// already given still count; a hint that was used up by making its parcel comes back.
+export function undo() {
+  if (G.done || G.busy || G.celebrating || !G.history.length) return;
+  const s = G.history.pop();
+  const before = new Set(Object.values(G.groups).flatMap((g) => g.cells));
+  G.groups = {};
+  for (const g of s.groups) {
+    const id = G.nextId++;
+    G.groups[id] = { id, cells: g.cells, color: g.color, pinned: g.pinned, fresh: false };
+  }
+  const now = new Set(s.groups.flatMap((g) => g.cells));
+  G.pairs = s.pairs.map((cells) => ({ cells, fresh: false }));
+  // hints: keep every one given so far (even after this point), minus ones whose parcel is made
+  const made = new Set(s.groups.map((g) => cellKey(g.cells)));
+  const hints = [...G.hints, ...s.hints.filter((h) => !G.hints.some((x) => cellKey(x) === cellKey(h)))];
+  G.hints = hints.filter((h) => !made.has(cellKey(h)));
+  G.sel = [];
+  G.st.undos = (G.st.undos || 0) + 1;
+  track('undo', { left: G.history.length });
+  sfx.tap();
+  setMsg(G.history.length ? 'Undone.' : 'Back to the start.');
+  G.released = new Set([...before].filter((c) => !now.has(c))); // tiles freed spring back
+  render();
+  G.released = null;
+}
+
 export function makePair(cells, msg = 'Pair pencilled in. Add a third tile when you’re sure.') {
+  record();
   G.st.pairs++;
   G.pairs = G.pairs.filter((p) => !p.cells.some((c) => cells.includes(c)));
   G.pairs.push({ cells: cells.slice(), fresh: !calmPair }); // after a hold it's already drawn in
@@ -161,6 +207,7 @@ export function submit(cells) {
     }, 420);
     return;
   }
+  record();
   G.pairs = G.pairs.filter((p) => !p.cells.some((c) => cells.includes(c)));
   // a hinted parcel, now made: its outline goes, and it locks itself (it's known to be right)
   const hinted = G.hints.some((h) => cellKey(h) === cellKey(cells));
@@ -228,6 +275,7 @@ function popEffect(g, quiet = false) {
 
 // Clearing a parcel (a player's pop, counted in the stats): it pops, and the tiles spring back loose.
 function breakGroup(g) {
+  record();
   track('pop', { cells: g.cells, correct: inSolution(g.cells), locked: g.pinned });
   G.st.pops++;
   G.st.streak = 0;
@@ -279,6 +327,7 @@ export function popAll(done) {
 // Erase a pencilled pair. Its outline already undrew itself during the hold (startTileHold), so it
 // just goes: no pop.
 function erasePair(p) {
+  record();
   G.sel = [];
   track('pair_erase', { cells: p.cells });
   setMsg('Pair erased.');
@@ -287,6 +336,7 @@ function erasePair(p) {
 }
 // Lock a parcel so a tap no longer pops it.
 function togglePin(g) {
+  record();
   g.pinned = true;
   g.sealFresh = true;
   G.st.locks++;
@@ -307,6 +357,7 @@ function togglePin(g) {
 }
 // Unlock a locked parcel (its seal already unwound during the hold): taps pop it again.
 function unpin(g) {
+  record();
   g.pinned = false;
   track('unlock', { cells: g.cells });
   sfx.tap();

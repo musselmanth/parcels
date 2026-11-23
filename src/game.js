@@ -42,6 +42,7 @@ export function openPuzzle(n, fresh = false) {
   G.groups = {};
   G.pairs = [];
   G.hints = [];
+  G.history = [];
   G.top = null;
   G.nextId = 0;
   G.sel = [];
@@ -55,8 +56,6 @@ export function openPuzzle(n, fresh = false) {
   G.celebrating = false;
   board.classList.remove('dancing');
   $('#pzNum').textContent = ` ${CATS[CAT].name} #${n}` + (store[n] ? (store[n].revealed ? ' 🫠' : ' ✓') : '');
-  $('#bPrev').disabled = n <= 1;
-  $('#bNext').disabled = n >= PUZZLES.length;
   $('#ofN').textContent = '/' + GROUPS;
   $('#timer').textContent = '0:00';
   setMsg('');
@@ -79,6 +78,7 @@ export function openPuzzle(n, fresh = false) {
 // Finished boards (solved or peeked) are final: Start over disappears and Solution becomes Results.
 export function setReset(finished) {
   $('#bReset').style.display = finished ? 'none' : '';
+  $('#bUndo').style.display = finished ? 'none' : '';
   $('#bHint').style.display = finished ? 'none' : '';
   const r = $('#bReveal');
   r.textContent = finished ? 'Results' : 'Solution';

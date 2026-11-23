@@ -29,6 +29,7 @@ export const newStats = () => ({
   lastT: null,
   fast: null,
   hints: 0,
+  undos: 0,
 });
 // What a finished board counts as, from a saved record or a just-finished run:
 //   Perfect!             solved with no hints

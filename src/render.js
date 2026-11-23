@@ -250,6 +250,7 @@ export function render() {
   });
   G.pairs.forEach((p) => (p.fresh = false));
   $('#hintCount').textContent = (G.st && G.st.hints) || 0;
+  $('#bUndo').disabled = !G.history.length || G.done;
   $('#prog').textContent = Object.keys(G.groups).length;
   $('#progBar').style.width = (Object.keys(G.groups).length / GROUPS) * 100 + '%';
   saveProgress(); // every change to the board goes through here, so this keeps the save current

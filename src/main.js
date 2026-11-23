@@ -9,7 +9,7 @@ import './styles/responsive.css'; // keep last: adapts the layout for tablets, d
 import { $ } from './core/dom.js';
 import { CATS } from './data/puzzles.js';
 import { openPuzzle, reveal } from './game.js';
-import { giveHint, popAll } from './actions.js';
+import { giveHint, popAll, undo } from './actions.js';
 import { initHelp } from './help.js';
 import { initTutorial } from './tutorial.js';
 import { nextUnsolved, renderMenu } from './menu.js';
@@ -71,7 +71,7 @@ document.addEventListener('historychange', (e) => {
 $('#bHome').onclick = () => showScreen('intro');
 onScreen((name) => {
   track('screen', { name });
-  $('#bNav').setAttribute('aria-label', name === 'menu' ? 'Back' : 'All puzzles');
+  $('#bNav').setAttribute('aria-label', name === 'menu' ? 'Back' : 'Back to all puzzles');
   // the timer pauses while you're off the game screen, and the board is saved as you leave
   if (name === 'game') {
     if (G.pauseT && G.startT) G.startT += Date.now() - G.pauseT;
@@ -150,8 +150,7 @@ $('#mSettings').addEventListener('click', (e) => {
 });
 
 // ---- board controls and the results / reveal dialogs ----
-$('#bPrev').onclick = () => openPuzzle(G.cur - 1);
-$('#bNext').onclick = () => openPuzzle(G.cur + 1);
+$('#bUndo').onclick = undo;
 // Start over: everything on the board pops, then it resets
 $('#bReset').onclick = () => {
   if (G.done || G.busy || G.celebrating) return;

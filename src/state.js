@@ -13,6 +13,9 @@ export const G = {
   pairs: [],
   // Hinted parcels: cell triples from the solution, outlined until the player makes them.
   hints: [],
+  // Undo history: the board before each move (parcels, pairs, hints), oldest first. See record() and
+  // undo() in actions.js.
+  history: [],
   // Next parcel id.
   nextId: 0,
   // Cells currently selected by taps or a swipe in progress.
