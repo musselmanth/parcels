@@ -34,8 +34,13 @@ export function renderMenu(onPick, current) {
       : w
         ? `${(w.groups || []).length}/${p.c.length / 6}`
         : '';
-    // finished boards (any result) get a check mark next to their number
-    const tick = r ? '<span class="tick" aria-label="finished">✓</span>' : '';
+    // finished boards get a mark next to their number: a green check if solved, a red x if the
+    // solution was viewed
+    const tick = !r
+      ? ''
+      : r.revealed
+        ? '<span class="tick x" aria-label="solution viewed">✗</span>'
+        : '<span class="tick" aria-label="solved">✓</span>';
     b.innerHTML = `<div class="n">${i + 1}${tick}</div><div class="st">${status}</div>`;
     b.onclick = () => onPick(i + 1);
     g.appendChild(b);

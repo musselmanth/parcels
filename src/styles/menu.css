@@ -77,6 +77,10 @@
   color: #2bff88;
   text-shadow: 0 0 6px rgba(43, 255, 136, 0.6);
 }
+.pz .n .tick.x {
+  color: var(--bad);
+  text-shadow: 0 0 6px rgba(255, 90, 122, 0.6);
+}
 .pz .st {
   font-size: 11px;
   color: var(--muted);
