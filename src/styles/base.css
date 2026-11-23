@@ -320,8 +320,8 @@ h1 small {
   box-shadow:
     0 0 18px rgba(122, 108, 255, 0.18),
     0 6px 18px rgba(0, 0, 0, 0.35);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  /* no backdrop blur: fading a blurred pill in and out made other parts of the screen flash white on
+     some Android tablets (a graphics glitch); the background is nearly opaque anyway */
   opacity: 0;
   transform: translateY(-6px) scale(0.97);
   transition:
