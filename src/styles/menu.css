@@ -123,9 +123,3 @@
     0 0 0 2px #9a8cff,
     0 0 14px rgba(154, 140, 255, 0.5);
 }
-.legend {
-  font-size: 12px;
-  color: var(--muted);
-  margin: 12px 2px 0;
-  line-height: 1.5;
-}
