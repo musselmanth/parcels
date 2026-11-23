@@ -13,7 +13,7 @@ import {
   pairOutline,
   setCells,
 } from './core/hex.js';
-import { awayFromCheckpoint } from './actions.js';
+import { canReturn } from './actions.js';
 import { G, pairOf } from './state.js';
 import { elapsed, saveProgress } from './progress.js';
 import { POS, STAR, TINTS, glyph, tileLabel } from './tiles.js';
@@ -265,9 +265,11 @@ export function render() {
   G.pairs.forEach((p) => (p.fresh = false));
   $('#hintCount').textContent = (G.st && G.st.hints) || 0;
   $('#bUndo').disabled = !G.history.length || G.done;
-  // checkpoint: Return works when the board has moved on from it; the flag shows one is set
-  $('#bToMark').disabled = !awayFromCheckpoint();
-  $('#bMark').classList.toggle('set', !!G.checkpoint);
+  // checkpoints: Return works until the board is back at checkpoint 1; the flag shows one is set
+  $('#bToMark').disabled = !canReturn();
+  $('#bMark').classList.toggle('set', G.checkpoints.length > 0);
+  // nothing to mark on an empty board (Start over already goes there)
+  $('#bMark').disabled = G.done || (!Object.keys(G.groups).length && !G.pairs.length);
   $('#prog').textContent = Object.keys(G.groups).length;
   $('#progBar').style.width = (Object.keys(G.groups).length / GROUPS) * 100 + '%';
   saveProgress(); // every change to the board goes through here, so this keeps the save current

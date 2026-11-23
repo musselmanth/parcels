@@ -113,7 +113,9 @@ function record() {
 // already given still count; a hint that was used up by making its parcel comes back.
 export function undo() {
   if (G.done || G.busy || G.celebrating || !G.history.length) return;
-  restore(G.history.pop());
+  const s = G.history.pop();
+  restore(s);
+  if (s.dropped) G.checkpoints.push(s.dropped); // undoing a Return that dropped a checkpoint
   G.st.undos = (G.st.undos || 0) + 1;
   track('undo', { left: G.history.length });
   sfx.tap();
@@ -139,30 +141,41 @@ function restore(s) {
   G.released = new Set([...before].filter((c) => !now.has(c))); // tiles freed spring back (on render)
 }
 
-// ---- checkpoint
-// One saved position the player can come back to in a single tap. Setting it again replaces it.
-// Going back to it counts as a move, so Undo takes you back to where you were.
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-// True if the board is anything other than the checkpoint (parcels and pairs; hints don't count).
-export function awayFromCheckpoint() {
-  if (!G.checkpoint) return false;
-  const now = snapshot();
-  const key = (s) => ({
-    g: s.groups.map((g) => [cellKey(g.cells), g.pinned]).sort(),
+// ---- checkpoints
+// Saved positions the player can come back to, numbered 1, 2, 3... in the order they were set
+// (G.checkpoints, oldest first). Return goes back to the latest; if the board is already there, it
+// drops that one and goes back to the one before. So Return steps back checkpoint by checkpoint, and
+// greys out only when the board is at checkpoint 1. Each Return counts as a move: Undo takes you back
+// to where you were (and brings back a checkpoint the Return dropped).
+const boardKey = (s) =>
+  JSON.stringify({
+    g: s.groups.map((g) => [cellKey(g.cells), !!g.pinned]).sort(),
     p: s.pairs.map(cellKey).sort(),
   });
-  return !same(key(now), key(G.checkpoint));
+const atBoard = (s) => boardKey(snapshot()) === boardKey(s);
+const topCheckpoint = () => G.checkpoints[G.checkpoints.length - 1] || null;
+// True if Return has somewhere to go.
+export function canReturn() {
+  const top = topCheckpoint();
+  if (!top) return false;
+  return !atBoard(top) || G.checkpoints.length > 1;
 }
 export function setCheckpoint() {
   if (G.done || G.busy || G.celebrating) return;
-  const replacing = !!G.checkpoint;
-  G.checkpoint = snapshot();
+  if (!Object.keys(G.groups).length && !G.pairs.length) return; // empty board: Start over goes there
+  const top = topCheckpoint();
+  if (top && atBoard(top)) {
+    setMsg(`You’re already at checkpoint ${G.checkpoints.length}.`);
+    return;
+  }
+  G.checkpoints.push(snapshot());
+  const n = G.checkpoints.length;
   G.st.checkpoints = (G.st.checkpoints || 0) + 1;
-  track('checkpoint', { parcels: Object.keys(G.groups).length, replacing });
+  track('checkpoint', { n, parcels: Object.keys(G.groups).length });
   sfx.pair();
   buzz(8);
   setMsg(
-    replacing ? 'Checkpoint moved here.' : 'Checkpoint set. Try an idea; Return brings the board back here.',
+    n === 1 ? 'Checkpoint 1 set. Try an idea; Return brings the board back here.' : `Checkpoint ${n} set.`,
     'ok',
   );
   render();
@@ -174,13 +187,20 @@ export function setCheckpoint() {
   }
 }
 export function toCheckpoint() {
-  if (G.done || G.busy || G.celebrating || !awayFromCheckpoint()) return;
+  if (G.done || G.busy || G.celebrating || !canReturn()) return;
   record();
-  restore(G.checkpoint);
+  // already at the latest checkpoint: drop it and go to the one before (Undo brings it back)
+  if (atBoard(topCheckpoint())) G.history[G.history.length - 1].dropped = G.checkpoints.pop();
+  const n = G.checkpoints.length;
+  restore(topCheckpoint());
   G.st.returns = (G.st.returns || 0) + 1;
-  track('checkpoint_return', { parcels: G.checkpoint.groups.length });
+  track('checkpoint_return', { n });
   sfx.tap();
-  setMsg('Back at your checkpoint. Undo takes you back to where you were.');
+  setMsg(
+    n > 1
+      ? `Back at checkpoint ${n}. Return again for checkpoint ${n - 1}.`
+      : 'Back at checkpoint 1. Undo takes you back to where you were.',
+  );
   render();
   G.released = null;
 }

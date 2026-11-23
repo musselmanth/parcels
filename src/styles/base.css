@@ -320,40 +320,43 @@ h1 small {
   color: #ff6b86;
 }
 /* ---- bottom buttons ----
-   Two tiers: a slim joined strip for the move history (Undo, Checkpoint, Return), then the main
-   buttons (Start over, Hint, Solution) as taller tiles with an icon over the label. */
+   Two tiers: Hint and Solution side by side (icon beside the label), then the moves group (Undo,
+   Checkpoint, Return, Start over) as one joined block of taller tiles with the icon over the label. */
 .controls {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-.controls .mainbtns {
+.controls .assist {
   display: flex;
   gap: inherit;
+}
+.controls .assist button {
+  flex-direction: row;
+  gap: 7px;
+  min-height: 44px;
+  padding: 6px 8px;
+  border-radius: 18px; /* same as the moves block below */
+  font-size: 13.5px;
+}
+.controls .assist .ci {
+  width: 19px;
+  height: 19px;
 }
 .controls .hist {
   display: flex;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015));
   overflow: hidden;
 }
 .controls .hist button {
-  flex-direction: row;
-  gap: 6px;
-  min-height: 40px;
-  padding: 6px 4px;
   border: none;
   border-radius: 0;
   background: none;
-  font-size: 12.5px;
 }
 .controls .hist button + button {
   border-left: 1px solid rgba(255, 255, 255, 0.1);
-}
-.controls .hist .ci {
-  width: 18px;
-  height: 18px;
 }
 .controls .hist button:not(:disabled):active {
   background: rgba(255, 255, 255, 0.06);
@@ -428,7 +431,7 @@ h1 small {
   filter: none;
 }
 @media (hover: hover) {
-  .controls .mainbtns button:not(:disabled):not(.primary):hover {
+  .controls .assist button:not(:disabled):not(.primary):hover {
     border-color: var(--ac);
   }
 }

@@ -64,9 +64,9 @@
     min-height: 68px;
     font-size: 14px;
   }
-  .controls .hist button {
-    min-height: 46px;
-    font-size: 14px;
+  .controls .assist button {
+    min-height: 50px;
+    font-size: 15px;
   }
   .controls .ci {
     width: 26px;
@@ -212,9 +212,9 @@
     min-height: 68px;
     font-size: 14px;
   }
-  .controls .hist button {
-    min-height: 46px;
-    font-size: 14px;
+  .controls .assist button {
+    min-height: 50px;
+    font-size: 15px;
   }
   .controls .ci {
     width: 26px;
