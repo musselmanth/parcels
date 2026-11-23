@@ -14,6 +14,7 @@ import { initHelp } from './help.js';
 import { initTutorial } from './tutorial.js';
 import { nextUnsolved, renderMenu } from './menu.js';
 import { initIntro, renderIntro } from './intro.js';
+import { initFullscreen } from './fullscreen.js';
 import { initInstall } from './install.js';
 import { initFeedback } from './feedback.js';
 import { startTelemetry, track } from './telemetry.js';
@@ -248,3 +249,4 @@ paintHelpHint(); // first visit: How to play shimmers instead of opening by itse
 Promise.race([document.fonts ? document.fonts.ready : null, new Promise((r) => setTimeout(r, 800))]).then(
   () => document.documentElement.classList.add('ready'),
 );
+initFullscreen();
