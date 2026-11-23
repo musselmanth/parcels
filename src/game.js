@@ -76,11 +76,11 @@ export function openPuzzle(n, fresh = false) {
     }
   }
 }
-// Finished boards (solved or peeked) are final: Start over disappears and Solution becomes Results.
+// Finished boards (solved or peeked) are final: the other buttons go and Solution becomes Results.
+// The button area keeps its height (the .finished class hides them but keeps their space), so the
+// board doesn't resize.
 export function setReset(finished) {
-  $('#bReset').style.display = finished ? 'none' : '';
-  $('#histRow').style.display = finished ? 'none' : '';
-  $('#bHint').style.display = finished ? 'none' : '';
+  $('.controls').classList.toggle('finished', finished);
   const r = $('#bReveal');
   r.querySelector('.cl').textContent = finished ? 'Results' : 'Solution';
   r.classList.toggle('results', finished); // swaps the eye icon for a trophy

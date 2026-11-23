@@ -381,6 +381,22 @@ h1 small {
   display: flex;
   gap: inherit;
 }
+/* a finished board: only Results, centered in the same space, so the board above doesn't resize */
+.controls {
+  position: relative;
+}
+.controls.finished .hist,
+.controls.finished #bHint {
+  visibility: hidden;
+}
+.controls.finished #bReveal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  min-height: 56px;
+}
 .controls .assist button {
   flex-direction: row;
   gap: 7px;
