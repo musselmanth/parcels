@@ -534,6 +534,18 @@ export class Mini {
       this.render();
       return this.say('Tap a third tile, or hold the pair to erase it.');
     }
+    // a second tile has to be one that could make a parcel with the first (as in actions.js)
+    if (this.sel.length === 1 && !this.sel.includes(i)) {
+      const a = this.sel[0];
+      const reach =
+        this.adj(a, i) ||
+        this.c.some((_, k) => k !== a && k !== i && this.adj(k, a) && this.adj(k, i) && this.parcelOf(k) < 0);
+      if (!reach)
+        return this.say(
+          'Too far from the tile you picked. Choose one that could make a parcel with it.',
+          'bad',
+        );
+    }
     this.sel = this.sel.includes(i) ? this.sel.filter((x) => x !== i) : this.sel.concat(i);
     if (this.sel.length === 3) return this.submit(this.sel);
     this.render();

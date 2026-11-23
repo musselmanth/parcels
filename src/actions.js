@@ -561,6 +561,9 @@ export function startTileHold(i) {
   return h;
 }
 
+// Could tiles a and b be in the same parcel? They touch, or a free tile sits between them.
+const inReach = (a, b) => adj(a, b) || between(a, b).some((m) => !groupOf(m));
+
 // A tap (not a swipe) on cell i, or i < 0 for empty space (clears the selection).
 // Taps build up G.sel; the third tile submits. Tapping a pair selects both of its tiles.
 export function tapCell(i) {
@@ -594,6 +597,20 @@ export function tapCell(i) {
     }
     setMsg('Tap a third tile, or hold the pair to erase it.');
     paintSel();
+    return;
+  }
+  // a second tile has to be one that could make a parcel with the first: touching it, or one tile
+  // away with a free tile between them
+  if (G.sel.length === 1 && !G.sel.includes(i) && !inReach(G.sel[0], i)) {
+    setMsg('Too far from the tile you picked. Choose one that could make a parcel with it.', 'bad');
+    buzz([10, 30, 10]);
+    const el = board.querySelector(`.tile[data-i="${i}"]`);
+    if (el) {
+      el.classList.remove('shake');
+      void el.getBBox();
+      el.classList.add('shake');
+      later(() => el.classList.remove('shake'), 420);
+    }
     return;
   }
   // tapping a selected tile deselects it
