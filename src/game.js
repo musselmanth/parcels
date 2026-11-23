@@ -105,7 +105,7 @@ function showFinished(rec) {
   const res = resultOf(rec);
   setMsg(
     G.revealed ? 'You viewed the solution for this one.' : `${res.title} · ${fmt(rec.time)}`,
-    'ok',
+    G.revealed ? 'bad' : 'ok', // a red x for a viewed solution, a green check for a solve
     true,
   );
 }
