@@ -38,8 +38,10 @@ function cellAt(x, y) {
 // The gesture in progress, or null. For a parcel press: {id, consumed: true, hold}. Otherwise
 // {id, start: cell pressed, x0, y0, moved, dead (swipe began somewhere invalid), units: cells added, in order}.
 let gest = null; // {id,start,x0,y0,moved,units:[[cells]]}
-// The cells of a swipe, in order.
+// The cells of a swipe, in order (tiles selected before it started first).
 const flat = (units) => units.flat();
+// The cells the swipe trail runs through: the swipe's own, not the tiles selected before it.
+const trailOf = (g) => flat(g.units.slice(g.pre || 0));
 board.addEventListener('pointerdown', (e) => {
   if (G.done || G.celebrating || gest) return;
   const i = cellAt(e.clientX, e.clientY);
@@ -82,9 +84,16 @@ board.addEventListener('pointermove', (e) => {
       return;
     } // swipes start on a loose or pencilled tile
     begin();
-    G.sel = [];
-    const p = pairOf(s);
-    gest.units = [p ? p.cells.slice() : [s]];
+    const p = pairOf(s),
+      first = p ? p.cells.slice() : [s];
+    // tiles already selected by taps (not the one the swipe starts on) are kept at the front, so
+    // tap 1 tile then swipe across 2 more makes the parcel
+    const pre = G.sel.filter((c) => !first.includes(c));
+    const keep = pre.length === G.sel.length && pre.length + first.length <= 3 ? pre : [];
+    gest.pre = keep.length ? 1 : 0;
+    gest.units = keep.length ? [keep, first] : [first];
+    G.sel = flat(gest.units);
+    paintSel(trailOf(gest));
   }
   if (gest.dead) return;
   const i = cellAt(e.clientX, e.clientY);
@@ -93,10 +102,10 @@ board.addEventListener('pointermove', (e) => {
   if (path.includes(i)) {
     // slid back onto an earlier tile: drop what came after it
     const k = gest.units.findIndex((u) => u.includes(i));
-    if (k < gest.units.length - 1) {
+    if (k >= gest.pre && k < gest.units.length - 1) {
       gest.units = gest.units.slice(0, k + 1);
       G.sel = flat(gest.units);
-      paintSel(G.sel);
+      paintSel(trailOf(gest));
     }
     return;
   }
@@ -108,7 +117,7 @@ board.addEventListener('pointermove', (e) => {
   gest.units.push(add);
   G.sel = flat(gest.units);
   sfx.step(G.sel.length);
-  paintSel(G.sel);
+  paintSel(trailOf(gest));
 });
 // Pointer up (cancel = false) or cancelled by the browser (cancel = true).
 function endGesture(e, cancel) {

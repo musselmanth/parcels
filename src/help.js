@@ -452,7 +452,12 @@ export class Mini {
       if (g.thold) this.cancelTileHold(g.thold);
       g.thold = null;
       if (g.start < 0 || this.parcelOf(g.start) >= 0) return void (g.dead = true);
-      g.units = [this.pairHas(g.start) ? this.pair.cells.slice() : [g.start]];
+      // tiles already selected by taps are kept at the front (as in input.js)
+      const first = this.pairHas(g.start) ? this.pair.cells.slice() : [g.start];
+      const pre = this.sel.filter((c) => !first.includes(c));
+      const keep = pre.length === this.sel.length && pre.length + first.length <= 3 ? pre : [];
+      g.pre = keep.length ? 1 : 0;
+      g.units = keep.length ? [keep, first] : [first];
       this.showSwipe(g);
     }
     if (g.dead) return;
@@ -462,7 +467,7 @@ export class Mini {
     if (path.includes(i)) {
       // slid back onto an earlier tile: drop what came after it
       const k = g.units.findIndex((u) => u.includes(i));
-      if (k < g.units.length - 1) {
+      if (k >= (g.pre || 0) && k < g.units.length - 1) {
         g.units = g.units.slice(0, k + 1);
         this.showSwipe(g);
       }
@@ -476,7 +481,7 @@ export class Mini {
   }
   showSwipe(g) {
     this.sel = g.units.flat();
-    this.trail = this.sel.slice();
+    this.trail = g.units.slice(g.pre || 0).flat();
     this.render();
   }
   up(e, cancel) {
