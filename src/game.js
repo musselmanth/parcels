@@ -158,6 +158,9 @@ export function win() {
   const rec = { ...run, pairs: G.st.pairs, locks: G.st.locks, at: new Date().toISOString() };
   if (!prev || resultRank(rec) >= resultRank(prev)) store[G.cur] = rec;
   save();
+  // the celebration starts now (it plays after a short pause), so Results stays greyed out until
+  // the results card opens at its end
+  G.celebrating = true;
   setReset(true);
   $('#pzNum').textContent = ` ${CATS[CAT].name} #${G.cur} ✓`;
   setMsg('');
