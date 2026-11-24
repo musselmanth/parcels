@@ -35,6 +35,12 @@
       content="Split the board into parcels of 3 tiles. Shape, color, count: all the same or all different."
     />
     <meta name="twitter:image" content="https://parcelsgame.com/og-image.png" />
+    <script>
+      // in-app browsers (Facebook, Instagram, Messenger, other Android web views): no safe-area
+      // padding (see --sat etc. in styles/base.css)
+      if (/FBAN|FBAV|FB_IAB|FBIOS|Instagram|Messenger|Threads|; wv\)/.test(navigator.userAgent))
+        document.documentElement.classList.add('inapp');
+    </script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",

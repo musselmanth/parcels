@@ -139,13 +139,12 @@
       '.        stage'
       'controls stage';
     column-gap: clamp(16px, 3vw, 44px);
-    padding: calc(var(--topbar-h, 50px) + 4px) calc(16px + env(safe-area-inset-right))
-      calc(12px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+    padding: calc(var(--topbar-h, 50px) + 4px) calc(16px + var(--sar)) calc(12px + var(--sab))
+      calc(16px + var(--sal));
   }
   #topbar {
     max-width: none;
-    padding: calc(8px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 0
-      calc(16px + env(safe-area-inset-left));
+    padding: calc(8px + var(--sat)) calc(16px + var(--sar)) 0 calc(16px + var(--sal));
   }
   .stats {
     grid-area: stats;
@@ -218,7 +217,7 @@
     grid-template-columns: clamp(270px, 36vw, 340px) minmax(0, 1fr);
   }
   #topbar {
-    padding-top: calc(4px + env(safe-area-inset-top));
+    padding-top: calc(4px + var(--sat));
   }
   h1 {
     font-size: 18px;
