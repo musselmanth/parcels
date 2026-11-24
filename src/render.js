@@ -344,5 +344,10 @@ export function setMsg(t, cls, sticky) {
 }
 // Update the on-screen timer (called twice a second from main.js).
 export function tick() {
-  if (G.startT && !G.done) $('#timer').textContent = fmt(elapsed()); // stands still while paused
+  if (!G.startT || G.done) return;
+  // only touch the page when the shown time changes: rewriting the same text still makes the
+  // browser repaint the top of the screen, which flickered faint backgrounds on old Android tablets
+  const t = fmt(elapsed()), // stands still while paused
+    el = $('#timer');
+  if (el.textContent !== t) el.textContent = t;
 }

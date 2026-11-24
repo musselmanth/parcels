@@ -41,6 +41,18 @@ body {
   margin: 0 auto;
   padding: calc(8px + env(safe-area-inset-top)) 12px 0;
 }
+/* Old Android tablets: Chrome paints the page in full-width strips, and on low-memory devices it can
+   store them at reduced color precision, which shifts very faint fills (the 3-7% white backgrounds
+   of the buttons, stat boxes and progress bar, and the see-through parcels). When anything in the
+   top strip changed (tapping a tile on the board, the timer) the strip was repainted and those fills
+   flickered whiter and back. Giving the top bar, the stats + progress bar, and the board each a
+   layer of their own keeps a change in one from repainting the others. */
+#topbar,
+.stats,
+.progress,
+#board {
+  will-change: transform;
+}
 #screens {
   position: relative;
   flex: 1;
