@@ -19,9 +19,9 @@ import { initInstall } from './install.js';
 import { initFeedback } from './feedback.js';
 import { startTelemetry, track } from './telemetry.js';
 import { currentScreen, onScreen, showScreen, trackTopbarHeight } from './screens.js';
-import { lightUp, render, setMsg, tick } from './render.js';
+import { render, setMsg, tick } from './render.js';
 import { openResults } from './results.js';
-import { paintMusicVol, paintSound, sfx, syncMusic } from './sound.js';
+import { paintSound, sfx } from './sound.js';
 import { G } from './state.js';
 import { clearAllProgress, saveProgress, setAway } from './progress.js';
 import { CAT, clearBests, loadStore, prefs, savePrefs, setCat } from './storage.js';
@@ -39,9 +39,6 @@ function playBoard(n) {
   openPuzzle(n);
   gameLevel = CAT;
   showScreen('game');
-  // the symbols flicker on like neon as the board slides in, with the sound of it
-  const delays = lightUp(200);
-  if (delays.length) sfx.signOn(delays);
 }
 // Fill in the puzzle menu for the current level and show it.
 function toMenu() {
@@ -115,23 +112,6 @@ $('#bSound').onclick = () => {
   track('setting', { sound: prefs.sound });
   paintSound();
   if (prefs.sound) sfx.pin();
-};
-// Music: off by default; its volume slider shows under the name while it's on.
-$('#bMusic').onclick = () => {
-  prefs.music = !prefs.music;
-  savePrefs();
-  track('setting', { music: prefs.music });
-  paintSound();
-  syncMusic();
-};
-$('#musicVol').oninput = (e) => {
-  prefs.musicVol = +e.target.value;
-  paintMusicVol();
-  syncMusic(); // heard as the slider moves
-};
-$('#musicVol').onchange = () => {
-  savePrefs();
-  track('setting', { musicVol: prefs.musicVol });
 };
 // Show or hide the Time box above the board (the timer keeps running either way).
 function paintTimer() {
@@ -241,10 +221,6 @@ $('#bClearYes').onclick = () => {
 };
 
 // ---- start up ----
-// Dev server only: ?soundlab adds a panel for trying other sound sets (proto/soundlab.js). Vite
-// drops this from the site build, since import.meta.env.DEV is false there.
-if (import.meta.env.DEV && new URLSearchParams(location.search).has('soundlab'))
-  import('../proto/soundlab.js');
 initHelp(); // runs the help sheet's examples while it's open
 // the tutorial's "Play an Easy board": the next unsolved Easy board
 initTutorial(() => {
@@ -263,12 +239,7 @@ initIntro(pickLevel);
 initInstall(); // the start screen's Install as an app button
 initSync(); // Settings: sync results across devices with a sync code
 initFeedback(); // the playtest note and feedback form
-startTelemetry({
-  sound: prefs.sound,
-  music: prefs.music,
-  showTimer: prefs.showTimer,
-  easyMode: prefs.easyMode,
-}); // playtest data (if PLAYTEST_API is set)
+startTelemetry({ sound: prefs.sound, showTimer: prefs.showTimer, easyMode: prefs.easyMode }); // playtest data (if PLAYTEST_API is set)
 setCat(prefs.cat || 'easy');
 showScreen('intro', { animate: false }); // the site opens on the start screen
 paintHelpHint(); // first visit: How to play shimmers instead of opening by itself

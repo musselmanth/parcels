@@ -48,7 +48,7 @@ npm run check-puzzles               # verify every puzzle has exactly one soluti
 | `src/results.js`    | The results card                                                                                                                                       |
 | `src/celebrate.js`  | The win animation                                                                                                                                      |
 | `src/fx.js`         | Confetti                                                                                                                                               |
-| `src/sound.js`      | Sound effects and music (the "neon sign" sounds), synthesized with Web Audio (no audio files)                                                          |
+| `src/sound.js`      | Sound effects, synthesized with Web Audio (no audio files)                                                                                             |
 | `src/help.js`       | The How to play sheet: animated examples the player can also try                                                                                       |
 | `src/tutorial.js`   | The tutorial: a guided practice board, opened from the bottom of How to play                                                                           |
 | `src/menu.js`       | Fills in the puzzle menu (the grid of boards for a level)                                                                                              |
@@ -86,7 +86,7 @@ Every module starts with a comment saying what it's for, and functions have a li
 - **Results:** a finished board is **Perfect!** (no hints), **Solved with N Hints**, or **Loser** (solution viewed); see `resultOf` in `src/scoring.js`. There are no points or stars. Time, mistakes and pops are shown on the results card and feed the badges (`awardFor`), but never change the result. The line of praise under the result does react to how it went: speed (seconds per parcel) and slips (mistakes + pops), judged per level; see `PACE` and `PRAISE` in `src/scoring.js`.
 - **Colors:** tile colors, parcel tints and the win animation's gold are in `src/tiles.js`; page colors are the CSS tokens in `src/styles/theme-neon.css`. How strongly parcels are tinted is `.parcel .card` in `src/styles/board.css`.
 - **A new look:** the tiles' symbols and colors are `src/tiles.js` and the page's colors are the tokens at the top of `src/styles/theme-neon.css`; change those to restyle the game.
-- **Sounds:** `sfx` in `src/sound.js`, and the music loop (`beat`) in the same file. Notes are MIDI numbers (60 = middle C). Music is off by default (Settings > Music, with a volume slider).
+- **Sounds:** `sfx` in `src/sound.js`. Notes are MIDI numbers (60 = middle C).
 - **Layout on other screens:** phones held upright are the base styles. `src/styles/responsive.css` (loaded last) enlarges things on tablets and desktop and, in landscape, moves the top bar, stats, tip and buttons into a left sidebar so the board gets the rest of the screen (a CSS grid on `#app`).
 - **Feel and animation timing:** `styles/board.css` (tile and parcel animations), `HOLD` in `src/actions.js` (press-and-hold time), `celebrate()` in `src/celebrate.js`.
 - **Hints:** `giveHint()` in `src/actions.js` picks the parcel; the dotted outline is `.hint` in `src/styles/board.css`.
