@@ -325,11 +325,17 @@ export function setMsg(t, cls, sticky) {
     return;
   }
   const icon = cls === 'bad' ? '✕' : cls === 'ok' ? '✓' : 'i';
-  m.innerHTML = `<span class="ic">${icon}</span><span class="tx"></span>`;
-  m.querySelector('.tx').textContent = t;
-  m.className = (cls || '') + (t.length > 52 ? ' long' : '');
-  void m.offsetWidth;
-  m.classList.add('show');
+  const tx = m.querySelector('.tx');
+  // the same message already showing: just keep it up (no fade out and in again)
+  const same = m.classList.contains('show') && tx && tx.textContent === t && m.dataset.cls === (cls || '');
+  if (!same) {
+    m.innerHTML = `<span class="ic">${icon}</span><span class="tx"></span>`;
+    m.querySelector('.tx').textContent = t;
+    m.className = (cls || '') + (t.length > 52 ? ' long' : '');
+    m.dataset.cls = cls || '';
+    void m.offsetWidth;
+    m.classList.add('show');
+  }
   if (!sticky)
     msgTimer = setTimeout(
       () => m.classList.remove('show'),

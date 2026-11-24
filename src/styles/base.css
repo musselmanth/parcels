@@ -320,8 +320,10 @@ h1 small {
   box-shadow:
     0 0 18px rgba(122, 108, 255, 0.18),
     0 6px 18px rgba(0, 0, 0, 0.35);
-  /* no backdrop blur: fading a blurred pill in and out made other parts of the screen flash white on
-     some Android tablets (a graphics glitch); the background is nearly opaque anyway */
+  /* no backdrop blur, and a layer of its own for good (will-change): fading the pill in and out made
+     the top of the screen flash white on some Android tablets, as the browser kept making and
+     dropping a layer for it */
+  will-change: opacity, transform;
   opacity: 0;
   transform: translateY(-6px) scale(0.97);
   transition:
