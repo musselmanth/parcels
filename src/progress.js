@@ -62,6 +62,7 @@ export function saveProgress() {
       pairs: G.pairs.map((p) => p.cells),
       hints: G.hints,
       history: G.history,
+      depth: G.depth,
       checkpoints: G.checkpoints,
       misses: G.misses,
       elapsed: elapsed(),
@@ -114,6 +115,7 @@ export function restoreProgress(level, n) {
     groups: s.groups || [],
     pairs: s.pairs || [],
     hints: (s.hints || []).filter(fits),
+    depth: s.depth || 0,
   });
   const cps = Array.isArray(p.checkpoints) ? p.checkpoints : p.checkpoint ? [p.checkpoint] : [];
   G.checkpoints = cps.filter(okSnap).map(clean);
@@ -124,6 +126,7 @@ export function restoreProgress(level, n) {
     if (s.dropped) s.dropped = okSnap(s.dropped) ? clean(s.dropped) : undefined;
   });
   G.misses = p.misses || 0;
+  G.depth = p.depth || G.history.length;
   G.st = { ...G.st, ...p.st, lastT: null };
   if (p.elapsed > 0) G.startT = Date.now() - p.elapsed;
   return true;

@@ -233,7 +233,16 @@
             </div>
             <div class="chip chip-time"><span class="lbl">Time</span><b id="timer">0:00</b></div>
           </div>
-          <div class="progress"><i id="progBar"></i></div>
+          <div class="trackwrap">
+            <div class="progress"><i id="progBar"></i></div>
+            <!-- the move timeline, once a checkpoint is set: a dot per move, rings for checkpoints,
+                 the glowing head is now (src/timeline.js) -->
+            <div id="tl" aria-hidden="true">
+              <div class="tl-line"></div>
+              <div class="tl-path"></div>
+              <div class="tl-head"></div>
+            </div>
+          </div>
           <div id="msgSlot"><div id="msg" role="status" aria-live="polite"></div></div>
           <div id="stage"><svg id="board" role="group" aria-label="Puzzle board"></svg></div>
           <!-- board buttons: an icon over a short label; each icon has its own accent color (--ac) -->

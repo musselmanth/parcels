@@ -16,6 +16,10 @@ export const G = {
   // Undo history: the board before each move (parcels, pairs, hints), oldest first. See record() and
   // undo() in actions.js.
   history: [],
+  // How many moves deep the board is along its current path (for the timeline): +1 per move, set
+  // back by Undo and Return. tlAct: what changed it last ('move', 'undo', 'return', 'checkpoint').
+  depth: 0,
+  tlAct: null,
   // The player's checkpoints, oldest first: snapshots like the history's. See setCheckpoint() in actions.js.
   checkpoints: [],
   // Next parcel id.

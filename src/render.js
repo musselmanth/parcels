@@ -14,6 +14,7 @@ import {
   setCells,
 } from './core/hex.js';
 import { canReturn } from './actions.js';
+import { paintTimeline } from './timeline.js';
 import { G, pairOf } from './state.js';
 import { elapsed, saveProgress } from './progress.js';
 import { POS, STAR, TINTS, glyph, tileLabel } from './tiles.js';
@@ -379,6 +380,7 @@ export function render() {
   // Start over: nothing to clear at the beginning (hints on the board count as something)
   $('#bReset').disabled = G.done || (empty && !G.hints.length);
   $('#prog').textContent = Object.keys(G.groups).length;
+  paintTimeline();
   $('#progBar').style.width = (Object.keys(G.groups).length / GROUPS) * 100 + '%';
   saveProgress(); // every change to the board goes through here, so this keeps the save current
 }
