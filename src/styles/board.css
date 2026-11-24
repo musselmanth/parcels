@@ -98,6 +98,40 @@
   }
 }
 
+/* ---- a board opening: each symbol flickers on like a neon tube catching (lightUp in render.js,
+   which sets --ig: how long until it starts; keep the length in step with IGNITE_MS there) ---- */
+.tile.ignite .gl {
+  animation: ignite 0.6s linear both;
+  animation-delay: var(--ig, 0ms);
+}
+@keyframes ignite {
+  0% {
+    opacity: 0;
+  }
+  7% {
+    opacity: 0.85;
+  }
+  11% {
+    opacity: 0.05;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  24% {
+    opacity: 0.12;
+  }
+  36% {
+    opacity: 1;
+  }
+  42% {
+    opacity: 0.45;
+  }
+  50%,
+  100% {
+    opacity: 1;
+  }
+}
+
 /* ---- pencilled pairs ---- */
 .pair {
   fill: var(--pairFill);

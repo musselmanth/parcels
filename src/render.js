@@ -62,6 +62,42 @@ function noteNoFit() {
   fitShownFor = key;
 }
 
+// Lighting up: when a board opens, its symbols flicker on one by one like neon tubes catching
+// (lightUp; the flicker is .tile.ignite in board.css). Each tile's start time is kept here, so a
+// redraw in the middle of it (e.g. a quick first tap) carries on where it was instead of restarting.
+const IGNITE_MS = 600; // the flicker's length (keep in step with .tile.ignite)
+let LIGHT = null; // {t0, delays: ms per cell from t0, end}
+export function lightUp(startIn = 0) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return [];
+  const xs = CELLS.map((_, i) => center(i)[0]),
+    x0 = Math.min(...xs),
+    span = Math.max(...xs) - x0 || 1;
+  // a loose sweep across the board, left to right, with each tube catching a little at random
+  const delays = xs.map((x) => startIn + (550 * (x - x0)) / span + Math.random() * 320);
+  LIGHT = { t0: performance.now(), delays, end: Math.max(...delays) + IGNITE_MS };
+  render();
+  // once they're all lit, drop the flicker (so it can't get in the way of the win's spin later)
+  const mine = LIGHT;
+  setTimeout(() => {
+    if (LIGHT !== mine) return; // another board opened since
+    LIGHT = null;
+    board.querySelectorAll('.tile.ignite').forEach((el) => el.classList.remove('ignite'));
+  }, mine.end + 50);
+  return delays;
+}
+// How long until tile i's symbol starts flickering on (negative: it already has, by that much), or
+// null when it isn't lighting up.
+function igniteIn(i) {
+  if (!LIGHT) return null;
+  const now = performance.now() - LIGHT.t0;
+  if (now > LIGHT.end) {
+    LIGHT = null;
+    return null;
+  }
+  const d = LIGHT.delays[i] - now;
+  return d > -IGNITE_MS ? Math.round(d) : null;
+}
+
 // Pre-computed rounded-hexagon path for each cell (rebuilt per board).
 let CARD = [];
 const GK = S / 68; // glyph scale: keeps every symbol well inside its hexagon
@@ -117,15 +153,17 @@ function svgFrame() {
 // Classes: sel (selected), paired (in a pencilled pair), release (just freed from a popped parcel).
 function tileSVG(i, k) {
   const [x, y] = center(i),
-    t = G.P.tiles[i];
+    t = G.P.tiles[i],
+    ig = igniteIn(i);
   const cls =
     'tile' +
     (G.sel.includes(i) ? ' sel' : '') +
     (FIT.has(i) ? ' fit' : '') +
+    (ig != null ? ' ignite' : '') +
     (pairOf(i) ? ' paired' : '') +
     (G.released && G.released.has(i) ? ' release' : '');
   return (
-    `<g class="${cls}" data-i="${i}" style="--k:${k}" role="button" aria-label="${tileLabel(t)}"><g class="pop"><path class="card" d="${CARD[i]}"/>` +
+    `<g class="${cls}" data-i="${i}" style="--k:${k}${ig != null ? `;--ig:${ig}ms` : ''}" role="button" aria-label="${tileLabel(t)}"><g class="pop"><path class="card" d="${CARD[i]}"/>` +
     `<g transform="translate(${(x - 50 * GK).toFixed(2)},${(y - 50 * GK).toFixed(2)}) scale(${GK.toFixed(4)})"><g class="gl">${POS[t.n].map(([gx, gy]) => glyph(t.s, gx, gy, t.c)).join('')}</g></g></g></g>`
   );
 }
