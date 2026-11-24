@@ -15,6 +15,7 @@ import { initTutorial } from './tutorial.js';
 import { nextUnsolved, renderMenu } from './menu.js';
 import { initIntro, renderIntro } from './intro.js';
 import { initFullscreen } from './fullscreen.js';
+import { initBackNav } from './backnav.js';
 import { initInstall } from './install.js';
 import { initFeedback } from './feedback.js';
 import { startTelemetry, track } from './telemetry.js';
@@ -253,3 +254,4 @@ Promise.race([document.fonts ? document.fonts.ready : null, new Promise((r) => s
   () => document.documentElement.classList.add('ready'),
 );
 initFullscreen();
+initBackNav(); // the phone's back button steps back through the game
