@@ -293,10 +293,9 @@ export const sfx = {
     tink(nf(102), { at: 0.2, vol: 0.016 });
   }),
   brk: (quiet) => sfx.pop(quiet),
-  // a board opening: its symbols flicker on (lightUp in render.js gives each one's delay in ms,
-  // plus .fin and .on). A crackle and a short tube buzz with each, at most 24 of them so big boards
-  // don't turn to noise; crackles with the whole board's last flicker (from .fin); then the ding
-  // and the hum of the chord at the exact moment it all comes on at full power (.on).
+  // a board opening: its symbols flicker on (lightUp in render.js gives each one's delay in ms).
+  // A crackle and a short tube buzz with each, at most 24 of them so big boards don't turn to
+  // noise, then a soft hum as the whole board settles.
   signOn: play((delays) => {
     const ds = [...delays].sort((a, b) => a - b),
       every = Math.max(1, ds.length / 24),
@@ -306,13 +305,9 @@ export const sfx = {
       crackle({ at, dur: 0.03, n: 2, vol: 0.022, f: 3500 });
       hum(notes[(k * 5) % notes.length], { at: at + 0.01, dur: 0.14, vol: 0.007, flick: 0.7 });
     }
-    // the last flicker: a crackle on each dip (fullOn's keyframes, as fractions of its 0.42 s)
-    const fin = (delays.fin ?? ds[ds.length - 1] + 680) / 1000,
-      on = (delays.on ?? ds[ds.length - 1] + 1100) / 1000;
-    [0, 0.3, 0.6].forEach((f) => crackle({ at: fin + f * (on - fin), dur: 0.04, n: 3, vol: 0.026, f: 3200 }));
-    // full power: the ding, right on the moment
-    tink(nf(95), { at: on, vol: 0.02 });
-    PROG[0].forEach((m) => hum(m + 12, { at: on, dur: 1, a: 0.02, vol: 0.007, flick: 0.05 }));
+    const end = ds[ds.length - 1] / 1000 + 0.3;
+    PROG[0].forEach((m) => hum(m + 12, { at: end, dur: 0.9, a: 0.15, vol: 0.006, flick: 0.2 }));
+    tink(nf(95), { at: end + 0.05, vol: 0.012 });
   }),
   // popping a parcel: a tube going "pink" with a little zap (quieter for Start over's many pops)
   pop: play((quiet) => {

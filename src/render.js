@@ -62,14 +62,11 @@ function noteNoFit() {
   fitShownFor = key;
 }
 
-// Lighting up: when a board opens, its symbols flicker on one by one like neon tubes catching, to
-// half power (lightUp; the flicker is .tile.ignite in board.css). Then the whole board flickers
-// together one last time and comes on at full power all at once, at LIGHT.on: the moment of the
-// ding (sfx.signOn). Each start time is kept here, so a redraw in the middle of it (e.g. a quick
-// first tap) carries on where it was instead of restarting.
-const IGNITE_MS = 600; // one tube's flicker (keep in step with the ignite keyframes)
-const FINAL_MS = 420; // the last flicker of the whole board, ending at full power (fullOn keyframes)
-let LIGHT = null; // {t0, delays: ms per cell from t0, fin: the last flicker's start, end}
+// Lighting up: when a board opens, its symbols flicker on one by one like neon tubes catching
+// (lightUp; the flicker is .tile.ignite in board.css). Each tile's start time is kept here, so a
+// redraw in the middle of it (e.g. a quick first tap) carries on where it was instead of restarting.
+const IGNITE_MS = 600; // the flicker's length (keep in step with .tile.ignite)
+let LIGHT = null; // {t0, delays: ms per cell from t0, end}
 export function lightUp(startIn = 0) {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return [];
   const xs = CELLS.map((_, i) => center(i)[0]),
@@ -77,10 +74,7 @@ export function lightUp(startIn = 0) {
     span = Math.max(...xs) - x0 || 1;
   // a loose sweep across the board, left to right, with each tube catching a little at random
   const delays = xs.map((x) => startIn + (550 * (x - x0)) / span + Math.random() * 320);
-  const fin = Math.max(...delays) + IGNITE_MS + 80;
-  LIGHT = { t0: performance.now(), delays, fin, end: fin + FINAL_MS };
-  delays.fin = fin; // for the sound: the last flicker starts here...
-  delays.on = fin + FINAL_MS; // ...and everything comes on at full power here (the ding)
+  LIGHT = { t0: performance.now(), delays, end: Math.max(...delays) + IGNITE_MS };
   render();
   // once they're all lit, drop the flicker (so it can't get in the way of the win's spin later)
   const mine = LIGHT;
@@ -91,8 +85,8 @@ export function lightUp(startIn = 0) {
   }, mine.end + 50);
   return delays;
 }
-// How long until tile i's symbol starts flickering on, and until the board's last flicker (negative:
-// already started, by that much), or null when the board isn't lighting up.
+// How long until tile i's symbol starts flickering on (negative: it already has, by that much), or
+// null when it isn't lighting up.
 function igniteIn(i) {
   if (!LIGHT) return null;
   const now = performance.now() - LIGHT.t0;
@@ -100,7 +94,8 @@ function igniteIn(i) {
     LIGHT = null;
     return null;
   }
-  return { ig: Math.round(LIGHT.delays[i] - now), fin: Math.round(LIGHT.fin - now) };
+  const d = LIGHT.delays[i] - now;
+  return d > -IGNITE_MS ? Math.round(d) : null;
 }
 
 // Pre-computed rounded-hexagon path for each cell (rebuilt per board).
@@ -164,11 +159,11 @@ function tileSVG(i, k) {
     'tile' +
     (G.sel.includes(i) ? ' sel' : '') +
     (FIT.has(i) ? ' fit' : '') +
-    (ig ? ' ignite' : '') +
+    (ig != null ? ' ignite' : '') +
     (pairOf(i) ? ' paired' : '') +
     (G.released && G.released.has(i) ? ' release' : '');
   return (
-    `<g class="${cls}" data-i="${i}" style="--k:${k}${ig ? `;--ig:${ig.ig}ms;--fin:${ig.fin}ms` : ''}" role="button" aria-label="${tileLabel(t)}"><g class="pop"><path class="card" d="${CARD[i]}"/>` +
+    `<g class="${cls}" data-i="${i}" style="--k:${k}${ig != null ? `;--ig:${ig}ms` : ''}" role="button" aria-label="${tileLabel(t)}"><g class="pop"><path class="card" d="${CARD[i]}"/>` +
     `<g transform="translate(${(x - 50 * GK).toFixed(2)},${(y - 50 * GK).toFixed(2)}) scale(${GK.toFixed(4)})"><g class="gl">${POS[t.n].map(([gx, gy]) => glyph(t.s, gx, gy, t.c)).join('')}</g></g></g></g>`
   );
 }

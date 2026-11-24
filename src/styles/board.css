@@ -98,63 +98,35 @@
   }
 }
 
-/* ---- a board opening (lightUp in render.js): each symbol flickers on like a neon tube catching,
-   to half power (ignite, starting at --ig); then the whole board flickers once more together and
-   comes on at full power at the very end of fullOn, which starts at --fin: the moment of the ding.
-   Keep the lengths in step with IGNITE_MS and FINAL_MS there. fullOn only fills forwards, so until
-   it starts the tube's own flicker shows. ---- */
+/* ---- a board opening: each symbol flickers on like a neon tube catching (lightUp in render.js,
+   which sets --ig: how long until it starts; keep the length in step with IGNITE_MS there) ---- */
 .tile.ignite .gl {
-  animation:
-    ignite 0.6s linear var(--ig, 0ms) both,
-    fullOn 0.42s linear var(--fin, 0ms) forwards;
+  animation: ignite 0.6s linear both;
+  animation-delay: var(--ig, 0ms);
 }
 @keyframes ignite {
   0% {
     opacity: 0;
   }
   7% {
-    opacity: 0.6;
+    opacity: 0.85;
   }
   11% {
-    opacity: 0.04;
+    opacity: 0.05;
   }
   20% {
-    opacity: 0.45;
+    opacity: 0.6;
   }
   24% {
-    opacity: 0.1;
+    opacity: 0.12;
   }
   36% {
-    opacity: 0.7;
+    opacity: 1;
   }
   42% {
-    opacity: 0.3;
+    opacity: 0.45;
   }
   50%,
-  100% {
-    opacity: 0.55;
-  }
-}
-@keyframes fullOn {
-  0% {
-    opacity: 0.55;
-  }
-  14% {
-    opacity: 0.06;
-  }
-  30% {
-    opacity: 0.5;
-  }
-  44% {
-    opacity: 0.08;
-  }
-  60% {
-    opacity: 0.35;
-  }
-  70%,
-  99% {
-    opacity: 0.04;
-  }
   100% {
     opacity: 1;
   }
