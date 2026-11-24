@@ -44,9 +44,16 @@ export function burst(x, y, colors, n = 16, power = 5, dir = null, spread = Math
     requestAnimationFrame(fxLoop);
   }
 }
+// Clear the whole canvas, in device pixels (so nothing is missed if the window size changed).
+function wipe() {
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, fx.width, fx.height);
+  ctx.restore();
+}
 // One animation frame: gravity, drag, spin, fade; stops when every particle is gone.
 function fxLoop() {
-  ctx.clearRect(0, 0, innerWidth, innerHeight);
+  wipe();
   parts = parts.filter((p) => p.life > 0 && p.y < innerHeight + 40);
   for (const p of parts) {
     p.vy += 0.17;
@@ -71,7 +78,9 @@ function fxLoop() {
   if (parts.length) requestAnimationFrame(fxLoop);
   else {
     fxOn = false;
-    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    // done: reset the canvas outright (resizing it empties it for sure). Some old Android phones
+    // didn't show the per-frame clears over the board, leaving dotted confetti trails on screen.
+    sizeFx();
   }
 }
 // Board (SVG) coordinates -> screen pixels, for aiming bursts at parcels.
