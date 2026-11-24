@@ -39,7 +39,10 @@ function playBoard(n) {
   openPuzzle(n);
   gameLevel = CAT;
   showScreen('game');
-  lightUp(`${CAT}:${n}`, 260); // the tiles power up as the board slides in, a little differently per board
+  // the tiles power up as the board slides in, a little differently per board: only on a fresh or
+  // empty board (not a finished one, or one with parcels, pairs or hints on it)
+  const empty = !Object.keys(G.groups).length && !G.pairs.length && !G.hints.length;
+  if (!G.done && empty) lightUp(`${CAT}:${n}`, 260);
 }
 // Fill in the puzzle menu for the current level and show it.
 function toMenu() {
