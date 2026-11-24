@@ -80,6 +80,79 @@
   transform-box: fill-box;
   transform-origin: center;
 }
+/* ---- lights on (lightUp in render.js): each tile, from --ld on, pops up from dim with its edge
+   flashing in the board's color (--fx), and its symbols flicker on, spinning in by --rot. The ring
+   (.surge) is a ripple's wave of light. Opacity and transforms only. Keep in step with LIT_MS. ---- */
+.tile.lit .pop {
+  animation: litPop 0.55s cubic-bezier(0.3, 1.6, 0.5, 1) var(--ld) both;
+}
+@keyframes litPop {
+  0% {
+    transform: scale(0.82);
+    opacity: 0.16;
+  }
+  30% {
+    opacity: 1;
+  }
+  55% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.tile.lit .card {
+  animation: litCard 0.8s ease-out var(--ld) both;
+}
+@keyframes litCard {
+  12% {
+    stroke: var(--fx);
+    stroke-width: 3.5;
+  }
+}
+.tile.lit .gl {
+  animation: litGlyph 0.6s linear calc(var(--ld) + 90ms) both;
+}
+@keyframes litGlyph {
+  0% {
+    opacity: 0;
+    transform: scale(0.55) rotate(var(--rot));
+  }
+  18% {
+    opacity: 1;
+  }
+  26% {
+    opacity: 0.2;
+  }
+  38% {
+    opacity: 1;
+    transform: scale(1.12) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+.surge {
+  fill: none;
+  stroke: var(--fx);
+  stroke-width: 6;
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: surge var(--dur) cubic-bezier(0.2, 0.6, 0.4, 1) var(--ld) both;
+}
+@keyframes surge {
+  0% {
+    transform: scale(0.02);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
 .outline,
 .pair {
   transform-box: fill-box;

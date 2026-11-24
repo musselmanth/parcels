@@ -19,7 +19,7 @@ import { initInstall } from './install.js';
 import { initFeedback } from './feedback.js';
 import { startTelemetry, track } from './telemetry.js';
 import { currentScreen, onScreen, showScreen, trackTopbarHeight } from './screens.js';
-import { render, setMsg, tick } from './render.js';
+import { lightUp, render, setMsg, tick } from './render.js';
 import { openResults } from './results.js';
 import { paintSound, sfx } from './sound.js';
 import { G } from './state.js';
@@ -39,6 +39,7 @@ function playBoard(n) {
   openPuzzle(n);
   gameLevel = CAT;
   showScreen('game');
+  lightUp(`${CAT}:${n}`, 260); // the tiles power up as the board slides in, a little differently per board
 }
 // Fill in the puzzle menu for the current level and show it.
 function toMenu() {

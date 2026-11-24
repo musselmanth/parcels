@@ -62,6 +62,109 @@ function noteNoFit() {
   fitShownFor = key;
 }
 
+// ---- lights on: when a board opens, its tiles power up in a wave
+// Each board gets its own version, picked from its level and number (so a board always lights the
+// same way, and the next one differently): the shape of the wave, where it starts, the flash color
+// and which way the symbols spin in. Each tile flashes its edge, pops up from dim and its symbols
+// flicker on (.tile.lit in board.css). Ripples also send a ring of light across the board.
+// Times are kept here, so a redraw in the middle of it (a quick first tap) carries on where it was.
+const LIT_MS = 900; // a tile's part, from its start (keep in step with the lit* keyframes)
+const FLASH = ['#9a8cff', '#ff4fa8', '#4fd8ff', '#ffd43b', '#3ddc84', '#ff9a3c'];
+let LIGHT = null; // {t0, delays: ms per cell from t0, end, fx: color, rot: deg, ring: {x, y, r, at, ms}}
+function rng(seed) {
+  let h = 2166136261;
+  for (const ch of String(seed)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  return () => {
+    h = Math.imul(h ^ (h >>> 15), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return ((h ^= h >>> 16) >>> 0) / 4294967296;
+  };
+}
+export function lightUp(seed, startIn = 0) {
+  LIGHT = null;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const r = rng(seed),
+    pts = CELLS.map((_, i) => center(i)),
+    [cx, cy] = centroid(CELLS.map((_, i) => i)),
+    SPREAD = 620 + r() * 260; // how long the wave takes to cross the board (ms)
+  const norm = (vals) => {
+    const lo = Math.min(...vals),
+      hi = Math.max(...vals);
+    return vals.map((v) => (v - lo) / (hi - lo || 1));
+  };
+  let order,
+    ring = null;
+  const kind = ['sweep', 'ripple', 'spiral', 'inward', 'rain'][Math.floor(r() * 5)];
+  if (kind === 'sweep') {
+    // a straight wipe at a random angle
+    const a = r() * Math.PI * 2;
+    order = norm(pts.map(([x, y]) => x * Math.cos(a) + y * Math.sin(a)));
+  } else if (kind === 'ripple') {
+    // out from one tile, with a ring of light running ahead of it
+    const o = pts[Math.floor(r() * pts.length)];
+    const ds = pts.map(([x, y]) => Math.hypot(x - o[0], y - o[1]));
+    order = norm(ds);
+    ring = { x: o[0], y: o[1], r: Math.max(...ds) + S * 2, ms: SPREAD + 300 };
+  } else if (kind === 'spiral') {
+    // round the board like a clock hand, a little further out each turn
+    const dir = r() < 0.5 ? 1 : -1,
+      a0 = r() * Math.PI * 2;
+    const ang = pts.map(
+      ([x, y]) => (((dir * (Math.atan2(y - cy, x - cx) - a0)) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI),
+    );
+    const rad = norm(pts.map(([x, y]) => Math.hypot(x - cx, y - cy)));
+    order = norm(ang.map((a, i) => a / (2 * Math.PI) + rad[i] * 0.35));
+  } else if (kind === 'inward') {
+    // from the rim to the middle
+    order = norm(pts.map(([x, y]) => -Math.hypot(x - cx, y - cy)));
+  } else {
+    // falling in, column by column, each column a little out of step
+    const shift = {};
+    order = norm(
+      pts.map(([x, y]) => {
+        const col = Math.round(x / (S * 0.8));
+        if (!(col in shift)) shift[col] = r() * 0.6;
+        return y / (S * 6) + shift[col];
+      }),
+    );
+  }
+  const delays = order.map((o) => startIn + o * SPREAD + r() * 60);
+  LIGHT = {
+    t0: performance.now(),
+    delays,
+    end: Math.max(...delays) + LIT_MS,
+    fx: FLASH[Math.floor(r() * FLASH.length)],
+    rot: [-120, -60, 60, 120, 180][Math.floor(r() * 5)],
+    ring: ring && { ...ring, at: startIn },
+  };
+  render();
+  const mine = LIGHT;
+  setTimeout(() => {
+    if (LIGHT !== mine) return; // another board opened since
+    LIGHT = null;
+    board.querySelectorAll('.tile.lit').forEach((el) => el.classList.remove('lit'));
+    board.querySelectorAll('.surge').forEach((el) => el.remove());
+  }, mine.end + 50);
+}
+// For tile i while the board is lighting up: its style (when it starts, from now) or ''.
+function litStyle(i) {
+  if (!LIGHT) return '';
+  const now = performance.now() - LIGHT.t0;
+  if (now > LIGHT.end) {
+    LIGHT = null;
+    return '';
+  }
+  return `;--ld:${Math.round(LIGHT.delays[i] - now)}ms;--fx:${LIGHT.fx};--rot:${LIGHT.rot}deg`;
+}
+// The ring of light a ripple sends out (only on a fresh draw near the start, so it isn't replayed).
+function surgeSVG() {
+  if (!LIGHT || !LIGHT.ring) return '';
+  const now = performance.now() - LIGHT.t0,
+    g = LIGHT.ring;
+  if (now > g.at + 60) return '';
+  return `<circle class="surge" cx="${g.x.toFixed(1)}" cy="${g.y.toFixed(1)}" r="${g.r.toFixed(1)}" style="--ld:${Math.round(g.at - now)}ms;--fx:${LIGHT.fx};--dur:${g.ms}ms"/>`;
+}
+
 // Pre-computed rounded-hexagon path for each cell (rebuilt per board).
 let CARD = [];
 const GK = S / 68; // glyph scale: keeps every symbol well inside its hexagon
@@ -117,15 +220,17 @@ function svgFrame() {
 // Classes: sel (selected), paired (in a pencilled pair), release (just freed from a popped parcel).
 function tileSVG(i, k) {
   const [x, y] = center(i),
-    t = G.P.tiles[i];
+    t = G.P.tiles[i],
+    lit = litStyle(i);
   const cls =
     'tile' +
+    (lit ? ' lit' : '') +
     (G.sel.includes(i) ? ' sel' : '') +
     (FIT.has(i) ? ' fit' : '') +
     (pairOf(i) ? ' paired' : '') +
     (G.released && G.released.has(i) ? ' release' : '');
   return (
-    `<g class="${cls}" data-i="${i}" style="--k:${k}" role="button" aria-label="${tileLabel(t)}"><g class="pop"><path class="card" d="${CARD[i]}"/>` +
+    `<g class="${cls}" data-i="${i}" style="--k:${k}${lit}" role="button" aria-label="${tileLabel(t)}"><g class="pop"><path class="card" d="${CARD[i]}"/>` +
     `<g transform="translate(${(x - 50 * GK).toFixed(2)},${(y - 50 * GK).toFixed(2)}) scale(${GK.toFixed(4)})"><g class="gl">${POS[t.n].map(([gx, gy]) => glyph(t.s, gx, gy, t.c)).join('')}</g></g></g></g>`
   );
 }
@@ -256,7 +361,7 @@ export function render() {
   const [bx, by] = centroid(CELLS.map((_, i) => i));
   // hints: a dotted outline that circles a parcel from the solution, drawn on top of everything
   const hintSVG = G.hints.map((h) => `<path class="hint" d="${blobPath(h, -3, 15)}"/>`).join('');
-  board.innerHTML = `<g id="world"><g>${pairSVG}</g><g>${parcelSVG}</g><path id="trail" d=""/><g>${free}</g><g>${hintSVG}</g><g transform="translate(${bx.toFixed(1)},${by.toFixed(1)})"><g id="hole">${holeSVG()}</g></g></g>`;
+  board.innerHTML = `<g id="world"><g>${pairSVG}</g><g>${parcelSVG}</g><path id="trail" d=""/><g>${free}</g><g>${hintSVG}</g>${surgeSVG()}<g transform="translate(${bx.toFixed(1)},${by.toFixed(1)})"><g id="hole">${holeSVG()}</g></g></g>`;
   fitDashes(board);
   Object.values(G.groups).forEach((g) => {
     g.fresh = false;
