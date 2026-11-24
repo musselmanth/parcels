@@ -132,6 +132,15 @@
   display: grid;
   gap: 10px;
 }
+/* on short screens the level list scrolls on its own (intro.js, scrollbox.js): a little room around
+   the buttons for their glow, and the slim bar just outside them */
+.intro-actions .sbox-body {
+  padding: 3px;
+  margin: -3px;
+}
+.intro-actions .sbar {
+  right: -11px;
+}
 
 /* a level button: name and details on one line, progress bar under them, tinted in its color */
 #introLevels .level {

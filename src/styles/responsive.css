@@ -75,16 +75,12 @@
 
   /* dialogs */
   .sheet {
+    --px: 24px; /* side padding, for .boxed sheets' scrolling bodies */
     max-width: 480px;
     padding: 22px 24px 18px;
   }
   .sheet.help {
     max-width: 580px;
-  }
-  .help .hhead {
-    top: -22px;
-    margin: -22px -24px 0;
-    padding: 16px 16px 8px 24px;
   }
   .help p {
     font-size: 15px;
@@ -267,10 +263,5 @@
   }
   .hgrid .hboard {
     height: 70px;
-  }
-  .help .hhead {
-    top: -14px;
-    margin: -14px -18px 0;
-    padding: 10px 12px 6px 18px;
   }
 }

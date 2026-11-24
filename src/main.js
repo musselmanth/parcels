@@ -16,6 +16,7 @@ import { nextUnsolved, renderMenu } from './menu.js';
 import { initIntro, renderIntro } from './intro.js';
 import { initFullscreen } from './fullscreen.js';
 import { initBackNav } from './backnav.js';
+import { scrollbox } from './scrollbox.js';
 import { initInstall } from './install.js';
 import { initFeedback } from './feedback.js';
 import { startTelemetry, track } from './telemetry.js';
@@ -145,11 +146,16 @@ $('#bEasy').onclick = () => {
   paintEasy();
   if (G.P) render();
 };
-// Settings opens from the top bar (game screen) or the start screen's button.
+// Settings opens from the top bar (game screen) or the start screen's button. Its header stays put;
+// the rest scrolls when it doesn't fit, with a slim bar.
+const settingsBody = $('#mSettings .sbody'),
+  settingsBar = scrollbox(settingsBody);
 $('#bSettings').onclick = $('#bIntroSettings').onclick = () => {
   $('#confirmClear').style.display = 'none';
   historyStatus(''); // clear any old message
   $('#mSettings').classList.add('open');
+  settingsBody.scrollTop = 0;
+  requestAnimationFrame(settingsBar);
 };
 $('#bSettingsClose').onclick = () => $('#mSettings').classList.remove('open');
 $('#mSettings').addEventListener('click', (e) => {

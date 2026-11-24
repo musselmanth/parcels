@@ -2,42 +2,6 @@
  * The "How to play" sheet (#mHelp) and its examples (src/help.js). The example boards reuse the
  * board classes from board.css (.tile, .parcel, .pair, ...), so they look and animate like the game.
  */
-/* no scrollbar: the sheet still scrolls (wheel, trackpad, touch, keys), and the "More below" hint
-   shows there's more */
-.sheet.help {
-  scrollbar-width: none;
-}
-.sheet.help::-webkit-scrollbar {
-  display: none;
-}
-
-/* pinned header with the title and close button (the negative margins reach the sheet's edges;
-   responsive.css matches them to the sheet's padding on other screen sizes) */
-.help .hhead {
-  position: sticky;
-  top: -18px;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin: -18px -18px 0;
-  padding: 14px 12px 8px 18px;
-  background: #17132f;
-}
-.help .hhead h2 {
-  margin: 0;
-}
-.help .hhead .xclose {
-  position: static;
-  flex: none;
-}
-/* the bottom strip is just an anchor for the hint and the fade, it takes no room */
-.help .row.sticky.hbottom {
-  height: 0;
-  padding: 0;
-  margin: 0;
-}
 .help p {
   font-size: 14px;
   line-height: 1.45;
@@ -366,53 +330,6 @@
 }
 .hcheck.bad .m {
   color: var(--bad);
-}
-
-/* ---- "More below" hint over the bottom of the sheet ---- */
-.help .row.sticky::before {
-  content: '';
-  position: absolute;
-  left: -18px;
-  right: -18px;
-  top: -64px;
-  height: 64px;
-  background: linear-gradient(transparent, var(--sheet));
-  pointer-events: none;
-  transition: opacity 0.2s;
-}
-.help .row.sticky:has(.hmore.gone)::before {
-  opacity: 0;
-}
-.help .hmore {
-  position: absolute;
-  top: -52px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  padding: 6px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: 999px;
-  border: 1px solid rgba(154, 140, 255, 0.6);
-  background: #241d4d;
-  color: #efedff;
-  box-shadow: 0 0 16px rgba(154, 140, 255, 0.4);
-  animation: hbob 1.4s ease-in-out infinite;
-  transition: opacity 0.2s;
-}
-.help .hmore.gone {
-  opacity: 0;
-  pointer-events: none;
-}
-@keyframes hbob {
-  50% {
-    transform: translate(-50%, 4px);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .help .hmore {
-    animation: none;
-  }
 }
 
 /* ---- the tutorial (#mTutorial, src/tutorial.js) ---- */

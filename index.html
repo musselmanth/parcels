@@ -312,105 +312,105 @@
 
     <!-- How to play. The examples are drawn and animated by src/help.js. -->
     <div class="modal" id="mHelp">
-      <div class="sheet help">
-        <!-- header stays pinned at the top while the sheet scrolls, so the close button is always there -->
+      <div class="sheet help boxed">
+        <!-- the header stays put; only the part below it scrolls, with a slim scroll bar (scrollbox.js) -->
         <div class="hhead">
           <h2>How to play</h2>
           <button class="xclose" id="bHelpClose" aria-label="Close">✕</button>
         </div>
-        <p>
-          Split the whole board into <b>parcels</b>: groups of <b>3 touching tiles</b>. Every tile ends up in
-          exactly one parcel.
-        </p>
-        <div class="hdemo"><svg id="hdGoal" class="hboard"></svg></div>
-        <p>A parcel can be a line, a bend or a triangle.</p>
-        <div class="hshapes" id="hdShapes">
-          <figure>
-            <svg></svg>
-            <figcaption>line</figcaption>
-          </figure>
-          <figure>
-            <svg></svg>
-            <figcaption>bend</figcaption>
-          </figure>
-          <figure>
-            <svg></svg>
-            <figcaption>triangle</figcaption>
-          </figure>
-        </div>
-
-        <h3>The rule</h3>
-        <p>
-          Every tile has a <b>shape</b>, a <b>color</b> and a <b>count</b> (1, 2 or 3 symbols). In a parcel,
-          each of the three has to be <b>all the same</b> or <b>all different</b>. If two tiles match and the
-          third doesn't, it's not a parcel.
-        </p>
-        <div class="hdemo">
-          <svg id="hdRule" class="hboard short"></svg>
-          <div class="hverdict" id="hdRuleVerdict"></div>
-          <div class="hchecks" id="hdRuleChecks"></div>
-        </div>
-
-        <h3>Only one answer</h3>
-        <p>
-          A parcel can follow the rule and still be wrong. Each board splits only one way, so if you get
-          stuck, pop a parcel and look again.
-        </p>
-        <div class="hdemo"><svg id="hdDecoy" class="hboard"></svg></div>
-
-        <h3>Controls</h3>
-        <div class="hgrid">
-          <div class="hdemo">
-            <svg id="hdSwipe" class="hboard"></svg>
-            <b>Make a parcel</b>
-            <span
-              >Swipe across 3 tiles, or tap them one at a time. Tap an empty spot to clear a selection.</span
-            >
+        <div class="sbody">
+          <p>
+            Split the whole board into <b>parcels</b>: groups of <b>3 touching tiles</b>. Every tile ends up
+            in exactly one parcel.
+          </p>
+          <div class="hdemo"><svg id="hdGoal" class="hboard"></svg></div>
+          <p>A parcel can be a line, a bend or a triangle.</p>
+          <div class="hshapes" id="hdShapes">
+            <figure>
+              <svg></svg>
+              <figcaption>line</figcaption>
+            </figure>
+            <figure>
+              <svg></svg>
+              <figcaption>bend</figcaption>
+            </figure>
+            <figure>
+              <svg></svg>
+              <figcaption>triangle</figcaption>
+            </figure>
           </div>
-          <div class="hdemo">
-            <svg id="hdPair" class="hboard"></svg>
-            <b>Pencil in a pair</b>
-            <span
-              >Not sure of the third tile? Select 2 (tap or swipe), then hold one of them. Add the third
-              later. Two tiles with a gap between them work too. Hold a pair to erase it.</span
-            >
-          </div>
-          <div class="hdemo">
-            <svg id="hdPop" class="hboard"></svg>
-            <b>Pop a parcel</b>
-            <span>Tap a parcel to break it back into loose tiles.</span>
-          </div>
-          <div class="hdemo">
-            <svg id="hdLock" class="hboard"></svg>
-            <b>Lock it in</b>
-            <span>Press and hold a parcel when you're sure. Taps won't pop it; hold again to unlock it.</span>
-          </div>
-        </div>
 
-        <h3>Stuck?</h3>
-        <ul>
-          <li><b>Undo</b> takes back your last move, one at a time, all the way to the start.</li>
-          <li>
-            <b>Checkpoint</b> marks where you are before you try an idea; set as many as you like.
-            <b>Return</b> brings the board back to your latest one, then the one before, and so on (Undo takes
-            you forward again if you change your mind).
-          </li>
-          <li><b>Hint</b> circles a real parcel with a dotted line until you make it.</li>
-          <li><b>Solution</b> shows the answer, but that board ends there.</li>
-          <li>
-            <b>Third-tile helper</b> (in Settings): select two tiles, or tap a pencilled pair, and every tile
-            that would complete a parcel with them lights up gold. Nothing lit means those two aren't a
-            parcel.
-          </li>
-        </ul>
+          <h3>The rule</h3>
+          <p>
+            Every tile has a <b>shape</b>, a <b>color</b> and a <b>count</b> (1, 2 or 3 symbols). In a parcel,
+            each of the three has to be <b>all the same</b> or <b>all different</b>. If two tiles match and
+            the third doesn't, it's not a parcel.
+          </p>
+          <div class="hdemo">
+            <svg id="hdRule" class="hboard short"></svg>
+            <div class="hverdict" id="hdRuleVerdict"></div>
+            <div class="hchecks" id="hdRuleChecks"></div>
+          </div>
 
-        <h3>Practice</h3>
-        <p>New to Parcels? Play a small guided board that walks you through every move.</p>
-        <div class="row hpractice"><button class="primary" id="bTutorial">Play the tutorial</button></div>
+          <h3>Only one answer</h3>
+          <p>
+            A parcel can follow the rule and still be wrong. Each board splits only one way, so if you get
+            stuck, pop a parcel and look again.
+          </p>
+          <div class="hdemo"><svg id="hdDecoy" class="hboard"></svg></div>
 
-        <!-- holds the "More below" hint, pinned to the bottom edge -->
-        <div class="row sticky hbottom">
-          <button class="hmore" id="bHelpMore" aria-label="Scroll down for more">More below ↓</button>
+          <h3>Controls</h3>
+          <div class="hgrid">
+            <div class="hdemo">
+              <svg id="hdSwipe" class="hboard"></svg>
+              <b>Make a parcel</b>
+              <span
+                >Swipe across 3 tiles, or tap them one at a time. Tap an empty spot to clear a
+                selection.</span
+              >
+            </div>
+            <div class="hdemo">
+              <svg id="hdPair" class="hboard"></svg>
+              <b>Pencil in a pair</b>
+              <span
+                >Not sure of the third tile? Select 2 (tap or swipe), then hold one of them. Add the third
+                later. Two tiles with a gap between them work too. Hold a pair to erase it.</span
+              >
+            </div>
+            <div class="hdemo">
+              <svg id="hdPop" class="hboard"></svg>
+              <b>Pop a parcel</b>
+              <span>Tap a parcel to break it back into loose tiles.</span>
+            </div>
+            <div class="hdemo">
+              <svg id="hdLock" class="hboard"></svg>
+              <b>Lock it in</b>
+              <span
+                >Press and hold a parcel when you're sure. Taps won't pop it; hold again to unlock it.</span
+              >
+            </div>
+          </div>
+
+          <h3>Stuck?</h3>
+          <ul>
+            <li><b>Undo</b> takes back your last move, one at a time, all the way to the start.</li>
+            <li>
+              <b>Checkpoint</b> marks where you are before you try an idea; set as many as you like.
+              <b>Return</b> brings the board back to your latest one, then the one before, and so on (Undo
+              takes you forward again if you change your mind).
+            </li>
+            <li><b>Hint</b> circles a real parcel with a dotted line until you make it.</li>
+            <li><b>Solution</b> shows the answer, but that board ends there.</li>
+            <li>
+              <b>Third-tile helper</b> (in Settings): select two tiles, or tap a pencilled pair, and every
+              tile that would complete a parcel with them lights up gold. Nothing lit means those two aren't a
+              parcel.
+            </li>
+          </ul>
+
+          <h3>Practice</h3>
+          <p>New to Parcels? Play a small guided board that walks you through every move.</p>
+          <div class="row hpractice"><button class="primary" id="bTutorial">Play the tutorial</button></div>
         </div>
       </div>
     </div>
@@ -456,93 +456,99 @@
     </div>
 
     <div class="modal" id="mSettings">
-      <div class="sheet">
-        <button class="xclose" id="bSettingsClose" aria-label="Close">✕</button>
-        <h2>Settings</h2>
-        <!-- the three switches, evenly spaced; a switch's explanation (if any) sits under its name -->
-        <div class="setlist">
-          <div class="setrow">
-            <span class="setlabel">Sound effects</span
-            ><button class="switch" id="bSound" role="switch" aria-label="Sound effects"></button>
-          </div>
-          <div class="setrow">
-            <span class="setlabel">Show timer</span
-            ><button class="switch" id="bTimer" role="switch" aria-label="Show timer"></button>
-          </div>
-          <div class="setrow">
-            <span class="setlabel"
-              >Third-tile helper
-              <small id="easyNote"
-                >Pick two tiles and the ones that would complete a parcel light up.</small
-              ></span
-            ><button
-              class="switch"
-              id="bEasy"
-              role="switch"
-              aria-label="Third-tile helper"
-              aria-describedby="easyNote"
-            ></button>
-          </div>
+      <div class="sheet boxed">
+        <!-- the header stays put; only the part below it scrolls, with a slim scroll bar (scrollbox.js) -->
+        <div class="hhead">
+          <h2>Settings</h2>
+          <button class="xclose" id="bSettingsClose" aria-label="Close">✕</button>
         </div>
-        <p class="setnote" id="meNote" hidden>
-          This browser is marked as yours, so it doesn't send playtest data. Visit the site with
-          <b>?notme</b> at the end of the address to change that.
-        </p>
-        <h3 class="data-note" hidden>Playtest</h3>
-        <p class="setnote data-note" hidden>
-          Anonymous play data (moves, times, results, rough location) is sent to help improve the game.
-        </p>
-        <div class="setbtns"><button class="feedback-link" hidden>Leave feedback</button></div>
-        <h3>Play history</h3>
-        <p class="setnote" id="syncNote">
-          Your results are saved in this browser. Sync them to keep them the same on all your devices.
-        </p>
-        <!-- syncing across devices (src/sync.js) -->
-        <div id="syncOff">
-          <div class="setbtns">
-            <button id="bSyncStart">Start syncing</button><button id="bSyncJoin">I have a sync code</button>
+        <div class="sbody">
+          <!-- the three switches, evenly spaced; a switch's explanation (if any) sits under its name -->
+          <div class="setlist">
+            <div class="setrow">
+              <span class="setlabel">Sound effects</span
+              ><button class="switch" id="bSound" role="switch" aria-label="Sound effects"></button>
+            </div>
+            <div class="setrow">
+              <span class="setlabel">Show timer</span
+              ><button class="switch" id="bTimer" role="switch" aria-label="Show timer"></button>
+            </div>
+            <div class="setrow">
+              <span class="setlabel"
+                >Third-tile helper
+                <small id="easyNote"
+                  >Pick two tiles and the ones that would complete a parcel light up.</small
+                ></span
+              ><button
+                class="switch"
+                id="bEasy"
+                role="switch"
+                aria-label="Third-tile helper"
+                aria-describedby="easyNote"
+              ></button>
+            </div>
           </div>
-          <div class="sync-box" id="joinBox" hidden>
-            <input
-              id="syncInput"
-              maxlength="10"
-              autocomplete="off"
-              autocapitalize="characters"
-              spellcheck="false"
-              placeholder="Code, e.g. K7Q4 MX2P"
-              aria-label="Sync code"
-            />
-            <button class="primary" id="bSyncJoinGo">Sync</button>
-          </div>
-        </div>
-        <div class="sync-box" id="syncOn" hidden>
-          <div class="sync-label">Your sync code</div>
-          <!-- read-only field: tap anywhere on it to copy; the icon turns into a checkmark -->
-          <div class="sync-field" id="syncField" role="button" tabindex="0" aria-label="Copy sync code">
-            <span class="sync-code" id="syncCode"></span>
-            <span class="sync-copy-ic"
-              ><svg class="ic-copy" viewBox="0 0 24 24" aria-hidden="true">
-                <rect x="9" y="9" width="11" height="11" rx="2.5" />
-                <path d="M5 15V6a2 2 0 0 1 2-2h9" /></svg
-              ><svg class="ic-check" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 12.5l4.5 4.5L19 7.5" /></svg
-            ></span>
-          </div>
-          <p class="setnote">
-            On your other devices, open Settings, tap <b>I have a sync code</b> and enter it. Keep it
-            somewhere safe: there's no account, so this code is the only key to your results.
+          <p class="setnote" id="meNote" hidden>
+            This browser is marked as yours, so it doesn't send playtest data. Visit the site with
+            <b>?notme</b> at the end of the address to change that.
           </p>
-          <p class="setnote sync-when" id="syncWhen"></p>
-          <div class="setbtns">
-            <button id="bSyncNow">Sync now</button><button id="bSyncStop">Stop syncing here</button>
+          <h3 class="data-note" hidden>Playtest</h3>
+          <p class="setnote data-note" hidden>
+            Anonymous play data (moves, times, results, rough location) is sent to help improve the game.
+          </p>
+          <div class="setbtns"><button class="feedback-link" hidden>Leave feedback</button></div>
+          <h3>Play history</h3>
+          <p class="setnote" id="syncNote">
+            Your results are saved in this browser. Sync them to keep them the same on all your devices.
+          </p>
+          <!-- syncing across devices (src/sync.js) -->
+          <div id="syncOff">
+            <div class="setbtns">
+              <button id="bSyncStart">Start syncing</button><button id="bSyncJoin">I have a sync code</button>
+            </div>
+            <div class="sync-box" id="joinBox" hidden>
+              <input
+                id="syncInput"
+                maxlength="10"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                placeholder="Code, e.g. K7Q4 MX2P"
+                aria-label="Sync code"
+              />
+              <button class="primary" id="bSyncJoinGo">Sync</button>
+            </div>
           </div>
-        </div>
-        <p class="setnote" id="historyStatus" role="status"></p>
-        <div class="setbtns"><button id="bClear" class="danger">Clear all history</button></div>
-        <div id="confirmClear" class="setnote" style="display: none; text-align: center">
-          Delete every saved result on this device?
-          <div class="setbtns">
-            <button id="bClearYes" class="danger">Yes, clear it</button><button id="bClearNo">Cancel</button>
+          <div class="sync-box" id="syncOn" hidden>
+            <div class="sync-label">Your sync code</div>
+            <!-- read-only field: tap anywhere on it to copy; the icon turns into a checkmark -->
+            <div class="sync-field" id="syncField" role="button" tabindex="0" aria-label="Copy sync code">
+              <span class="sync-code" id="syncCode"></span>
+              <span class="sync-copy-ic"
+                ><svg class="ic-copy" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="9" y="9" width="11" height="11" rx="2.5" />
+                  <path d="M5 15V6a2 2 0 0 1 2-2h9" /></svg
+                ><svg class="ic-check" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 12.5l4.5 4.5L19 7.5" /></svg
+              ></span>
+            </div>
+            <p class="setnote">
+              On your other devices, open Settings, tap <b>I have a sync code</b> and enter it. Keep it
+              somewhere safe: there's no account, so this code is the only key to your results.
+            </p>
+            <p class="setnote sync-when" id="syncWhen"></p>
+            <div class="setbtns">
+              <button id="bSyncNow">Sync now</button><button id="bSyncStop">Stop syncing here</button>
+            </div>
+          </div>
+          <p class="setnote" id="historyStatus" role="status"></p>
+          <div class="setbtns"><button id="bClear" class="danger">Clear all history</button></div>
+          <div id="confirmClear" class="setnote" style="display: none; text-align: center">
+            Delete every saved result on this device?
+            <div class="setbtns">
+              <button id="bClearYes" class="danger">Yes, clear it</button
+              ><button id="bClearNo">Cancel</button>
+            </div>
           </div>
         </div>
       </div>

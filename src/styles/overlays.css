@@ -38,6 +38,87 @@
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
+/* sheets with a fixed header and a scrolling body (.boxed: Settings, How to play) */
+.sheet.boxed {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 6px;
+}
+/* a sheet's header: the title and the close button on one line */
+.sheet .hhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: -4px -6px 6px 0;
+  flex: none;
+}
+.sheet .hhead h2 {
+  margin: 0;
+}
+.sheet .hhead .xclose {
+  position: static;
+  flex: none;
+}
+.sheet.boxed > .sbox {
+  flex: 1 1 auto;
+  margin: 0 calc(-1 * var(--px, 18px)); /* the body runs to the sheet's edges; the bar sits in the margin */
+}
+.sheet.boxed .sbody {
+  padding: 2px var(--px, 18px) 12px;
+}
+
+/* ---- scrollbox.js: a scroller with a slim custom bar and soft fades at edges with more beyond ---- */
+.sbox {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.sbox-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.sbox-body::-webkit-scrollbar {
+  display: none;
+}
+.sbox.more-below .sbox-body {
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 26px), transparent);
+  mask-image: linear-gradient(#000 calc(100% - 26px), transparent);
+}
+.sbox.more-above .sbox-body {
+  -webkit-mask-image: linear-gradient(transparent, #000 22px);
+  mask-image: linear-gradient(transparent, #000 22px);
+}
+.sbox.more-above.more-below .sbox-body {
+  -webkit-mask-image: linear-gradient(transparent, #000 22px, #000 calc(100% - 26px), transparent);
+  mask-image: linear-gradient(transparent, #000 22px, #000 calc(100% - 26px), transparent);
+}
+.sbar {
+  position: absolute;
+  right: 5px;
+  top: 0;
+  width: 3px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.07);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.sbox.scrolls > .sbar {
+  opacity: 1;
+}
+.sbar i {
+  display: block;
+  width: 100%;
+  border-radius: 3px;
+  background: linear-gradient(#9a8cff, #ff4fa8);
+}
 @keyframes rise {
   from {
     transform: translateY(24px) scale(0.96);
@@ -287,6 +368,9 @@ button.danger {
 }
 #mSettings .sheet {
   position: relative;
+}
+#mSettings .hhead {
+  margin-bottom: 2px;
 }
 .sharebox {
   display: none;

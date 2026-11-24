@@ -1,6 +1,7 @@
 import { S, W3, axialCenter, outlinePath, pairOutline } from './core/hex.js';
 import { whyInvalid } from './core/rules.js';
 import { fitDashes, pairGhost, unwindLock } from './render.js';
+import { scrollbox } from './scrollbox.js';
 import { COLOR_NAMES, GOLD, POS, SHAPE_NAMES, TINTS, glyph } from './tiles.js';
 
 // The "How to play" sheet (#mHelp) and its animated examples. Each example is a small board drawn
@@ -1186,25 +1187,12 @@ function stop() {
   if (demos) demos.forEach(({ m }) => m.stop());
 }
 
-// ---------------------------------------------------------------- "more below" hint
-// A bouncing button over the bottom of the sheet until the player has scrolled to the end.
-function moreHint(sheet) {
-  const btn = $h('bHelpMore');
-  const update = () =>
-    btn.classList.toggle('gone', sheet.scrollTop + sheet.clientHeight >= sheet.scrollHeight - 24);
-  sheet.addEventListener('scroll', update, { passive: true });
-  addEventListener('resize', update);
-  btn.onclick = () =>
-    sheet.scrollBy({ top: sheet.clientHeight * 0.7, behavior: reducedMotion() ? 'auto' : 'smooth' });
-  return update;
-}
-
 // Run the examples whenever the help sheet is open, however it was opened or closed.
 // Call once at startup.
 export function initHelp() {
   const modal = $h('mHelp'),
-    sheet = modal.querySelector('.sheet');
-  const updateHint = moreHint(sheet);
+    body = modal.querySelector('.sbody');
+  const updateBar = scrollbox(body); // header stays put, the rest scrolls with a slim bar
   let open = false;
   const sync = () => {
     const now = modal.classList.contains('open');
@@ -1212,8 +1200,8 @@ export function initHelp() {
     open = now;
     if (open) {
       start();
-      sheet.scrollTop = 0;
-      requestAnimationFrame(updateHint);
+      body.scrollTop = 0;
+      requestAnimationFrame(updateBar);
     } else stop();
   };
   new MutationObserver(sync).observe(modal, { attributes: true, attributeFilter: ['class'] });
