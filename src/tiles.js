@@ -52,14 +52,36 @@ const lighten = (hex, t) =>
     })
     .join('');
 const FILLS = COLORS.map((c) => lighten(c, 0.38)); // each color, lightened, for the symbols' insides
-// Draw symbol s in color c at (x, y): solid, in a lighter tint of the color, edged in the full
-// color, with a soft glow behind.
+// Per shape: a short glossy streak along its upper-left edge, and the point its inner rim shrinks
+// toward (the triangle's middle sits a little low).
+const SHINE = [
+  'M-7.6,-2.7A8.1,8.1 0 0 1 -2.7,-7.6',
+  'M-7.3,-3V-7.3H-3',
+  'M-1.4,-6.8L-4.9,-0.7',
+  'M2.6,-9.5L-2.3,-2.4',
+];
+const RIM_Y = [0, 0, 1.8, null]; // null: no rim (too narrow a shape for one)
+// Draw symbol s in color c at (x, y), like a small polished gem: a soft two-step glow behind, a solid
+// body in a lighter tint of the color edged in the full color, a faint inner rim, and a glossy
+// streak of light. The details are fine enough to vanish on a phone but keep big tiles from looking
+// flat and crude.
 export function glyph(s, x, y, c) {
   const col = COLORS[c],
-    d = SHAPE_PATHS[s];
+    d = SHAPE_PATHS[s],
+    ry = RIM_Y[s];
   return (
-    `<g transform="translate(${x},${y})"><path d="${d}" fill="none" stroke="${col}" stroke-opacity=".22" stroke-width="7" stroke-linejoin="round"/>` +
-    `<path d="${d}" fill="${FILLS[c]}" stroke="${col}" stroke-width="2.2" stroke-linejoin="round"/></g>`
+    `<g transform="translate(${x},${y})">` +
+    [10, 7.5, 5]
+      .map(
+        (w) =>
+          `<path d="${d}" fill="none" stroke="${col}" stroke-opacity=".08" stroke-width="${w}" stroke-linejoin="round"/>`,
+      )
+      .join('') +
+    `<path d="${d}" fill="${FILLS[c]}" stroke="${col}" stroke-width="2.2" stroke-linejoin="round"/>` +
+    (ry === null
+      ? ''
+      : `<path d="${d}" transform="translate(0,${ry}) scale(.55) translate(0,${-ry})" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="2" stroke-linejoin="round"/>`) +
+    `<path d="${SHINE[s]}" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></g>`
   );
 }
 

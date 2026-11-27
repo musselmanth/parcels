@@ -10,6 +10,35 @@ import { COLORS, GOLD, TINTS } from './tiles.js';
 // The win animation. Runs in four timed steps (all via later(), so switching boards cancels it),
 // then opens the results card.
 
+// The gold star in the middle: it spins in from nothing, overshooting a little, and its rays then
+// keep turning. Driven frame by frame through the SVG transform attribute, not CSS animations:
+// browsers hand a CSS transform animation to the GPU as a bitmap sized when it starts (here, with
+// the star at scale 0) and then just stretch it, so the star came out blurry and jagged. Stops by
+// itself once the board is redrawn (the star is gone) or clearFx() cancels it.
+function showStar() {
+  const hole = $('#hole'),
+    rays = hole.querySelector('.rays'),
+    t0 = performance.now();
+  hole.classList.add('show');
+  const backOut = (p) => 1 + 2.70158 * Math.pow(p - 1, 3) + 1.70158 * Math.pow(p - 1, 2);
+  const frame = (now) => {
+    if (!hole.isConnected) return;
+    const t = now - t0,
+      p = Math.min(1, t / 1000);
+    if (p < 1) {
+      const e = backOut(p);
+      hole.style.opacity = Math.min(1, p * 2).toFixed(3);
+      hole.setAttribute('transform', `rotate(${(-180 * (1 - e)).toFixed(2)}) scale(${e.toFixed(4)})`);
+    } else {
+      hole.style.opacity = 1;
+      hole.removeAttribute('transform');
+    }
+    rays.setAttribute('transform', `rotate(${(((t / 6000) * 360) % 360).toFixed(2)})`);
+    rafs[slot] = requestAnimationFrame(frame); // one slot, reused: this can run for minutes
+  };
+  const slot = rafs.push(requestAnimationFrame(frame)) - 1;
+}
+
 // The big finish: a wave around the ring, a spinning dance, everything turns gold, star in the middle.
 export function celebrate() {
   G.celebrating = true;
@@ -123,7 +152,7 @@ export function celebrate() {
         { duration: 600, delay: k * 25, fill: 'forwards', easing: 'cubic-bezier(.3,1.5,.5,1)' },
       );
     });
-    $('#hole').classList.add('show');
+    showStar();
     const [hx, hy] = toScreen(BX, BY);
     burst(hx, hy, ['#f2b705', '#fff', ...COLORS], 70, 10);
     later(() => {

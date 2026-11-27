@@ -395,33 +395,10 @@
     transform: rotate(360deg);
   }
 }
+/* the win star: hidden until celebrate.js's showStar() animates it in (from JavaScript, so it stays
+   sharp; see there) */
 #hole {
-  transform-box: fill-box;
-  transform-origin: center;
   opacity: 0;
-}
-#hole.show {
-  animation: holeIn 1s cubic-bezier(0.3, 1.5, 0.5, 1) forwards;
-}
-@keyframes holeIn {
-  0% {
-    opacity: 0;
-    transform: scale(0) rotate(-180deg);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0);
-  }
-}
-#hole.show .rays {
-  animation: rays 6s linear infinite;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-@keyframes rays {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 #fx {
